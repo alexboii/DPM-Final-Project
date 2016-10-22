@@ -29,7 +29,7 @@ public class USPoller extends Thread {
 				} // timed sampling rate
 			}
 		}
-	}
+	} 
 
 	public double getDistance() {
 		synchronized (lock) {

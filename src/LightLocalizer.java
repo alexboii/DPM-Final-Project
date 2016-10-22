@@ -17,7 +17,7 @@ public class LightLocalizer {
 	private static final int MAX_LINE_COUNT = 4;
 	private static final int HALF = 2;
 	private static final int SCALE_FACTOR = 100;
-	private static final int LIGHT_THRESHOLD = 30;
+	private static final int LIGHT_THRESHOLD = 25;
 	private static final int ZERO_X = 0;
 	private static final int ZERO_Y = 0;
 
@@ -45,7 +45,7 @@ public class LightLocalizer {
 		navigator.setSpeeds(ZERO, ZERO);
 
 		// ADJUST CENTER OF ROTATION TO DESIRED (0, 0) VALUE
-		navigator.goForward(SENSOR_TO_AXLE);
+		navigator.goForward(1.4*SENSOR_TO_AXLE);
 
 		// COUNTS THE LINES WHICH HAVE BEEN CROSSED
 		int lineCounter = 0;
@@ -83,9 +83,10 @@ public class LightLocalizer {
 		double deltaTheta = 270 - lastTheta + thetaY / HALF;
 
 		// WRAP ANGLE TO FIT POSITIVE Y AXIS
-		if (deltaTheta > 180) {
-			deltaTheta += 180;
-		}
+//		if (deltaTheta > 180) {
+//			deltaTheta += 180;
+//		}
+
 
 		// SET NEW POSITION ON ODOMETER
 		this.odo.setPosition(new double[] { deltaX, deltaY, odo.getTheta() + deltaTheta },
@@ -112,7 +113,7 @@ public class LightLocalizer {
 	// RETURN TRUE IF THE SENSOR HAS DETECTED A LINE
 	private boolean lineCrossed() {
 		double lightValue = setupLightSensor();
-		boolean newLineDetected = lightValue <= 11;
+		boolean newLineDetected = lightValue <= LIGHT_THRESHOLD;
 		boolean crossed = !lineDetected && newLineDetected;
 		lineDetected = newLineDetected;
 		return crossed;

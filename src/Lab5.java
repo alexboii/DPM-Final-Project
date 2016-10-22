@@ -22,8 +22,11 @@ public class Lab5 {
 	private static final EV3LargeRegulatedMotor colorMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 	private static final Port usPort = LocalEV3.get().getPort("S1");
 	private static final Port colorPort = LocalEV3.get().getPort("S2");
-	public static final double TRACK = 15.8;
+	public static final double TRACK = 15.1;
 	public static final double WHEEL_RADIUS = 2.1;
+	
+	public static final int[][] WAYPOINTS_DEMO_2 = { { -60, 60 } };
+
 
 	public static void main(String[] args) {
 
@@ -72,27 +75,31 @@ public class Lab5 {
 			// while (Button.waitForAnyPress() != Button.ID_ESCAPE)
 			// ;
 
-			SensorModes colorSensorLoc = new EV3ColorSensor(colorPort);
-			SampleProvider colorValueLoc = colorSensorLoc.getMode("Red");
+			EV3ColorSensor colorSensor = new EV3ColorSensor(colorPort);
+			SampleProvider colorValueLoc = colorSensor.getMode("Red");
 			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
 
-			colorMotor.rotate(-90);
+//			colorMotor.rotate(-90);
 			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
 			lsl.doLocalization(navigator);
 
 			while (Button.waitForAnyPress() != Button.ID_ESCAPE)
 				;
 			colorMotor.rotate(90);
-			EV3ColorSensor colorSensor = new EV3ColorSensor(colorPort);
 			colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
 			SampleProvider colorValue = colorSensor.getMode("RGB"); 
 			float[] colorData = new float[colorValue.sampleSize()];
-
 			LSPoller lsPoller = new LSPoller(colorValue, colorData);
 
 			lsPoller.start();
 			usPoller.start();
-//			objectDetect.start();
+			OdometerAvoidance odometerAvoid = new OdometerAvoidance(leftMotor, rightMotor, TRACK);
+			odometerAvoid.start();
+			OdometryDisplay odometryDisplay = new OdometryDisplay(odometerAvoid, t);
+			odometryDisplay.start();
+			NavigatorObstacle navigatorObstacle = new NavigatorObstacle(odometerAvoid, leftMotor, rightMotor, WAYPOINTS_DEMO_2, usMotor, usPoller, true, TRACK);
+			new Thread(navigatorObstacle).start();
+			
 		}
 
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE)
