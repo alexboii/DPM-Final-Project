@@ -12,10 +12,10 @@ public class NavigatorObstacle extends Thread {
 	private static final int ZERO = 0;
 	private static final double DEGREE_ERROR = Math.toRadians(4.4);
 	private static final double RIGHT_ANGLE = Math.toRadians(90);
-	private static final double SENSOR_ROTATE_TO_WALL = -80;
+	private static final double SENSOR_ROTATE_TO_WALL = 70;
 	private static final double SENSOR_ROTATE_FROM_WALL = 80;
 	private static final int BAND_CENTER = 10;
-	private static final double SAFETY_DEGREE_ERROR = Math.toRadians(2);
+	private static final double SAFETY_DEGREE_ERROR = Math.toRadians(10);
 	private static final int BIG_SLEEP = 2000, SMALL_SLEEP = 20;
 	private final int TIMES_TWO = 2;
 
@@ -37,7 +37,7 @@ public class NavigatorObstacle extends Thread {
 	private static final int motorLow = 100;
 	private static final int motorHigh = 260;
 
-	private static final int BAND_WIDTH = 3;
+	private static final int BAND_WIDTH = 5;
 
 	public NavigatorObstacle(OdometerAvoidance odometer, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor,
 			int waypoints[][], EV3LargeRegulatedMotor usMotor, USPoller usPoller, boolean avoidance,
@@ -70,10 +70,8 @@ public class NavigatorObstacle extends Thread {
 		}
 
 		// TRAVEL EACH OF THE DEFINED POINTS, ONE POINT AT A TIME
-		for (int i = 0; i < points.length; i++) {
-			travelTo(points[i][0], points[i][1]);
-		}
-
+//		System.out.println("\n\n\n\n" + points[0][0] + "//" + points[0][1]);
+		travelTo(points[0][0], (points[0][1]));
 		// STOP THE MOTORS ONCE IT'S DONE
 		leftMotor.stop();
 		rightMotor.stop();
@@ -135,7 +133,7 @@ public class NavigatorObstacle extends Thread {
 						rightMotor.rotate(convertAngle(Lab5.WHEEL_RADIUS, track, RIGHT_ANGLE), false); 
 
 						// ROTATE SENSOR TO FACE WALL
-						usMotor.rotate((int) SENSOR_ROTATE_TO_WALL);
+						usMotor.rotateTo((int) SENSOR_ROTATE_TO_WALL);
 
 						// ENTER INTO BANG BANG CONTROLLER MODE
 						wallfollower_loop: while (true) {
@@ -175,7 +173,7 @@ public class NavigatorObstacle extends Thread {
 							// WALL, BREAK OUT OF LOOP
 							if (isSafe(orientation)) {
 								// ROTATE SENSOR BACK TO ORIGINAL POSITION
-								usMotor.rotate((int) SENSOR_ROTATE_FROM_WALL);
+								usMotor.rotateTo((int) SENSOR_ROTATE_FROM_WALL);
 								// STOP MOTORS
 								leftMotor.setSpeed(ZERO);
 								rightMotor.setSpeed(ZERO);

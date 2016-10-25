@@ -28,6 +28,7 @@ public class LSPoller extends Thread {
 					blueCounter++;
 					if (blueCounter > 5) {
 						blue = true;
+						blueCounter = 0;
 					}
 				} else {
 					blue = false;

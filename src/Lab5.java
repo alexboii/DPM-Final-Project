@@ -24,8 +24,12 @@ public class Lab5 {
 	private static final Port colorPort = LocalEV3.get().getPort("S2");
 	public static final double TRACK = 15.1;
 	public static final double WHEEL_RADIUS = 2.1;
+	public static boolean start = false; 
+	public static int NEW_X = 0; 
+	public static int NEW_Y = 0;
+	public static int NEW_THETA = 0;
 	
-	public static final int[][] WAYPOINTS_DEMO_2 = { { -60, 60 } };
+	public static int[][] WAYPOINTS_DEMO_2 = { { -60, 60 } };
 
 
 	public static void main(String[] args) {
@@ -60,6 +64,7 @@ public class Lab5 {
 		} while (buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT);
 
 		if (buttonChoice == Button.ID_LEFT) {
+			usMotor.rotateTo(45);
 //			lsPoller.start();
 			usPoller.start();
 //			objectDetect.start();
@@ -68,38 +73,49 @@ public class Lab5 {
 			t.clear();
 			LCDInfo lcd = new LCDInfo(odometer);
 			Navigation navigator = new Navigation(odometer);
-
-			USLocalizer usl = new USLocalizer(odometer, usValue, usData, type);
-			usl.doLocalization(navigator);
-
-			// while (Button.waitForAnyPress() != Button.ID_ESCAPE)
-			// ;
+//
+//			USLocalizer usl = new USLocalizer(odometer, usValue, usData, type);
+//			usl.doLocalization(navigator);
+//
+//			// while (Button.waitForAnyPress() != Button.ID_ESCAPE)
+//			// ;
 
 			EV3ColorSensor colorSensor = new EV3ColorSensor(colorPort);
-			SampleProvider colorValueLoc = colorSensor.getMode("Red");
-			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
-
-//			colorMotor.rotate(-90);
-			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
-			lsl.doLocalization(navigator);
-
-			while (Button.waitForAnyPress() != Button.ID_ESCAPE)
-				;
-			colorMotor.rotate(90);
+//			SampleProvider colorValueLoc = colorSensor.getMode("Red");
+//			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+//
+////			colorMotor.rotate(-90);
+//			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
+//			lsl.doLocalization(navigator);
+//
+//			while (Button.waitForAnyPress() != Button.ID_ESCAPE)
+//				;
+//			colorMotor.rotate(90);
 			colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
 			SampleProvider colorValue = colorSensor.getMode("RGB"); 
 			float[] colorData = new float[colorValue.sampleSize()];
 			LSPoller lsPoller = new LSPoller(colorValue, colorData);
-
+			t.clear();
 			lsPoller.start();
 			usPoller.start();
-			OdometerAvoidance odometerAvoid = new OdometerAvoidance(leftMotor, rightMotor, TRACK);
-			odometerAvoid.start();
-			OdometryDisplay odometryDisplay = new OdometryDisplay(odometerAvoid, t);
-			odometryDisplay.start();
-			NavigatorObstacle navigatorObstacle = new NavigatorObstacle(odometerAvoid, leftMotor, rightMotor, WAYPOINTS_DEMO_2, usMotor, usPoller, true, TRACK);
-			new Thread(navigatorObstacle).start();
-			
+
+			RobotMovement robotmovement = new RobotMovement(odometer, navigator, usPoller, lsPoller, usMotor);
+			robotmovement.start();
+			while(true){
+				if(start){
+					OdometerAvoidance odometerAvoid = new OdometerAvoidance(leftMotor, rightMotor, TRACK);
+					odometerAvoid.start();
+//					odometerAvoid.setX(NEW_X);
+//					odometerAvoid.setY(NEW_Y);
+//					odometerAvoid.setTheta(Math.toRadians(NEW_THETA));
+					OdometryDisplay odometryDisplay = new OdometryDisplay(odometerAvoid, t);
+					odometryDisplay.start();
+					NavigatorObstacle navigatorObstacle = new NavigatorObstacle(odometerAvoid, leftMotor, rightMotor, WAYPOINTS_DEMO_2, usMotor, usPoller, true, TRACK);
+					new Thread(navigatorObstacle).start();
+					break;
+				}
+			}
+
 		}
 
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE)

@@ -134,4 +134,20 @@ public class Navigation {
 						* distance);
 
 	}
+
+	public EV3LargeRegulatedMotor getLeftMotor() {
+		return leftMotor;
+	}
+
+	public void setLeftMotor(EV3LargeRegulatedMotor leftMotor) {
+		this.leftMotor = leftMotor;
+	}
+
+	public EV3LargeRegulatedMotor getRightMotor() {
+		return rightMotor;
+	}
+
+	public void setRightMotor(EV3LargeRegulatedMotor rightMotor) {
+		this.rightMotor = rightMotor;
+	}
 }
