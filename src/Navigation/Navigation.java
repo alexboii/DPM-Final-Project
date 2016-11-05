@@ -140,7 +140,7 @@ public class Navigation {
 	//
 	// }
 
-	public void goForward(double distance, boolean avoidance) {
+	public void goForward(double distance) {
 		this.travelTo(odometer.getX() + Math.cos(Math.toRadians(this.odometer.getTheta())) * distance,
 				odometer.getY() + Math.sin(Math.toRadians(this.odometer.getTheta())) * distance);
 

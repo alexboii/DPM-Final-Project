@@ -74,7 +74,7 @@ public class RobotMovement extends Thread {
 					// ADVANCE TOWARDS THE NEW FOUND OBJECT
 					double go_by = (usPoller.getDistance() - DISTANCE_OFFSET > 0
 							? (usPoller.getDistance() - DISTANCE_OFFSET) : FORWARD_DISTANCE);
-					navigator.goForward(go_by, false);
+					navigator.goForward(go_by);
 
 					// STOP MOTORS
 					navigator.setSpeeds(0, 0);
@@ -82,11 +82,11 @@ public class RobotMovement extends Thread {
 					// IF THIS IS THE FIRST BLUE OBJECT WE HAVE FOUND
 					if (lsPoller.isBlue() && !already_have_blue) {
 						Sound.beep();
-						navigator.goForward(FORWARD_DISTANCE, false);
+						navigator.goForward(FORWARD_DISTANCE);
 						navigator.setSpeeds(0, 0);
 						already_have_blue = true;
 
-						navigator.travelTo(WAYPOINT_X, WAYPOINT_Y, true);
+						navigator.travelTo(WAYPOINT_X, WAYPOINT_Y);
 						Sound.beep();
 						Sound.beep();
 						Sound.beep();
@@ -147,7 +147,7 @@ public class RobotMovement extends Thread {
 			if (odometer.getTheta() > ANGLE_LIMIT) {
 				navigator.setSpeeds(0, 0);
 				navigator.turnTo(TURN_ANGLE_2, true);
-				navigator.goForward(FORWARD_DISTANCE, false);
+				navigator.goForward(FORWARD_DISTANCE);
 				navigator.turnTo(TURN_ANGLE_3, false);
 			}
 		}

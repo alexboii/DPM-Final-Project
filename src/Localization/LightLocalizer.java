@@ -50,7 +50,7 @@ public class LightLocalizer {
 		navigator.setSpeeds(ZERO, ZERO);
 
 		// ADJUST CENTER OF ROTATION TO DESIRED (0, 0) VALUE
-		navigator.goForward(DISTANCE_CONSTANT*SENSOR_TO_AXLE, false);
+		navigator.goForward(DISTANCE_CONSTANT*SENSOR_TO_AXLE);
 
 		// COUNTS THE LINES WHICH HAVE BEEN CROSSED
 		int lineCounter = 0;
@@ -98,7 +98,7 @@ public class LightLocalizer {
 				new boolean[] { true, true, true });
 
 		// TRAVEL TO DESIRED (0, 0) POINT
-		navigator.travelTo(ZERO_X, ZERO_Y, false);
+		navigator.travelTo(ZERO_X, ZERO_Y);
 		USLocalizer.sleepThread();
 
 		// ADJUST TO CORRECT Y+ AXIS

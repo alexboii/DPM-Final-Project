@@ -1,4 +1,5 @@
 package Application;
+import Localization.LightLocalizer;
 import Localization.USLocalizer;
 import Navigation.Navigation;
 import Odometer.LCDInfo;
@@ -91,30 +92,18 @@ public class StartRobot {
 			LCDInfo lcd = new LCDInfo(odometer);
 
 			// DO US LOCALIZATION
-			USLocalizer usl = new USLocalizer(odometer, usValue, usData, type);
-//			usl.doLocalization(navigator);
+			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
+			usl.doLocalization(navigator);
 
 			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
-//			SampleProvider colorValueLoc = colorSensor.getMode("Red");
-//			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
+			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
 
 			// DO LIGHT LOCALIZATION
-//			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
-//			lsl.doLocalization(navigator);
+			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
+			lsl.doLocalization(navigator);
 
-			while (Button.waitForAnyPress() != Button.ID_ESCAPE)
-				;
-			
-			// FLIP COLOR SENSOR BACK UP
-//			colorMotor.rotate(90);
-
-			t.clear();
-
-			// START THE SECOND PART 
-//			RobotMovement robotmovement = new RobotMovement(odometer, navigator, usPoller, lsPoller, usMotor);
-//			lsPoller.start();
-//			usPoller.start();
-//			robotmovement.start();
+			while (Button.waitForAnyPress() != Button.ID_ESCAPE);
 
 		}
 
