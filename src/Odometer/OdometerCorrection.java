@@ -1,0 +1,42 @@
+package Odometer;
+
+import Odometer.Odometer;
+
+public class OdometerCorrection{
+	
+private double x, y;	
+private Odometer odo;
+private final double MARGIN = 5;
+private final double TILE = 30.48;
+
+
+public OdometerCorrection(Odometer odo){
+	this.odo = odo;
+}
+
+
+public void setOdometer(Odometer odo){
+	this.odo = odo;
+}
+
+	public void correct() {
+
+		double[] position = new double[3];
+		boolean[] update = new boolean[3];
+
+		x = odo.getX();
+		y = odo.getY();		
+		
+		double deltaX = (x) %  TILE;
+		double deltaY = (y) %  TILE;
+		
+		update[0]= (deltaX < MARGIN);
+		update[1] = (deltaY < MARGIN);
+			
+		position[0]  = ( (int)(x/TILE)) * TILE;
+		position[1]  = ( (int)(y/TILE)) * TILE;
+			
+		odo.setPosition(position, update);
+			
+	}			
+}
