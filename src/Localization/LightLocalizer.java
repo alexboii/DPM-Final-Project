@@ -50,7 +50,7 @@ public class LightLocalizer {
 		navigator.setSpeeds(ZERO, ZERO);
 
 		// ADJUST CENTER OF ROTATION TO DESIRED (0, 0) VALUE
-		navigator.goForward(DISTANCE_CONSTANT*SENSOR_TO_AXLE);
+		navigator.goForward(-DISTANCE_CONSTANT*SENSOR_TO_AXLE);
 
 		// COUNTS THE LINES WHICH HAVE BEEN CROSSED
 		int lineCounter = 0;

@@ -15,7 +15,7 @@ public class USLocalizer {
 	};
 
 	// CONSTANTS
-	private static final float ROTATION_SPEED = 60;
+	private static final float ROTATION_SPEED = 100;
 	private static final double DISTANCE_FROM_WALL = 0.5;
 	private static final double CLIPPING_THRESHOLD = 0.5;
 	private static final float CLIPPING_DISTANCE = 0.60f;
