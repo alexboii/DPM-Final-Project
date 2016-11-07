@@ -1,4 +1,5 @@
 package Localization;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -9,6 +10,14 @@ import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.robotics.SampleProvider;
 
+/**
+ * This class is responsible for performing the ultrasonic localization. It can
+ * perform two types of localization: Falling Edge and Rising Edge. We will
+ * decide which one to use after we test the robot and analyze our results.
+ * 
+ * @author Alex
+ *
+ */
 public class USLocalizer {
 	public enum LocalizationType {
 		FALLING_EDGE, RISING_EDGE
@@ -26,12 +35,24 @@ public class USLocalizer {
 	private static final double ZERO_Y = 0.0;
 	private static final int HALF = 2;
 	private static final int SLEEP_TIME = 1000;
-	
+
 	private Odometer odo;
 	private static SampleProvider usSensor;
 	private static float[] usData;
 	private LocalizationType locType;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param odo
+	 *            Odometer
+	 * @param usSensor
+	 *            Ultrasonic Sensor
+	 * @param usData
+	 *            Ultrasonic Sensor's Data
+	 * @param locType
+	 *            Localization Type (rising edge or falling edge)
+	 */
 	public USLocalizer(Odometer odo, SampleProvider usSensor, float[] usData, LocalizationType locType) {
 		this.odo = odo;
 		this.usSensor = usSensor;
@@ -39,6 +60,12 @@ public class USLocalizer {
 		this.locType = locType;
 	}
 
+	/**
+	 * Perform localization
+	 * 
+	 * @param navigator
+	 *            Navigator
+	 */
 	public void doLocalization(Navigation navigator) {
 		double[] pos = new double[3];
 		double angleA, angleB, deltaTheta;
@@ -148,7 +175,12 @@ public class USLocalizer {
 		navigator.turnTo(ZERO, true);
 	}
 
-	// CLIPPER FOR GETTING THE DATA OF THE US SENSOR
+	//
+	/**
+	 * Clipper for getting the data from the Ultrasonic Sensor
+	 * 
+	 * @return distance Distance Read by Sensor
+	 */
 	public static float getFilteredData() {
 		usSensor.fetchSample(usData, ZERO);
 		float distance = usData[0];
@@ -160,7 +192,9 @@ public class USLocalizer {
 		return distance;
 	}
 
-	// SLEEP THE THREAD FOR 1 SECOND
+	/**
+	 * Sleep the thread for 1 second
+	 */
 	public static void sleepThread() {
 		try {
 			Thread.sleep(SLEEP_TIME);

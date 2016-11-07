@@ -18,10 +18,14 @@ import lejos.hardware.port.Port;
 import lejos.hardware.sensor.*;
 import lejos.robotics.SampleProvider;
 
-//LAB 5 OBJECT SEARCHING
-//WEIPING REN - 260613810
-//ALEXANDER BRATYSHKIN - 260684228
-
+/**
+ * This is the class which contains the main() method, therefore it is from here
+ * that we are going to execute all subsequent classes and methods needed to run
+ * our robot.
+ * 
+ * @author Alex
+ *
+ */
 public class StartRobot {
 
 	/**
@@ -40,18 +44,27 @@ public class StartRobot {
 	private static final EV3ColorSensor lightSensorBottom = new EV3ColorSensor(LocalEV3.get().getPort("S4"));
 	private static final EV3ColorSensor lightSensorClaw = new EV3ColorSensor(LocalEV3.get().getPort("S3"));
 
+	/**
+	 * Server IP's and team number, used for retrieval of parameters
+	 */
 	private static final String SERVER_IP = "192.168.2.10";
-	private static final int TEAM_NUMBER = 1;
+	private static final int TEAM_NUMBER = 14;
 
 	/**
-	 * Hashmap Holding All Received Data
+	 * Hashmap holding all received data
 	 */
 	static HashMap<String, Integer> text;
-	
+
+	/**
+	 * Define all parameters to be received from the WifiConnection class
+	 */
 	private static int LGZy, LGZx, CSC, BSC, CTN, BTN, URZx, LRZy, LRZx, URZy, UGZy, UGZx;
 
-	// private static TextLCD LCD = LocalEV3.get().getTextLCD();
-
+	/**
+	 * Receive and assign parameters from client. Start the robot
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 
 		// INITIALIZE HIGH SENSOR
@@ -136,7 +149,6 @@ public class StartRobot {
 			setURZy(text.get("URZy"));
 			setUGZy(text.get("UGZy"));
 			setUGZx(text.get("UGZx"));
-			
 
 		} else {
 
@@ -174,98 +186,196 @@ public class StartRobot {
 
 	}
 
+	/**
+	 * @return y coordinate of upper right corner of Green Zone
+	 */
 	public int getLGZy() {
 		return LGZy;
 	}
 
+	/**
+	 * Set y coordinate of upper right corner of Green Zone
+	 * 
+	 * @param y
+	 *            coordinate of upper right corner of Green Zone
+	 */
 	public static void setLGZy(int lGZy) {
 		LGZy = lGZy;
 	}
 
+	/**
+	 * @return x coordinate of upper right corner of Green Zone
+	 */
 	public int getLGZx() {
 		return LGZx;
 	}
 
+	/**
+	 * Set x coordinate of upper right corner of Green Zone
+	 * 
+	 * @param x
+	 *            coordinate of upper right corner of Green Zone
+	 */
 	public static void setLGZx(int lGZx) {
 		LGZx = lGZx;
 	}
 
+	/**
+	 * @return Collecting start corner
+	 */
 	public int getCSC() {
 		return CSC;
 	}
 
+	/**
+	 * Set collecting start corner
+	 * 
+	 * @param cSC
+	 */
 	public static void setCSC(int cSC) {
 		CSC = cSC;
 	}
 
+	/**
+	 * @return Builder start corner
+	 */
 	public int getBSC() {
 		return BSC;
 	}
 
+	/**
+	 * Set builder start corner
+	 * 
+	 * @param bSC
+	 */
 	public static void setBSC(int bSC) {
 		BSC = bSC;
 	}
 
+	/**
+	 * @return Collector team number
+	 */
 	public int getCTN() {
 		return CTN;
 	}
 
+	/**
+	 * Set collector team number
+	 * 
+	 * @param cTN
+	 */
 	public static void setCTN(int cTN) {
 		CTN = cTN;
 	}
 
+	/**
+	 * @return Builder team number
+	 */
 	public int getBTN() {
 		return BTN;
 	}
 
+	/**
+	 * Set builder team number
+	 * 
+	 * @param bTN
+	 */
 	public static void setBTN(int bTN) {
 		BTN = bTN;
 	}
 
+	/**
+	 * @return x coordinate of upper right corner of Red Zone
+	 */
 	public int getURZx() {
 		return URZx;
 	}
 
+	/**
+	 * Set x coordinate of upper right corner of Red Zone
+	 * 
+	 * @param uRZx
+	 */
 	public static void setURZx(int uRZx) {
 		URZx = uRZx;
 	}
 
+	/**
+	 * @return y coordinate of lower left corner of Red Zone
+	 */
 	public int getLRZy() {
 		return LRZy;
 	}
 
+	/**
+	 * Set y coordinate of lower left corner of Red Zone
+	 * 
+	 * @param lRZy
+	 */
 	public static void setLRZy(int lRZy) {
 		LRZy = lRZy;
 	}
 
+	/**
+	 * @return x coordinate of lower left corner of Red Zone
+	 */
 	public int getLRZx() {
 		return LRZx;
 	}
 
+	/**
+	 * Set x coordinate of lower left corner of Red Zone
+	 * 
+	 * @param lRZx
+	 */
 	public static void setLRZx(int lRZx) {
 		LRZx = lRZx;
 	}
 
+	/**
+	 * @return y coordinate of upper right corner of Red Zone
+	 */
 	public int getURZy() {
 		return URZy;
 	}
 
+	/**
+	 * Set y coordinate of upper right corner of Red Zone
+	 * 
+	 * @param uRZy
+	 */
 	public static void setURZy(int uRZy) {
 		URZy = uRZy;
 	}
 
+	/**
+	 * @return y coordinate of upper right corner of Green Zone
+	 */
 	public int getUGZy() {
 		return UGZy;
 	}
 
+	/**
+	 * Set y coordinate of upper right corner of Green Zone
+	 * 
+	 * @param uGZy
+	 */
 	public static void setUGZy(int uGZy) {
 		UGZy = uGZy;
 	}
 
+	/**
+	 * @return x coordinate of upper right corner of Green Zone
+	 */
 	public int getUGZx() {
 		return UGZx;
 	}
 
+	/**
+	 * Set x coordinate of upper right corner of Green Zone
+	 * 
+	 * @param uGZx
+	 */
 	public static void setUGZx(int uGZx) {
 		UGZx = uGZx;
 	}

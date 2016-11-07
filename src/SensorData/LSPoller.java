@@ -1,6 +1,11 @@
 package SensorData;
 import lejos.robotics.SampleProvider;
 
+/**
+ * This class polls data from the light sensor.
+ * @author Alex
+ *
+ */
 public class LSPoller extends Thread {
 	// variables
 	private boolean blue = false;
@@ -9,14 +14,21 @@ public class LSPoller extends Thread {
 	private float[] Val;
 	private int blueCounter;
 
-	// constructor
+	
+	/**
+	 * Constructor
+	 * @param colorSensor Colour Sensor
+	 * @param Val RBG values
+	 */
 	public LSPoller(SampleProvider colorSensor, float[] Val) {
 		this.colorSensor = colorSensor;
 		this.Val = Val;
 		this.lock = new Object();
 	}
 
-	//
+	/**
+	  * {@inheritDoc}
+	  */
 	public void run() {
 		blueCounter = 0;
 
@@ -43,6 +55,10 @@ public class LSPoller extends Thread {
 		}
 	}
 
+	/**
+	 * Return if block is blue 
+	 * @return Block is blue
+	 */
 	public boolean isBlue() {
 		synchronized (lock) {
 			return this.blue;

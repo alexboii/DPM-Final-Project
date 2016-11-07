@@ -6,6 +6,11 @@ import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.sensor.EV3ColorSensor;
 
+/**
+ * Class not implemented in the code, only used for testing
+ * @author Alex
+ *
+ */
 public class ObjectDetector extends Thread {
 
 	private final double COLOR_SENSOR_THERSHOLD = 10; 
@@ -28,7 +33,7 @@ public class ObjectDetector extends Thread {
 			t.clear();
 
 			while (usPoller.getDistance() < DISTANCE_THRESHOLD && usPoller2.getDistance() < DISTANCE_THRESHOLD) {
-				t.drawString("Blue block", 0, 0);
+				t.drawString("Wooden block", 0, 0);
 
 			}
 			// NO OBJECT IN SIGHT

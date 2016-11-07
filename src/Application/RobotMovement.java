@@ -1,4 +1,5 @@
 package Application;
+
 import Navigation.Navigation;
 import Odometer.Odometer;
 import SensorData.LSPoller;
@@ -7,6 +8,17 @@ import lejos.hardware.Sound;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
+/**
+ * This class essentially coordinates all of the robot’s operations. It executes
+ * our search algorithm to find an object in its path, from which we then snap
+ * into the Navigation class once the maximum amount of blue blocks has been
+ * picked up to travel to the designated zone and then restart the algorithm
+ * again. The differentiation between the type of blocks will also be done in
+ * this class, as well as the control of the pulley motor and the claw.
+ * 
+ * @author Alex
+ *
+ */
 public class RobotMovement extends Thread {
 
 	Odometer odometer;
@@ -36,7 +48,15 @@ public class RobotMovement extends Thread {
 	private static final int WAYPOINT_X = -60;
 	private static final int WAYPOINT_Y = 70;
 
-
+	/**
+	 * Constructor 
+	 * 
+	 * @param odometer Odometer
+	 * @param navigator Navigator
+	 * @param usPoller Ultrasonic Sensor Poller
+	 * @param lsPoller Light Sensor Poller
+	 * @param usMotor Ultrasonic Sensor Motor
+	 */
 	public RobotMovement(Odometer odometer, Navigation navigator, USPoller usPoller, LSPoller lsPoller,
 			EV3LargeRegulatedMotor usMotor) {
 		this.navigator = navigator;
@@ -46,6 +66,9 @@ public class RobotMovement extends Thread {
 		this.usMotor = usMotor;
 	}
 
+	/**
+	  * {@inheritDoc}
+	  */
 	public void run() {
 
 		int distance_counter = 0;

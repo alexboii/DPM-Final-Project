@@ -1,19 +1,20 @@
 package Navigation;
 
-/*
- * File: Navigation.java
- * Written by: Sean Lawlor
- * ECSE 211 - Design Principles and Methods, Head TA
- * Fall 2011
- * Ported to EV3 by: Francois Ouellet Delorme
- * Fall 2015
- * 
- * Movement control class (turnTo, travelTo, flt, localize)
- */
 import Odometer.Odometer;
 import SensorData.USPoller;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
+/**
+ * This class allows the robot to travel to specific X and Y coordinates in the
+ * arena, and also to turn to a desired angle from 0 to 360 degrees. It also
+ * grants the robot the ability to approach an object by simply moving forward
+ * towards it.
+ * 
+ * @author Sean Lawlor ECSE 211 - Design Principles
+ * and Methods, Head TA Fall 2011 Ported to EV3 by: Francois Ouellet Delorme
+ * Fall 2015
+ *
+ */
 public class Navigation {
 	final static int FAST = 200, SLOW = 100, ACCELERATION = 4000;
 	final static double DEG_ERR = 3.0, CM_ERR = 1.0;
@@ -31,6 +32,14 @@ public class Navigation {
 	private static final int BB_OFFSET = 3;
 	private static final int RIGHT_ANGLE = 90;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param odo
+	 *            Odometer
+	 * @param usPoller
+	 *            Ultrasonic Sensor Poller
+	 */
 	public Navigation(Odometer odo, USPoller usPoller) {
 		this.odometer = odo;
 		this.usPoller = usPoller;
@@ -44,8 +53,13 @@ public class Navigation {
 		this.rightMotor.setAcceleration(ACCELERATION);
 	}
 
-	/*
+	/**
 	 * Functions to set the motor speeds jointly
+	 * 
+	 * @param lSpd
+	 *            Left Motor Speed
+	 * @param rSpd
+	 *            Right Motor Speed
 	 */
 	public void setSpeeds(float lSpd, float rSpd) {
 		this.leftMotor.setSpeed(lSpd);
@@ -60,6 +74,14 @@ public class Navigation {
 			this.rightMotor.forward();
 	}
 
+	/**
+	 * Functions to set the motor speeds jointly
+	 * 
+	 * @param lSpd
+	 *            Left Motor Speed
+	 * @param rSpd
+	 *            Right Motor Speed
+	 */
 	public void setSpeeds(int lSpd, int rSpd) {
 		this.leftMotor.setSpeed(lSpd);
 		this.rightMotor.setSpeed(rSpd);
@@ -73,7 +95,7 @@ public class Navigation {
 			this.rightMotor.forward();
 	}
 
-	/*
+	/**
 	 * Float the two motors jointly
 	 */
 	public void setFloat() {
@@ -83,10 +105,13 @@ public class Navigation {
 		this.rightMotor.flt(true);
 	}
 
-	/*
+	/**
 	 * TravelTo function which takes as arguments the x and y position in cm
 	 * Will travel to designated position, while constantly updating it's
 	 * heading
+	 * 
+	 * @param x
+	 * @param y
 	 */
 	public void travelTo(double x, double y) {
 		double minAng;
@@ -98,14 +123,20 @@ public class Navigation {
 			this.setSpeeds(FAST, FAST);
 
 		}
-		
+
 		this.setSpeeds(0, 0);
 
 	}
 
-	/*
+	/**
+	 * 
 	 * TurnTo function which takes an angle and boolean as arguments The boolean
 	 * controls whether or not to stop the motors when the turn is completed
+	 *
+	 * @param angle
+	 *            Angle to turn
+	 * @param stop
+	 *            Stop at the end of turn
 	 */
 	public void turnTo(double angle, boolean stop) {
 
@@ -140,24 +171,46 @@ public class Navigation {
 	//
 	// }
 
+	/**
+	 * Go foward a set distance in cm
+	 * 
+	 * @param distance
+	 *            Distance by which to go foward
+	 */
 	public void goForward(double distance) {
 		this.travelTo(odometer.getX() + Math.cos(Math.toRadians(this.odometer.getTheta())) * distance,
 				odometer.getY() + Math.sin(Math.toRadians(this.odometer.getTheta())) * distance);
 
 	}
 
+	/**
+	 * @return Left Motor
+	 */
 	public EV3LargeRegulatedMotor getLeftMotor() {
 		return leftMotor;
 	}
 
+	/**
+	 * Set Left Motor
+	 * 
+	 * @param leftMotor
+	 */
 	public void setLeftMotor(EV3LargeRegulatedMotor leftMotor) {
 		this.leftMotor = leftMotor;
 	}
 
+	/**
+	 * @return Right Motor
+	 */
 	public EV3LargeRegulatedMotor getRightMotor() {
 		return rightMotor;
 	}
 
+	/**
+	 * Set Right Motor
+	 * 
+	 * @param rightMotor
+	 */
 	public void setRightMotor(EV3LargeRegulatedMotor rightMotor) {
 		this.rightMotor = rightMotor;
 	}

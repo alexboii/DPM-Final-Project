@@ -5,6 +5,13 @@ import lejos.hardware.Sound;
 import lejos.hardware.sensor.SensorMode;
 import lejos.robotics.SampleProvider;
 
+/**
+ * This class is responsible for performing the light localization. 
+ * It reads four consecutive black lines while rotating around the desired (0,0) point,
+ * and then computes robot's new origin. 
+ * @author Alex
+ *
+ */
 public class LightLocalizer {
 	private Odometer odo;
 	private SampleProvider colorSensor;
@@ -26,12 +33,22 @@ public class LightLocalizer {
 	private static final int ZERO_Y = 0;
 	private static final double DISTANCE_CONSTANT = 1.4;
 
+	/**
+	 * Constructor 
+	 * @param odo Odometer
+	 * @param colorSensor Colour Sensor
+	 * @param colorData Colour Data 
+	 */
 	public LightLocalizer(Odometer odo, SampleProvider colorSensor, float[] colorData) {
 		this.odo = odo;
 		this.colorSensor = colorSensor;
 		this.colorData = colorData;
 	}
 
+	/**
+	 * Perform light localization 
+	 * @param navigator Navigator 
+	 */
 	public void doLocalization(Navigation navigator) {
 
 		// TURN TO 45 DEGREES AS REQUESTED IN THE INSTRUCTIONS
@@ -106,7 +123,9 @@ public class LightLocalizer {
 
 	}
 
-	// GET VALUE FROM SENSOR, TAKEN FROM LAB2
+	/**
+	 * @return Light value from sensor
+	 */
 	float setupLightSensor() {
 		colorData = new float[colorSensor.sampleSize()];
 		colorSensor.fetchSample(colorData, ZERO);
@@ -115,7 +134,9 @@ public class LightLocalizer {
 		return lightIntensity;
 	}
 
-	// RETURN TRUE IF THE SENSOR HAS DETECTED A LINE
+	/**
+	 * @return Sensor has detected a line
+	 */
 	private boolean lineCrossed() {
 		double lightValue = setupLightSensor();
 		boolean newLineDetected = lightValue <= LIGHT_THRESHOLD;
