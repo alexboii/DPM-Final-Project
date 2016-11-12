@@ -31,7 +31,7 @@ public class LightLocalizer {
 	private static final int ANGLE_CONSTANT = 270;
 	private static final int ZERO_X = 0;
 	private static final int ZERO_Y = 0;
-	private static final double DISTANCE_CONSTANT = 1.4;
+	private static final double DISTANCE_CONSTANT = -1.4;
 
 	/**
 	 * Constructor 
@@ -58,7 +58,7 @@ public class LightLocalizer {
 
 		// GO FORWARD ON A 45 DEGREE ANGLE, AND DO SO UNTIL THE SENSOR DETECS A
 		// LINE
-		navigator.setSpeeds(SECOND_ROTATION_SPEED, SECOND_ROTATION_SPEED);
+		navigator.setSpeeds(-SECOND_ROTATION_SPEED, -SECOND_ROTATION_SPEED);
 
 		while (!lineCrossed())
 			;
@@ -67,7 +67,7 @@ public class LightLocalizer {
 		navigator.setSpeeds(ZERO, ZERO);
 
 		// ADJUST CENTER OF ROTATION TO DESIRED (0, 0) VALUE
-		navigator.goForward(-DISTANCE_CONSTANT*SENSOR_TO_AXLE);
+		navigator.goForward(DISTANCE_CONSTANT*SENSOR_TO_AXLE);
 
 		// COUNTS THE LINES WHICH HAVE BEEN CROSSED
 		int lineCounter = 0;

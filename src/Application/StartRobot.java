@@ -31,8 +31,8 @@ public class StartRobot {
 	/**
 	 * Instantiation of all motors
 	 */
-	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
+	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
+	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 	private static final EV3LargeRegulatedMotor clawMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
 	private static final EV3LargeRegulatedMotor pulleyMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 
@@ -165,7 +165,7 @@ public class StartRobot {
 
 			// DO US LOCALIZATION
 			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
-			usl.doLocalization(navigator);
+//			usl.doLocalization(navigator);
 
 			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
 			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
@@ -173,8 +173,9 @@ public class StartRobot {
 
 			// DO LIGHT LOCALIZATION
 			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
-			lsl.doLocalization(navigator);
+//			lsl.doLocalization(navigator);
 
+			navigator.travelTo(-50, 50);
 			while (Button.waitForAnyPress() != Button.ID_ESCAPE)
 				;
 

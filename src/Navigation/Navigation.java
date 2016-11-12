@@ -10,13 +10,12 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
  * grants the robot the ability to approach an object by simply moving forward
  * towards it.
  * 
- * @author Sean Lawlor ECSE 211 - Design Principles
- * and Methods, Head TA Fall 2011 Ported to EV3 by: Francois Ouellet Delorme
- * Fall 2015
+ * @author Sean Lawlor ECSE 211 - Design Principles and Methods, Head TA Fall
+ *         2011 Ported to EV3 by: Francois Ouellet Delorme Fall 2015
  *
  */
 public class Navigation {
-	final static int FAST = 200, SLOW = 100, ACCELERATION = 4000;
+	final static int FAST = -200, SLOW = 100, ACCELERATION = 4000;
 	final static double DEG_ERR = 3.0, CM_ERR = 1.0;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
@@ -120,12 +119,14 @@ public class Navigation {
 			if (minAng < 0)
 				minAng += 360.0;
 			this.turnTo(minAng, false);
-			this.setSpeeds(FAST, FAST);
+			if (x > 0 && y > 0) {
+				this.setSpeeds(FAST, FAST);
+			} else {
+				this.setSpeeds(-FAST, -FAST);
+			}
 
 		}
-
 		this.setSpeeds(0, 0);
-
 	}
 
 	/**
