@@ -15,7 +15,7 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
  *
  */
 public class Navigation {
-	final static int FAST = -200, SLOW = 100, ACCELERATION = 4000;
+	final static int FAST = -200, SLOW = -100, ACCELERATION = 4000;
 	final static double DEG_ERR = 3.0, CM_ERR = 1.0;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
@@ -85,13 +85,13 @@ public class Navigation {
 		this.leftMotor.setSpeed(lSpd);
 		this.rightMotor.setSpeed(rSpd);
 		if (lSpd < 0)
-			this.leftMotor.backward();
-		else
 			this.leftMotor.forward();
-		if (rSpd < 0)
-			this.rightMotor.backward();
 		else
+			this.leftMotor.backward();
+		if (rSpd < 0)
 			this.rightMotor.forward();
+		else
+			this.rightMotor.backward();
 	}
 
 	/**
@@ -124,7 +124,6 @@ public class Navigation {
 			} else {
 				this.setSpeeds(-FAST, -FAST);
 			}
-
 		}
 		this.setSpeeds(0, 0);
 	}
