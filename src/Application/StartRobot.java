@@ -65,6 +65,17 @@ public class StartRobot {
 	 * 
 	 * @param args
 	 */
+	
+	
+	/**
+	 * Define program constants
+	 */
+	
+	private static int CLAW_ANGLE = 55;
+	private static int FULL_CIRCLE = 360;
+
+	
+	
 	public static void main(String[] args) {
 
 		// INITIALIZE HIGH SENSOR
@@ -185,6 +196,46 @@ public class StartRobot {
 			;
 		System.exit(0);
 
+	}
+	
+	
+	
+		
+	public static void pickUpBlock(){
+		pulleyMotor.setSpeed(300);
+		closeClaw();
+		pulleyUp(3);
+		pulleyDown(1.5);
+		openClaw();
+		pulleyDown(1.5);
+	}
+	
+	
+	public static void openClaw(){
+		clawMotor.rotate(CLAW_ANGLE, false);	
+	}
+	
+	
+	public static void closeClaw(){
+		clawMotor.rotate(-CLAW_ANGLE, false);	
+	}
+	
+	//TODO
+	//    the info below is outdated since we improved the crane design, gotta re-take these measurements
+	
+	//360 = 5 circles = 2.5cm aprox
+	//maximum height = 27 circles = 13.5 cm
+	//each block = 3cm => maxBlock = 13.5/3 = 4
+	
+	
+	
+	public static void pulleyUp(double distance){
+		pulleyMotor.rotate(-(int)(FULL_CIRCLE * distance), false);
+	}
+	
+	
+	public static void pulleyDown(double distance){
+		pulleyMotor.rotate((int)(FULL_CIRCLE * distance), false);
 	}
 
 	/**
