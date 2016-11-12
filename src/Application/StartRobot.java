@@ -65,6 +65,17 @@ public class StartRobot {
 	 * 
 	 * @param args
 	 */
+	
+	
+	/**
+	 * Define program constants
+	 */
+	
+	private static int CLAW_ANGLE = 55;
+	private static int FULL_CIRCLE = 360;
+
+	
+	
 	public static void main(String[] args) {
 
 		// INITIALIZE HIGH SENSOR
