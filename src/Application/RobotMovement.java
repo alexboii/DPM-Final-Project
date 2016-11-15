@@ -9,7 +9,7 @@ import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 /**
- * This class essentially coordinates all of the robot’s operations. It executes
+ * This class essentially coordinates all of the robotï¿½s operations. It executes
  * our search algorithm to find an object in its path, from which we then snap
  * into the Navigation class once the maximum amount of blue blocks has been
  * picked up to travel to the designated zone and then restart the algorithm
@@ -73,7 +73,7 @@ public class RobotMovement extends Thread {
 
 		int distance_counter = 0;
 		boolean already_have_blue = false;
-		navigator.turnTo(TURN_ANGLE_1, false);
+		navigator.turnTo(TURN_ANGLE_1);
 
 		// WHILE WE HAVEN'T FOUND A BLUE OBJECT
 		while (!blue_found) {
@@ -122,7 +122,7 @@ public class RobotMovement extends Thread {
 						Sound.beep();
 
 						// MAKE A SHARP 90 DEGREE TURN AND ROTATE SENSOR
-						navigator.turnTo(odometer.getTheta() + RIGHT_ANGLE, true);
+						navigator.turnTo(odometer.getTheta() + RIGHT_ANGLE);
 						usMotor.rotateTo(SENSOR_ROTATE);
 
 						double lastTheta = odometer.getTheta();
@@ -169,9 +169,9 @@ public class RobotMovement extends Thread {
 			// FORWARD_DISTANCE AND REPEAT THE SCAN
 			if (odometer.getTheta() > ANGLE_LIMIT) {
 				navigator.setSpeeds(0, 0);
-				navigator.turnTo(TURN_ANGLE_2, true);
+				navigator.turnTo(TURN_ANGLE_2);
 				navigator.goForward(FORWARD_DISTANCE);
-				navigator.turnTo(TURN_ANGLE_3, false);
+				navigator.turnTo(TURN_ANGLE_3);
 			}
 		}
 
