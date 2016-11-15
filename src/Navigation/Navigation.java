@@ -15,12 +15,17 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
  *
  */
 public class Navigation {
-	final static int FAST = -200, SLOW = -100, ACCELERATION = 4000;
+	final static int FAST = 200, SLOW = -100, ACCELERATION = 4000;
 	final static double DEG_ERR = 3.0, CM_ERR = 1.0;
+	final static double EUCLIDEAN_ERROR = 5;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private USPoller usPoller;
 	private EV3LargeRegulatedMotor usMotor;
+
+	private static final int FORWARD_SPEED = 150;
+	private static final int SLOW_ROTATE_SPEED = 40;
+
 
 	public static final int ROTATE_SPEED = 50;
 	private static final int BAND_WIDTH = 15;
@@ -64,13 +69,13 @@ public class Navigation {
 		this.leftMotor.setSpeed(lSpd);
 		this.rightMotor.setSpeed(rSpd);
 		if (lSpd < 0)
-			this.leftMotor.backward();
-		else
 			this.leftMotor.forward();
-		if (rSpd < 0)
-			this.rightMotor.backward();
 		else
+			this.leftMotor.backward();
+		if (rSpd < 0)
 			this.rightMotor.forward();
+		else
+			this.rightMotor.backward();
 	}
 
 	/**
@@ -112,56 +117,72 @@ public class Navigation {
 	 * @param x
 	 * @param y
 	 */
-	public void travelTo(double x, double y) {
-		double minAng;
-		while (Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR) {
-			minAng = (Math.atan2(y - odometer.getY(), x - odometer.getX())) * (180.0 / Math.PI);
-			if (minAng < 0)
-				minAng += 360.0;
-			this.turnTo(minAng, false);
-			if (x > 0 && y > 0) {
-				this.setSpeeds(FAST, FAST);
-			} else {
-				this.setSpeeds(-FAST, -FAST);
+	 public void travelTo(double x, double y) {
+		 double distance;
+		 double dx, dy;
+		 double error;
+
+				
+
+				dy = y - odometer.getY();
+				dx = x - odometer.getX();
+
+
+				double nextTheta = Math.atan2(dx, dy);
+
+				if (nextTheta < 0) {
+					nextTheta += Math.PI * 2;
+				}
+				
+				error = Math.abs(nextTheta - odometer.getTheta());
+				if (error > Math.toRadians(4.4)) {
+					turnTo(nextTheta);
+				}
+
+				leftMotor.setSpeed(FORWARD_SPEED);
+				rightMotor.setSpeed(FORWARD_SPEED);
+
+				distance = Math.hypot(dx, dy);
+			
+				goForward(distance);
+					
+	//
+//				currentX = odometer.getX();
+//				currentY = odometer.getY();
+//				currentTheta = odometer.getTheta();
+				
+			
+			stop();
+		}
+				
+
+		public void turnTo(double nextTheta) {
+			double deltaTheta = odometer.getTheta() - nextTheta ;
+			
+			
+			if (deltaTheta < -Math.PI) {
+				deltaTheta += 2 * Math.PI;
+		} else if (deltaTheta > Math.PI) {
+				deltaTheta -= 2 * Math.PI;
 			}
+
+			leftMotor.setSpeed(ROTATE_SPEED);
+			rightMotor.setSpeed(ROTATE_SPEED);
+			leftMotor.rotate(-convertAngle(odometer.getRadius(), odometer.getTrack(), deltaTheta), true);
+			rightMotor.rotate(convertAngle(odometer.getRadius(), odometer.getTrack(), deltaTheta), false);
+			
 		}
-		this.setSpeeds(0, 0);
-	}
+		
 
-	/**
-	 * 
-	 * TurnTo function which takes an angle and boolean as arguments The boolean
-	 * controls whether or not to stop the motors when the turn is completed
-	 *
-	 * @param angle
-	 *            Angle to turn
-	 * @param stop
-	 *            Stop at the end of turn
-	 */
-	public void turnTo(double angle, boolean stop) {
-
-		double error = angle - this.odometer.getTheta();
-
-		while (Math.abs(error) > DEG_ERR) {
-
-			error = angle - this.odometer.getTheta();
-
-			if (error < -180.0) {
-				this.setSpeeds(-SLOW, SLOW);
-			} else if (error < 0.0) {
-				this.setSpeeds(SLOW, -SLOW);
-			} else if (error > 180.0) {
-				this.setSpeeds(SLOW, -SLOW);
-			} else {
-				this.setSpeeds(-SLOW, SLOW);
-			}
+		public int convertDistance(double radius, double distance) {
+			return (int) ((180.0 * distance) / (Math.PI * radius));
 		}
 
-		if (stop) {
-			this.setSpeeds(0, 0);
-		}
-	}
 
+		public int convertAngle(double radius, double width, double angle) {
+			return convertDistance(radius, width *(angle) / 2);
+		}
+		
 	/*
 	 * Go foward a set distance in cm
 	 */
@@ -178,9 +199,56 @@ public class Navigation {
 	 *            Distance by which to go foward
 	 */
 	public void goForward(double distance) {
-		this.travelTo(odometer.getX() + Math.cos(Math.toRadians(this.odometer.getTheta())) * distance,
-				odometer.getY() + Math.sin(Math.toRadians(this.odometer.getTheta())) * distance);
+		//this.travelTo(odometer.getX() + Math.cos(Math.toRadians(this.odometer.getTheta())) * distance,
+			//	odometer.getY() + Math.sin(Math.toRadians(this.odometer.getTheta())) * distance);
 
+		
+		if(distance != 0 ){
+			leftMotor.rotate((int)(((distance*360) / (2 * odometer.getRadius() * Math.PI)) ), true);
+			rightMotor.rotate((int)(((distance*360) / (2 * odometer.getRadius() * Math.PI)) ), false);
+		} else {
+			leftMotor.forward();
+			rightMotor.forward();
+		}
+		
+		
+	}
+	
+	
+	
+
+	public void rotateCounterClockwise(boolean fast) 
+	{
+		if(fast){
+			leftMotor.setSpeed(ROTATE_SPEED);
+			rightMotor.setSpeed(ROTATE_SPEED);
+		} else {
+			leftMotor.setSpeed((int)(0.5 * SLOW_ROTATE_SPEED));
+			rightMotor.setSpeed((int)(0.5 * SLOW_ROTATE_SPEED));
+		}
+		leftMotor.backward();
+		rightMotor.forward();
+	}
+
+	public	void rotateClockwise(boolean fast) 
+	{
+		
+		if(fast){
+			leftMotor.setSpeed(ROTATE_SPEED);
+			rightMotor.setSpeed(ROTATE_SPEED);
+		} else {
+			leftMotor.setSpeed((int)0.5 * SLOW_ROTATE_SPEED);
+			rightMotor.setSpeed((int)(0.5 * SLOW_ROTATE_SPEED));
+		}
+		leftMotor.forward();
+		rightMotor.backward();
+	}
+	
+	
+	
+	public void stop(){
+		leftMotor.stop();
+		rightMotor.stop();
 	}
 
 	/**
