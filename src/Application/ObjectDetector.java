@@ -15,6 +15,8 @@ public class ObjectDetector extends Thread {
 
 	private final double COLOR_SENSOR_THERSHOLD = 10; 
 	private final double DISTANCE_THRESHOLD = 20; 
+	private final double DISTANCE_THRESHOLD_2= 6; 
+
 	private TextLCD t;
 	private LSPoller lsPoller;
 	private USPoller usPoller, usPoller2;
@@ -32,11 +34,18 @@ public class ObjectDetector extends Thread {
 
 			t.clear();
 
-			while (usPoller.getDistance() < DISTANCE_THRESHOLD && usPoller2.getDistance() < DISTANCE_THRESHOLD) {
-				t.drawString("Wooden block", 0, 0);
-
+			if(usPoller.getDistance() < DISTANCE_THRESHOLD && usPoller2.getDistance() < DISTANCE_THRESHOLD_2){
+				t.clear();
+				System.out.println("Wooden");
 			}
-			// NO OBJECT IN SIGHT
+
+			if(usPoller.getDistance() < DISTANCE_THRESHOLD && usPoller2.getDistance() > DISTANCE_THRESHOLD_2) {
+				t.clear();
+				System.out.println("Styrofoam");
+//				t.drawString("Styrofoam block", 0, 0);
+			}
+			t.clear();
+
 			t.drawString("No Object", 0, 0);
 		}
 	}

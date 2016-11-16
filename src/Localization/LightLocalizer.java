@@ -1,17 +1,11 @@
 package Localization;
+
 import Navigation.Navigation;
 import Odometer.Odometer;
 import lejos.hardware.Sound;
 import lejos.hardware.sensor.SensorMode;
 import lejos.robotics.SampleProvider;
 
-/**
- * This class is responsible for performing the light localization. 
- * It reads four consecutive black lines while rotating around the desired (0,0) point,
- * and then computes robot's new origin. 
- * @author Alex
- *
- */
 public class LightLocalizer {
 	private Odometer odo;
 	private SampleProvider colorSensor;
@@ -19,7 +13,7 @@ public class LightLocalizer {
 	private boolean lineDetected = false;
 
 	// CONSTANTS
-	private double SENSOR_TO_AXLE = 7.3;
+	private double SENSOR_TO_AXLE = 7.5;
 	private static final float ROTATION_SPEED = 30;
 	private static final float SECOND_ROTATION_SPEED = 30;
 	private static final int INITIAL_ANGLE = 45;
@@ -27,28 +21,16 @@ public class LightLocalizer {
 	private static final int MAX_LINE_COUNT = 4;
 	private static final int HALF = 2;
 	private static final int SCALE_FACTOR = 100;
-	private static final int LIGHT_THRESHOLD = 25;
-	private static final int ANGLE_CONSTANT = 270;
+	private static final int LIGHT_THRESHOLD = 26;
 	private static final int ZERO_X = 0;
 	private static final int ZERO_Y = 0;
-	private static final double DISTANCE_CONSTANT = -1.4;
 
-	/**
-	 * Constructor 
-	 * @param odo Odometer
-	 * @param colorSensor Colour Sensor
-	 * @param colorData Colour Data 
-	 */
 	public LightLocalizer(Odometer odo, SampleProvider colorSensor, float[] colorData) {
 		this.odo = odo;
 		this.colorSensor = colorSensor;
 		this.colorData = colorData;
 	}
 
-	/**
-	 * Perform light localization 
-	 * @param navigator Navigator 
-	 */
 	public void doLocalization(Navigation navigator) {
 
 		// TURN TO 45 DEGREES AS REQUESTED IN THE INSTRUCTIONS
@@ -58,7 +40,7 @@ public class LightLocalizer {
 
 		// GO FORWARD ON A 45 DEGREE ANGLE, AND DO SO UNTIL THE SENSOR DETECS A
 		// LINE
-		navigator.setSpeeds(-SECOND_ROTATION_SPEED, -SECOND_ROTATION_SPEED);
+		navigator.setSpeeds(SECOND_ROTATION_SPEED, SECOND_ROTATION_SPEED);
 
 		while (!lineCrossed())
 			;
@@ -67,7 +49,7 @@ public class LightLocalizer {
 		navigator.setSpeeds(ZERO, ZERO);
 
 		// ADJUST CENTER OF ROTATION TO DESIRED (0, 0) VALUE
-		navigator.goForward(DISTANCE_CONSTANT*SENSOR_TO_AXLE);
+		navigator.goForward(10);
 
 		// COUNTS THE LINES WHICH HAVE BEEN CROSSED
 		int lineCounter = 0;
@@ -102,16 +84,17 @@ public class LightLocalizer {
 		// DO COMPUTATIONS PROVIDED IN
 		double deltaX = -SENSOR_TO_AXLE * Math.cos(Math.toRadians(thetaY) / HALF);
 		double deltaY = -SENSOR_TO_AXLE * Math.cos(Math.toRadians(thetaX) / HALF);
-		double deltaTheta = ANGLE_CONSTANT - lastTheta + thetaY / HALF;
+		double deltaTheta = 270 - lastTheta + thetaY / HALF;
 
 		// WRAP ANGLE TO FIT POSITIVE Y AXIS
-//		if (deltaTheta > 180) {
-//			deltaTheta += 180;
-//		}
+		// if (deltaTheta > 180) {
+		// deltaTheta += 180;
+		// }
 
+		System.out.println("\n\n\n" + deltaTheta + "//" + odo.getTheta() + "//" + (odo.getTheta() + deltaTheta));
 
 		// SET NEW POSITION ON ODOMETER
-		this.odo.setPosition(new double[] { deltaX, deltaY, odo.getTheta() + deltaTheta },
+		this.odo.setPosition(new double[] { deltaX, deltaY, deltaTheta },
 				new boolean[] { true, true, true });
 
 		// TRAVEL TO DESIRED (0, 0) POINT
@@ -119,13 +102,13 @@ public class LightLocalizer {
 		USLocalizer.sleepThread();
 
 		// ADJUST TO CORRECT Y+ AXIS
-		navigator.turnTo(ZERO, true);
+		navigator.turnTo(135, true);
+		// navigator.turnTo(180, true);
+		odo.setPosition(new double[] { deltaX, deltaY, 90 }, new boolean[] { false, false, true });
 
 	}
 
-	/**
-	 * @return Light value from sensor
-	 */
+	// GET VALUE FROM SENSOR, TAKEN FROM LAB2
 	float setupLightSensor() {
 		colorData = new float[colorSensor.sampleSize()];
 		colorSensor.fetchSample(colorData, ZERO);
@@ -134,9 +117,7 @@ public class LightLocalizer {
 		return lightIntensity;
 	}
 
-	/**
-	 * @return Sensor has detected a line
-	 */
+	// RETURN TRUE IF THE SENSOR HAS DETECTED A LINE
 	private boolean lineCrossed() {
 		double lightValue = setupLightSensor();
 		boolean newLineDetected = lightValue <= LIGHT_THRESHOLD;

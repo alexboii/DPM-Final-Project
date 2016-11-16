@@ -32,8 +32,10 @@ public class StartRobot {
 	/**
 	 * Instantiation of all motors
 	 */
-	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
-	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
+	
+	// MOTORS ARE REVERSED FOR LEFT AND RIGHT
+	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
+	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
 	private static final EV3LargeRegulatedMotor clawMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
 	private static final EV3LargeRegulatedMotor pulleyMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 
@@ -90,14 +92,14 @@ public class StartRobot {
 
 		USLocalizer.LocalizationType type = USLocalizer.LocalizationType.FALLING_EDGE;
 
-		Odometer odometer = new Odometer(leftMotor, rightMotor);
+		Odometer odometer = new Odometer(leftMotor, rightMotor, 50, true);
 
 		USPoller usPollerHigh = new USPoller(usValueHigh, usDataHigh);
 		USPoller usPollerLow = new USPoller(usValueLow, usDataLow);
 		
 		usPollerHigh.start();
-		usPollerLow.start();
-		odometer.start();
+		new Thread(usPollerLow).start();
+//		odometer.start();
 		
 
 
@@ -108,9 +110,9 @@ public class StartRobot {
 		// float[] colorData = new float[colorValue.sampleSize()];
 		// LSPoller lsPoller = new LSPoller(colorValue, colorData);
 
-		//ObjectDetector objectDetect = new ObjectDetector(usPollerHigh, usPollerLow, t);
+		ObjectDetector objectDetect = new ObjectDetector(usPollerLow, usPollerHigh, t);
 
-		Navigation navigator = new Navigation(odometer, usPollerHigh);
+		Navigation navigator = new Navigation(odometer);
 
 		int buttonChoice;
 
@@ -130,44 +132,43 @@ public class StartRobot {
 		} while (buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT);
 
 		if (buttonChoice == Button.ID_LEFT) {
-			// usPollerHigh.start();
-			// new Thread(usPollerLow).start();
-			// objectDetect.start();
-			t.clear();
-			WifiConnection conn = null;
-			try {
-				System.out.println("Connecting...");
-				conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, true);
-			} catch (IOException e) {
-				System.out.println("Connection failed");
-			}
+//			 usPollerHigh.start();
+			 objectDetect.start();
+//			t.clear();
+//			WifiConnection conn = null;
+//			try {
+//				System.out.println("Connecting...");
+//				conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, true);
+//			} catch (IOException e) {
+//				System.out.println("Connection failed");
+//			}
+//
+//			/*
+//			 * This section of the code reads and prints the data received from
+//			 * the server, stored as a HashMap with String keys and Integer
+//			 * values.
+//			 */
+//			if (conn != null) {
+//				text = conn.StartData;
+//				if (t == null) {
+//					System.out.println("Failed to read transmission");
+//				} else {
+//					System.out.println("Transmission read:\n" + text.toString());
+//				}
+//			}
 
-			/*
-			 * This section of the code reads and prints the data received from
-			 * the server, stored as a HashMap with String keys and Integer
-			 * values.
-			 */
-			if (conn != null) {
-				text = conn.StartData;
-				if (t == null) {
-					System.out.println("Failed to read transmission");
-				} else {
-					System.out.println("Transmission read:\n" + text.toString());
-				}
-			}
-
-			setLGZy(text.get("LGZy"));
-			setLGZx(text.get("LGZx"));
-			setCSC(text.get("CSC"));
-			setBSC(text.get("BSC"));
-			setCTN(text.get("CTN"));
-			setBTN(text.get("BTN"));
-			setURZx(text.get("URZx"));
-			setLRZy(text.get("LRZy"));
-			setLRZx(text.get("LRZx"));
-			setURZy(text.get("URZy"));
-			setUGZy(text.get("UGZy"));
-			setUGZx(text.get("UGZx"));
+//			setLGZy(text.get("LGZy"));
+//			setLGZx(text.get("LGZx"));
+//			setCSC(text.get("CSC"));
+//			setBSC(text.get("BSC"));
+//			setCTN(text.get("CTN"));
+//			setBTN(text.get("BTN"));
+//			setURZx(text.get("URZx"));
+//			setLRZy(text.get("LRZy"));
+//			setLRZx(text.get("LRZx"));
+//			setURZy(text.get("URZy"));
+//			setUGZy(text.get("UGZy"));
+//			setUGZx(text.get("UGZx"));
 
 		} else {
 
@@ -184,23 +185,26 @@ public class StartRobot {
 			// }
 
 			// pulleyMotor.rotate(-3000);
+//			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
+//			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
 
 //			// DO US LOCALIZATION
 //			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
 //			usl.doLocalization(navigator);
 //
 //			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
-//			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
-//			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+
 //
 //			// DO LIGHT LOCALIZATION
 //			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
 //			lsl.doLocalization(navigator);
 
+			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh);
+			attempt.start();
 			
-			odometer.setPosition(new double[] { 0, 0, 0 },
-					new boolean[] { true, true, true });
-			
+//			odometer.setPosition(new double[] { 0, 0, 0 },
+//					new boolean[] { true, true, true });
+//			
 			while (Button.waitForAnyPress() != Button.ID_ESCAPE){
 				buttonChoice = Button.waitForAnyPress();
 				

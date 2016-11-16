@@ -1,5 +1,9 @@
 package Application;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 import Navigation.Navigation;
 import Odometer.Odometer;
 import SensorData.LSPoller;
@@ -9,12 +13,12 @@ import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 /**
- * This class essentially coordinates all of the robot�s operations. It executes
- * our search algorithm to find an object in its path, from which we then snap
- * into the Navigation class once the maximum amount of blue blocks has been
- * picked up to travel to the designated zone and then restart the algorithm
- * again. The differentiation between the type of blocks will also be done in
- * this class, as well as the control of the pulley motor and the claw.
+ * This class essentially coordinates all of the robot�s operations. It
+ * executes our search algorithm to find an object in its path, from which we
+ * then snap into the Navigation class once the maximum amount of blue blocks
+ * has been picked up to travel to the designated zone and then restart the
+ * algorithm again. The differentiation between the type of blocks will also be
+ * done in this class, as well as the control of the pulley motor and the claw.
  * 
  * @author Alex
  *
@@ -23,9 +27,8 @@ public class RobotMovement extends Thread {
 
 	Odometer odometer;
 	Navigation navigator;
-	USPoller usPoller;
-	LSPoller lsPoller;
-	EV3LargeRegulatedMotor usMotor;
+	USPoller usPollerLow;
+	USPoller usPollerHigh;
 	boolean blue_found = false;
 	public static final int ROTATE_SPEED = 50;
 	private static final int BAND_WIDTH = 15;
@@ -49,133 +52,56 @@ public class RobotMovement extends Thread {
 	private static final int WAYPOINT_Y = 70;
 
 	/**
-	 * Constructor 
+	 * Constructor
 	 * 
-	 * @param odometer Odometer
-	 * @param navigator Navigator
-	 * @param usPoller Ultrasonic Sensor Poller
-	 * @param lsPoller Light Sensor Poller
-	 * @param usMotor Ultrasonic Sensor Motor
+	 * @param odometer
+	 *            Odometer
+	 * @param navigator
+	 *            Navigator
+	 * @param usPoller
+	 *            Ultrasonic Sensor Poller
+	 * @param lsPoller
+	 *            Light Sensor Poller
+	 * @param usMotor
+	 *            Ultrasonic Sensor Motor
 	 */
-	public RobotMovement(Odometer odometer, Navigation navigator, USPoller usPoller, LSPoller lsPoller,
-			EV3LargeRegulatedMotor usMotor) {
+	public RobotMovement(Odometer odometer, Navigation navigator, USPoller usPollerLow, USPoller usPollerHigh) {
 		this.navigator = navigator;
 		this.odometer = odometer;
-		this.usPoller = usPoller;
-		this.lsPoller = lsPoller;
-		this.usMotor = usMotor;
+		this.usPollerLow = usPollerLow;
+		this.usPollerHigh = usPollerHigh;
+
 	}
 
 	/**
-	  * {@inheritDoc}
-	  */
+	 * {@inheritDoc}
+	 */
 	public void run() {
 
-		int distance_counter = 0;
-		boolean already_have_blue = false;
-		navigator.turnTo(TURN_ANGLE_1);
+		navigator.turnTo(75, true);
+		navigator.setSpeeds(-100, 100);
 
-		// WHILE WE HAVEN'T FOUND A BLUE OBJECT
-		while (!blue_found) {
+		ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
 
-			// SCAN THE LOCATION
+		while (odometer.getTheta() < ANGLE_LIMIT) {
 			navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
 
-			// IF ROBOT FINDS AN OBJECT WITHIN THRESHOLD DISTANCE
-			if (usPoller.getDistance() < OBJECT_DISTANCE) {
+			Vector vector = new Vector(usPollerLow.getDistance(), odometer.getTheta());
+			list_of_vectors.add(vector);
 
-				// COUNTER DEFINED TO FILTER OUT FALSE NEGATIVES
-				distance_counter++;
-
-				if (distance_counter > DISTANCE_COUNTER_LIMIT) {
-
-					distance_counter = 0;
-
-					// STOP MOTORS
-					navigator.setSpeeds(0, 0);
-
-					// ADVANCE TOWARDS THE NEW FOUND OBJECT
-					double go_by = (usPoller.getDistance() - DISTANCE_OFFSET > 0
-							? (usPoller.getDistance() - DISTANCE_OFFSET) : FORWARD_DISTANCE);
-					navigator.goForward(go_by);
-
-					// STOP MOTORS
-					navigator.setSpeeds(0, 0);
-
-					// IF THIS IS THE FIRST BLUE OBJECT WE HAVE FOUND
-					if (lsPoller.isBlue() && !already_have_blue) {
-						Sound.beep();
-						navigator.goForward(FORWARD_DISTANCE);
-						navigator.setSpeeds(0, 0);
-						already_have_blue = true;
-
-						navigator.travelTo(WAYPOINT_X, WAYPOINT_Y);
-						Sound.beep();
-						Sound.beep();
-						Sound.beep();
-						break;
-					} else {
-
-						// IF IT'S A WOODEN BLOCK, THEN ENTER BANG BANG MODE
-
-						Sound.beep();
-						Sound.beep();
-
-						// MAKE A SHARP 90 DEGREE TURN AND ROTATE SENSOR
-						navigator.turnTo(odometer.getTheta() + RIGHT_ANGLE);
-						usMotor.rotateTo(SENSOR_ROTATE);
-
-						double lastTheta = odometer.getTheta();
-						wallfollower_loop: while (true) {
-
-							int bang_bang_error = (int) (usPoller.getDistance() - 3);
-
-							// ROBOT IS AT THE RIGHT DISTANCE FROM WALL, KEEP
-							// GOING
-							if (Math.abs(bang_bang_error) <= BAND_WIDTH) {
-								navigator.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
-							}
-
-							// ROBOT IS TOO FAR FROM THE WALL - INCREASE OUTSIDE
-							// WHEEL, DECREASE
-							// INSIDE WHEEL
-							if (bang_bang_error > BAND_WIDTH) {
-								navigator.setSpeeds(BB_FAST_SPEED, BB_SLOW_SPEED);
-							}
-
-							// ROBOT IS TOO CLOSE TO WALL - DECRASE OUTISDE
-							// INCREASE INSIDE
-							if (bang_bang_error < BAND_WIDTH) {
-								navigator.setSpeeds(BB_SLOW_SPEED, BB_FAST_SPEED);
-							}
-
-							// IF THE ROBOT HAS SAFELY "HALF-CONTOURED" THE
-							// WALL, BREAK OUT OF LOOP
-							if (Math.abs(odometer.getTheta() - lastTheta) > ANGLE_LIMIT_BB) {
-								// ROTATE SENSOR BACK TO ORIGINAL POSITION
-								// STOP MOTORS
-								navigator.setSpeeds(0, 0);
-								usMotor.rotateTo(0);
-								break wallfollower_loop;
-							}
-						}
-
-					}
-				}
-
-			}
-
-			// IF NOTHING WAS FOUND WITHIN THE SCAN, GO FORWARD BY
-			// FORWARD_DISTANCE AND REPEAT THE SCAN
-			if (odometer.getTheta() > ANGLE_LIMIT) {
-				navigator.setSpeeds(0, 0);
-				navigator.turnTo(TURN_ANGLE_2);
-				navigator.goForward(FORWARD_DISTANCE);
-				navigator.turnTo(TURN_ANGLE_3);
-			}
 		}
 
-		navigator.setSpeeds(0, 0);
+		Collections.sort(list_of_vectors, new Comparator<Vector>() {
+			@Override
+			public int compare(Vector a, Vector b) {
+				return Double.compare(a.getDistance(), b.getDistance());
+			}
+		});
+
+		navigator.turnTo(list_of_vectors.get(0).getAngle(), true);
+		navigator.goForward((list_of_vectors.get(0).getDistance()));
+
+		
 	}
 
 }
