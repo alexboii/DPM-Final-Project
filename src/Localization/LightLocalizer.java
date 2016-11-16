@@ -36,7 +36,7 @@ public class LightLocalizer {
 		// TURN TO 45 DEGREES AS REQUESTED IN THE INSTRUCTIONS
 		navigator.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 		navigator.turnTo(INITIAL_ANGLE, true);
-		USLocalizer.sleepThread();
+//		USLocalizer.sleepThread();
 
 		// GO FORWARD ON A 45 DEGREE ANGLE, AND DO SO UNTIL THE SENSOR DETECS A
 		// LINE
@@ -122,7 +122,7 @@ public class LightLocalizer {
 	// RETURN TRUE IF THE SENSOR HAS DETECTED A LINE
 	private boolean lineCrossed(double old_value) {
 		double lightValue = setupLightSensor();
-		boolean newLineDetected = (old_value) - lightValue <= LIGHT_THRESHOLD;
+		boolean newLineDetected = (old_value) - lightValue >= LIGHT_THRESHOLD;
 		boolean crossed = !lineDetected && newLineDetected;
 		lineDetected = newLineDetected;
 		return crossed;

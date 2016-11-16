@@ -53,7 +53,7 @@ public class USLocalizer {
 
 			// WE SLEEP THE THREAD BETWEEN EACH STEP TO IMPROVE ACCURACY AND
 			// REDUCE SLIPPING
-			sleepThread();
+//			sleepThread();
 
 			// ROTATE UNTIL FIRST WALL IS SEEN BY SENSOR
 			while (getFilteredData() > DISTANCE_FROM_WALL) {
@@ -64,14 +64,14 @@ public class USLocalizer {
 			navigator.setSpeeds(ZERO, ZERO);
 			angleA = odo.getTheta();
 
-			sleepThread();
+//			sleepThread();
 
 			// GO AWAY FROM WALL
 			while (getFilteredData() < DISTANCE_FROM_WALL) {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 			}
 
-			sleepThread();
+//			sleepThread();
 
 			// ROTATE UNTIL SECOND WALL IS SEEN
 			while (getFilteredData() > DISTANCE_FROM_WALL) {
@@ -82,7 +82,7 @@ public class USLocalizer {
 			navigator.setSpeeds(ZERO, ZERO);
 			angleB = odo.getTheta();
 
-			sleepThread();
+//			sleepThread();
 
 			// ADJUST THE DELTA THETA BASED ON THE RELATIVE POSITION BETWEEN
 			// ANGLE A AND B
@@ -119,7 +119,7 @@ public class USLocalizer {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 			}
 
-			sleepThread();
+//			sleepThread();
 
 			// ROTATE UNTIL THE ROBOT SEES NO WALL
 			while (getFilteredData() < DISTANCE_FROM_WALL) {
@@ -130,7 +130,7 @@ public class USLocalizer {
 			navigator.setSpeeds(ZERO, ZERO);
 			angleB = odo.getTheta();
 
-			sleepThread();
+//			sleepThread();
 
 			// ADJUST THE DELTA THETA BASED ON THE RELATIVE POSITION BETWEEN
 			// ANGLE A AND B (CLOCKWISE)
