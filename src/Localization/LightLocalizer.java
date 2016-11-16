@@ -14,14 +14,14 @@ public class LightLocalizer {
 
 	// CONSTANTS
 	private double SENSOR_TO_AXLE = 7.5;
-	private static final float ROTATION_SPEED = 30;
-	private static final float SECOND_ROTATION_SPEED = 30;
+	private static final float ROTATION_SPEED = 60;
+	private static final float SECOND_ROTATION_SPEED = 60;
 	private static final int INITIAL_ANGLE = 45;
 	private static final int ZERO = 0;
 	private static final int MAX_LINE_COUNT = 4;
 	private static final int HALF = 2;
 	private static final int SCALE_FACTOR = 100;
-	private static final int LIGHT_THRESHOLD = 26;
+	private static final int LIGHT_THRESHOLD = 12;
 	private static final int ZERO_X = 0;
 	private static final int ZERO_Y = 0;
 
@@ -40,14 +40,16 @@ public class LightLocalizer {
 
 		// GO FORWARD ON A 45 DEGREE ANGLE, AND DO SO UNTIL THE SENSOR DETECS A
 		// LINE
-		navigator.setSpeeds(SECOND_ROTATION_SPEED, SECOND_ROTATION_SPEED);
-
-		while (!lineCrossed())
+		navigator.setSpeeds(ROTATION_SPEED, ROTATION_SPEED);
+		double wooden_value = setupLightSensor();
+		
+		while (!lineCrossed(wooden_value))
 			;
 
 		// STOP ONCE LINE IS SPOTTED
 		navigator.setSpeeds(ZERO, ZERO);
 
+		
 		// ADJUST CENTER OF ROTATION TO DESIRED (0, 0) VALUE
 		navigator.goForward(10);
 
@@ -63,7 +65,7 @@ public class LightLocalizer {
 
 		while (lineCounter < MAX_LINE_COUNT) {
 			odo.getPosition(getPosition);
-			if (lineCrossed()) {
+			if (lineCrossed(wooden_value)) {
 				// RECORD THE ANGLE EACH TIME A BLACK LINE IS SPOTTED
 				theta[lineCounter] = odo.getTheta();
 				lineCounter++;
@@ -98,7 +100,7 @@ public class LightLocalizer {
 				new boolean[] { true, true, true });
 
 		// TRAVEL TO DESIRED (0, 0) POINT
-		navigator.travelTo(ZERO_X, ZERO_Y);
+//		navigator.travelTo(ZERO_X, ZERO_Y);
 		USLocalizer.sleepThread();
 
 		// ADJUST TO CORRECT Y+ AXIS
@@ -118,9 +120,9 @@ public class LightLocalizer {
 	}
 
 	// RETURN TRUE IF THE SENSOR HAS DETECTED A LINE
-	private boolean lineCrossed() {
+	private boolean lineCrossed(double old_value) {
 		double lightValue = setupLightSensor();
-		boolean newLineDetected = lightValue <= LIGHT_THRESHOLD;
+		boolean newLineDetected = (old_value) - lightValue <= LIGHT_THRESHOLD;
 		boolean crossed = !lineDetected && newLineDetected;
 		lineDetected = newLineDetected;
 		return crossed;

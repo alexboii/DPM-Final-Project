@@ -185,22 +185,22 @@ public class StartRobot {
 			// }
 
 			// pulleyMotor.rotate(-3000);
-//			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
-//			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
+			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
 
 //			// DO US LOCALIZATION
-//			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
-//			usl.doLocalization(navigator);
-//
-//			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
+			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
+			usl.doLocalization(navigator);
+
+			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
 
 //
 //			// DO LIGHT LOCALIZATION
-//			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
-//			lsl.doLocalization(navigator);
+			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
+			lsl.doLocalization(navigator);
 
-			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh);
-			attempt.start();
+//			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh);
+//			attempt.start();
 			
 //			odometer.setPosition(new double[] { 0, 0, 0 },
 //					new boolean[] { true, true, true });
