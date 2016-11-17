@@ -101,8 +101,7 @@ public class StartRobot {
 		new Thread(usPollerLow).start();
 //		odometer.start();
 		
-
-
+		
 		// INITIALIZE COLOUR SENSOR, FIRST IN RGB MODE
 		//// EV3ColorSensor colorSensor = new EV3ColorSensor(colorPort);
 		// colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
@@ -188,19 +187,21 @@ public class StartRobot {
 			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
 			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
 
-//			// DO US LOCALIZATION
-			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
-			usl.doLocalization(navigator);
-
-			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
-
+////			// DO US LOCALIZATION
+//			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
+//			usl.doLocalization(navigator);
 //
-//			// DO LIGHT LOCALIZATION
-			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
-			lsl.doLocalization(navigator);
+//			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
+//
+////
+////			// DO LIGHT LOCALIZATION
+//			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
+//			lsl.doLocalization(navigator);
+			
+//			navigator.travelTo(-60,60);
 
-//			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh);
-//			attempt.start();
+			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor, pulleyMotor);
+			attempt.start();
 			
 //			odometer.setPosition(new double[] { 0, 0, 0 },
 //					new boolean[] { true, true, true });
