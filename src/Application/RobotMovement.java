@@ -7,6 +7,7 @@ import java.util.Comparator;
 import Navigation.Navigation;
 import Odometer.Odometer;
 import SensorData.USPoller;
+import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 /**
@@ -54,10 +55,10 @@ public class RobotMovement extends Thread {
 	private static final int closeClaw_1 = -40;
 	private static final int openClaw_1 = 100;
 	private static final int pullDownToBlock = 700;
-	private static final int closeClaw_2 = -400;
-	private static final int pullUpFromBlock = -800;
-	private static final int distanceScanThreshold = 22;
-	private static final int distanceApproachThreshold = 0;
+	private static final int closeClaw_2 = -200;
+	private static final int pullUpFromBlock = -2000;
+	private static final int distanceScanThreshold = 30;
+	private static final int distanceApproachThreshold = 11;
 
 	EV3LargeRegulatedMotor clawMotor;
 	EV3LargeRegulatedMotor pulleyMotor;
@@ -94,13 +95,13 @@ public class RobotMovement extends Thread {
 	 * {@inheritDoc}
 	 */
 	public void run() {
-
-		pullCageDown();
+		boolean isWooden;
+	//	pullCageDown();
+	clawMotor.rotate(openClaw_1);
 
 		while (!blue_found) {
 
 			navigator.turnTo(TURN_ANGLE_1, true);
-
 			navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
 
 			ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
@@ -134,22 +135,36 @@ public class RobotMovement extends Thread {
 				navigator.turnTo(list_of_vectors.get(0).getAngle(), true);
 				navigator.goForward((list_of_vectors.get(0).getDistance()) - distanceApproachThreshold);
 				
-				if (!isWooden()) {
+				isWooden = navigator.isWooden();
+				
+				if (isWooden) {
+					
+					navigator.avoidObject();
+					continue;
+				} else {
+					navigator.goForward(distanceApproachThreshold-3);
+					pullCageDown();
 					grabObject();
 					list_of_vectors.clear();
 					blue_found = true;
+					break;
+
 				}
 				
 			}
-
+			Sound.beepSequenceUp();
 			list_of_vectors.clear();
 			
 			navigator.turnTo(135, true);
-			navigator.goForward(10);
+			navigator.goForward(distanceScanThreshold * 0.5);
 
 		}
+		
+	//	navigator.travelTo(-100, 100, true);
+		navigator.travelTo((StartRobot.UGZx + StartRobot.LGZx)/2 , (StartRobot.UGZy + StartRobot.LGZy)/2 , true);
+		clawMotor.rotate(openClaw_1);
+//		clawMotor.rotate(openClaw_1);
 
-		navigator.travelTo((StartRobot.UGZx + StartRobot.LGZx)/2 , (StartRobot.UGZy + StartRobot.LGZy)/2 );
 	}
 
 	private boolean isWooden() {
@@ -159,11 +174,12 @@ public class RobotMovement extends Thread {
 	private void pullCageDown() {
 		pulleyMotor.setSpeed(pulleySpeed);
 		pulleyMotor.rotate(pullDownFull);
-		clawMotor.rotate(closeClaw_1);
+//		clawMotor.rotate(closeClaw_1);
 	}
 
 	private void grabObject() {
-		clawMotor.rotate(openClaw_1);
+//		clawMotor.rotate(openClaw_1);
+		clawMotor.setAcceleration(5000);
 		pulleyMotor.rotate(pullDownToBlock);
 		clawMotor.rotate(closeClaw_2);
 		pulleyMotor.rotate(pullUpFromBlock);
