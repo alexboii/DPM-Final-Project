@@ -56,7 +56,7 @@ public class RobotMovement extends Thread {
 	private static final int pullDownToBlock = 700;
 	private static final int closeClaw_2 = -400;
 	private static final int pullUpFromBlock = -800;
-	private static final int distanceScanThreshold = 40;
+	private static final int distanceScanThreshold = 22;
 	private static final int distanceApproachThreshold = 0;
 
 	EV3LargeRegulatedMotor clawMotor;
@@ -110,7 +110,7 @@ public class RobotMovement extends Thread {
 
 				Vector vector = new Vector(usPollerLow.getDistance(), odometer.getTheta());
 				try {
-					Thread.sleep(200);
+					Thread.sleep(150);
 				} catch (InterruptedException e) {
 				}
 				list_of_vectors.add(vector);
