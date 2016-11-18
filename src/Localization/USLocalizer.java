@@ -1,13 +1,7 @@
 package Localization;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-
 import Navigation.Navigation;
 import Odometer.Odometer;
-import lejos.hardware.Sound;
-import lejos.hardware.ev3.LocalEV3;
-import lejos.hardware.lcd.TextLCD;
 import lejos.robotics.SampleProvider;
 
 public class USLocalizer {
@@ -16,8 +10,8 @@ public class USLocalizer {
 	};
 
 	// CONSTANTS
-	private static final float ROTATION_SPEED = 100;
-	private static final double DISTANCE_FROM_WALL = 0.2;
+	private static final float ROTATION_SPEED = 140;
+	private static final double DISTANCE_FROM_WALL = 0.1;
 	private static final double CLIPPING_THRESHOLD = 0.5;
 	private static final float CLIPPING_DISTANCE = 0.60f;
 	private static final int BACK_ANGLE = 225;

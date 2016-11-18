@@ -1,7 +1,5 @@
 package Odometer;
 
-import Odometer.Odometer;
-
 /**
  * This class will correct any inaccuracy in the odometer caused by factors such
  * as wheel slippage and others, with the help of a light sensor. This method

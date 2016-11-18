@@ -1,10 +1,7 @@
 package Application;
 import SensorData.LSPoller;
 import SensorData.USPoller;
-import lejos.hardware.Sound;
 import lejos.hardware.lcd.TextLCD;
-import lejos.hardware.motor.EV3LargeRegulatedMotor;
-import lejos.hardware.sensor.EV3ColorSensor;
 
 /**
  * Class not implemented in the code, only used for testing

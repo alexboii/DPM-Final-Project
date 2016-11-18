@@ -5,7 +5,7 @@ public class Vector {
 	private double distance;
 	private double angle;
 	
-	Vector(double distance, double angle){
+	public Vector(double distance, double angle){
 		this.distance = distance;
 		this.angle = angle;
 	}

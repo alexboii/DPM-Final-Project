@@ -3,7 +3,6 @@ package Localization;
 import Navigation.Navigation;
 import Odometer.Odometer;
 import lejos.hardware.Sound;
-import lejos.hardware.sensor.SensorMode;
 import lejos.robotics.SampleProvider;
 
 public class LightLocalizer {
@@ -14,8 +13,8 @@ public class LightLocalizer {
 
 	// CONSTANTS
 	private double SENSOR_TO_AXLE = 7.5;
-	private static final float ROTATION_SPEED = 60;
-	private static final float SECOND_ROTATION_SPEED = 60;
+	private static final float ROTATION_SPEED = 130;
+	private static final float SECOND_ROTATION_SPEED = 130;
 	private static final int INITIAL_ANGLE = 45;
 	private static final int ZERO = 0;
 	private static final int MAX_LINE_COUNT = 4;
@@ -70,7 +69,6 @@ public class LightLocalizer {
 				theta[lineCounter] = odo.getTheta();
 				lineCounter++;
 				Sound.beep();
-				USLocalizer.sleepThread();
 			}
 		}
 
@@ -101,10 +99,9 @@ public class LightLocalizer {
 
 		// TRAVEL TO DESIRED (0, 0) POINT
 //		navigator.travelTo(ZERO_X, ZERO_Y);
-		USLocalizer.sleepThread();
 
 		// ADJUST TO CORRECT Y+ AXIS
-		navigator.turnTo(135, true);
+		navigator.turnTo(150, true); //Put up from 135 to 150
 		// navigator.turnTo(180, true);
 		odo.setPosition(new double[] { deltaX, deltaY, 90 }, new boolean[] { false, false, true });
 

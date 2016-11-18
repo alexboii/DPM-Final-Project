@@ -1,6 +1,5 @@
 package Application;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import Localization.LightLocalizer;
@@ -9,13 +8,13 @@ import Navigation.Navigation;
 import Odometer.LCDInfo;
 import Odometer.Odometer;
 import SensorData.USPoller;
-import Wifi.WifiConnection;
-import lejos.hardware.*;
+import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
-import lejos.hardware.port.Port;
-import lejos.hardware.sensor.*;
+import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.hardware.sensor.EV3UltrasonicSensor;
+import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
 
 /**
@@ -24,7 +23,7 @@ import lejos.robotics.SampleProvider;
  * our robot.
  * 
  * @author Alex
- * @author Seb 
+ * @author Seb
  *
  */
 public class StartRobot {
@@ -32,7 +31,7 @@ public class StartRobot {
 	/**
 	 * Instantiation of all motors
 	 */
-	
+
 	// MOTORS ARE REVERSED FOR LEFT AND RIGHT
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
@@ -45,7 +44,8 @@ public class StartRobot {
 	private static final SensorModes usSensorHigh = new EV3UltrasonicSensor(LocalEV3.get().getPort("S1"));
 	private static final SensorModes usSensorLow = new EV3UltrasonicSensor(LocalEV3.get().getPort("S2"));
 	private static final EV3ColorSensor lightSensorBottom = new EV3ColorSensor(LocalEV3.get().getPort("S4"));
-	private static final EV3ColorSensor lightSensorClaw = new EV3ColorSensor(LocalEV3.get().getPort("S3"));
+	// private static final EV3ColorSensor lightSensorClaw = new
+	// EV3ColorSensor(LocalEV3.get().getPort("S3"));
 
 	/**
 	 * Server IP's and team number, used for retrieval of parameters
@@ -61,24 +61,21 @@ public class StartRobot {
 	/**
 	 * Define all parameters to be received from the WifiConnection class
 	 */
-	private static int LGZy, LGZx, CSC, BSC, CTN, BTN, URZx, LRZy, LRZx, URZy, UGZy, UGZx;
+	public static int LGZy, LGZx, CSC, BSC, CTN, BTN, URZx, LRZy, LRZx, URZy, UGZy, UGZx;
 
 	/**
 	 * Receive and assign parameters from client. Start the robot
 	 * 
 	 * @param args
 	 */
-	
-	
+
 	/**
 	 * Define program constants
 	 */
-	private static final double TILE = 30.48; 
+	private static final double TILE = 30.48;
 	private static final int CLAW_ANGLE = 10;
 	private static final int FULL_CIRCLE = 360;
 
-	
-	
 	public static void main(String[] args) {
 
 		// INITIALIZE HIGH SENSOR
@@ -96,12 +93,11 @@ public class StartRobot {
 
 		USPoller usPollerHigh = new USPoller(usValueHigh, usDataHigh);
 		USPoller usPollerLow = new USPoller(usValueLow, usDataLow);
-		
+
 		usPollerHigh.start();
 		new Thread(usPollerLow).start();
-//		odometer.start();
-		
-		
+		// odometer.start();
+
 		// INITIALIZE COLOUR SENSOR, FIRST IN RGB MODE
 		//// EV3ColorSensor colorSensor = new EV3ColorSensor(colorPort);
 		// colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
@@ -131,157 +127,194 @@ public class StartRobot {
 		} while (buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT);
 
 		if (buttonChoice == Button.ID_LEFT) {
-//			 usPollerHigh.start();
-			 objectDetect.start();
-//			t.clear();
-//			WifiConnection conn = null;
-//			try {
-//				System.out.println("Connecting...");
-//				conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, true);
-//			} catch (IOException e) {
-//				System.out.println("Connection failed");
-//			}
-//
-//			/*
-//			 * This section of the code reads and prints the data received from
-//			 * the server, stored as a HashMap with String keys and Integer
-//			 * values.
-//			 */
-//			if (conn != null) {
-//				text = conn.StartData;
-//				if (t == null) {
-//					System.out.println("Failed to read transmission");
-//				} else {
-//					System.out.println("Transmission read:\n" + text.toString());
-//				}
-//			}
+			// usPollerHigh.start();
+			t.clear();
+			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow); // t.clear();
+			// WifiConnection conn = null;
+			// try {
+			// System.out.println("Connecting...");
+			// conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, true);
+			// } catch (IOException e) {
+			// System.out.println("Connection failed");
+			// }
+			//
+			// /*
+			// * This section of the code reads and prints the data received
+			// from
+			// * the server, stored as a HashMap with String keys and Integer
+			// * values.
+			// */
+			// if (conn != null) {
+			// text = conn.StartData;
+			// if (t == null) {
+			// System.out.println("Failed to read transmission");
+			// } else {
+			// System.out.println("Transmission read:\n" + text.toString());
 
-//			setLGZy(text.get("LGZy"));
-//			setLGZx(text.get("LGZx"));
-//			setCSC(text.get("CSC"));
-//			setBSC(text.get("BSC"));
-//			setCTN(text.get("CTN"));
-//			setBTN(text.get("BTN"));
-//			setURZx(text.get("URZx"));
-//			setLRZy(text.get("LRZy"));
-//			setLRZx(text.get("LRZx"));
-//			setURZy(text.get("URZy"));
-//			setUGZy(text.get("UGZy"));
-//			setUGZx(text.get("UGZx"));
+			// setLGZy(text.get("LGZy"));
+			// setLGZx(text.get("LGZx"));
+			// setCSC(text.get("CSC"));
+			// setBSC(text.get("BSC"));
+			// setCTN(text.get("CTN"));
+			// setBTN(text.get("BTN"));
+			// setURZx(text.get("URZx"));
+			// setLRZy(text.get("LRZy"));
+			// setLRZx(text.get("LRZx"));
+			// setURZy(text.get("URZy"));
+			// setUGZy(text.get("UGZy"));
+			// setUGZx(text.get("UGZx"));
+
+			// }
+			// }
+
+			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
+			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+
+			// // DO US LOCALIZATION
+			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
+			usl.doLocalization(navigator);
+
+			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
+
+			// DO LIGHT LOCALIZATION
+			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
+			lsl.doLocalization(navigator);
+
+			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
+					pulleyMotor);
+			attempt.start();
 
 		} else {
 
-
 			// pulleyMotor.rotate(90);
 			t.clear();
-			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow );
+			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow);
+
+			setLGZy(100);
+			setLGZx(-100);
+			setUGZy(120);
+			setUGZx(-120);
 			
-			
-			
+			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
+			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+
+			// // DO US LOCALIZATION
+			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
+			usl.doLocalization(navigator);
+
+			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
+
+			// DO LIGHT LOCALIZATION
+			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
+			lsl.doLocalization(navigator);
+
+			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
+					pulleyMotor);
+			attempt.start();
+
 			// while(true){
 			// t.drawString("TACHO: " + pulleyMotor.getTachoCount(), 0, 3);
 			//
 			// }
 
 			// pulleyMotor.rotate(-3000);
-			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
-			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+//			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
+//			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
 
-////			// DO US LOCALIZATION
-//			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
-//			usl.doLocalization(navigator);
-//
-//			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
-//
-////
-////			// DO LIGHT LOCALIZATION
-//			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
-//			lsl.doLocalization(navigator);
-			
-//			navigator.travelTo(-60,60);
+			//// // DO US LOCALIZATION
+			// USLocalizer usl = new USLocalizer(odometer, usValueLow,
+			//// usDataLow, type);
+			// usl.doLocalization(navigator);
+			//
+			// // SWITCH TO RED MODE FOR LIGHT LOCALIZATION
+			//
+			////
+			//// // DO LIGHT LOCALIZATION
+			// LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc,
+			//// colorDataLoc);
+			// lsl.doLocalization(navigator);
 
-			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor, pulleyMotor);
-			attempt.start();
-			
-//			odometer.setPosition(new double[] { 0, 0, 0 },
-//					new boolean[] { true, true, true });
-//			
-			while (Button.waitForAnyPress() != Button.ID_ESCAPE){
+			// navigator.travelTo(-60,60);
+
+			//
+			// clawMotor.rotate(100);
+			// pulleyMotor.rotate(700);
+			// clawMotor.rotate(-400);
+			// pulleyMotor.rotate(-800);
+
+			// clawMotor.rotate(-50);
+
+			// clawMotor.rotate(100);
+
+//			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
+//					pulleyMotor);
+//			attempt.start();
+
+			// odometer.setPosition(new double[] { 0, 0, 0 },
+			// new boolean[] { true, true, true });
+			//
+			while (Button.waitForAnyPress() != Button.ID_ESCAPE) {
 				buttonChoice = Button.waitForAnyPress();
-				
-				
-				if(buttonChoice == Button.ID_RIGHT){
+
+				if (buttonChoice == Button.ID_RIGHT) {
 					closeClaw();
 				}
-				
-				
-				if(buttonChoice == Button.ID_LEFT){
+
+				if (buttonChoice == Button.ID_LEFT) {
 					openClaw();
 				}
-				
-				
-				
-				if(buttonChoice == Button.ID_UP){
+
+				if (buttonChoice == Button.ID_UP) {
 					pulleyUp(1);
-				//	navigator.goForward(4);
+					// navigator.goForward(4);
 				}
-				
-				if(buttonChoice == Button.ID_DOWN){
+
+				if (buttonChoice == Button.ID_DOWN) {
 					pulleyDown(1);
-				//	navigator.goForward(-4);
+					// navigator.goForward(-4);
 
 				}
-				
-				
-				
+
 			}
-			
+
 			double[] distances = new double[20];
-				
-				//scan for objects
-				//with lower sensor
-				
-				//save lower sensor for each theta
-				
-				//go to closest object
-				
-				//analyze object
-				
-				//if blue block, grab
-				
-				//take to -15,-15
-				
-				
-//				for(int i =0 ; i < 20; ++i){
-//					navigator.turnTo(i * (Math.PI / 40 ));
-//					distances[i]= usPollerLow.getDistance();
-//				}
-//
-//				
-//				navigator.turnTo(findSmallestDistance(distances)  * (Math.PI / 40 ) );
-//				
-//				navigator.goForward(distances[findSmallestDistance(distances)] - 3);
-//				
-//				if( (usPollerLow.getDistance() + 20) < usPollerHigh.getDistance()){
-//					
-//					pickUpBlock();
-//				}
-//				
-//				navigator.travelTo(2 * TILE, 0);
-//				
-				
-				
-				
-			
-			
-			
-			
-			
-			
-			
-//			navigator.turnTo(Math.PI/2);
-			
-			
+
+			// scan for objects
+			// with lower sensor
+
+			// save lower sensor for each theta
+
+			// go to closest object
+
+			// analyze object
+
+			// if blue block, grab
+
+			// take to -15,-15
+
+			// for(int i =0 ; i < 20; ++i){
+			// navigator.turnTo(i * (Math.PI / 40 ));
+			// distances[i]= usPollerLow.getDistance();
+			// }
+			//
+			//
+			// navigator.turnTo(findSmallestDistance(distances) * (Math.PI / 40
+			// ) );
+			//
+			// navigator.goForward(distances[findSmallestDistance(distances)] -
+			// 3);
+			//
+			// if( (usPollerLow.getDistance() + 20) <
+			// usPollerHigh.getDistance()){
+			//
+			// pickUpBlock();
+			// }
+			//
+			// navigator.travelTo(2 * TILE, 0);
+			//
+
+			// navigator.turnTo(Math.PI/2);
+
 		}
 
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE)
@@ -289,28 +322,25 @@ public class StartRobot {
 		System.exit(0);
 
 	}
-	
-	public static int findSmallestDistance(double[] distances){
+
+	public static int findSmallestDistance(double[] distances) {
 		int index;
 		double min;
-		
+
 		index = 0;
 		min = distances[0];
-		
-		for(int i =0; i< distances.length ; ++i){
-			if(distances[i] < min){
-				min=distances[i];
+
+		for (int i = 0; i < distances.length; ++i) {
+			if (distances[i] < min) {
+				min = distances[i];
 				index = i;
 			}
 		}
-		
-		
+
 		return index;
 	}
-	
-	
-		
-	public static void pickUpBlock(){
+
+	public static void pickUpBlock() {
 		pulleyMotor.setSpeed(300);
 		openClaw();
 		pulleyDown(5);
@@ -320,33 +350,29 @@ public class StartRobot {
 		openClaw();
 		pulleyDown(1.5);
 	}
-	
-	
-	public static void openClaw(){
-		clawMotor.rotate(CLAW_ANGLE, false);	
+
+	public static void openClaw() {
+		clawMotor.rotate(CLAW_ANGLE, false);
 	}
-	
-	
-	public static void closeClaw(){
-		clawMotor.rotate(-CLAW_ANGLE, false);	
+
+	public static void closeClaw() {
+		clawMotor.rotate(-CLAW_ANGLE, false);
 	}
-	
-	//TODO
-	//    the info below is outdated since we improved the crane design, gotta re-take these measurements
-	
-	//360 = 5 circles = 2.5cm aprox
-	//maximum height = 27 circles = 13.5 cm
-	//each block = 3cm => maxBlock = 13.5/3 = 4
-	
-	
-	
-	public static void pulleyUp(double distance){
-		pulleyMotor.rotate(-(int)(FULL_CIRCLE * distance), false);
+
+	// TODO
+	// the info below is outdated since we improved the crane design, gotta
+	// re-take these measurements
+
+	// 360 = 5 circles = 2.5cm aprox
+	// maximum height = 27 circles = 13.5 cm
+	// each block = 3cm => maxBlock = 13.5/3 = 4
+
+	public static void pulleyUp(double distance) {
+		pulleyMotor.rotate(-(int) (FULL_CIRCLE * distance), false);
 	}
-	
-	
-	public static void pulleyDown(double distance){
-		pulleyMotor.rotate((int)(FULL_CIRCLE * distance), false);
+
+	public static void pulleyDown(double distance) {
+		pulleyMotor.rotate((int) (FULL_CIRCLE * distance), false);
 	}
 
 	/**

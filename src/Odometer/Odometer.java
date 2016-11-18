@@ -1,5 +1,7 @@
 package Odometer;
 
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
+
 /*
  * File: Odometer.java
  * Written by: Sean Lawlor
@@ -30,7 +32,6 @@ package Odometer;
 
 import lejos.utility.Timer;
 import lejos.utility.TimerListener;
-import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Odometer implements TimerListener {
 
