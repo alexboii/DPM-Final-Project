@@ -111,7 +111,7 @@ public class StartRobot {
 
 		ObjectDetector objectDetect = new ObjectDetector(usPollerLow, usPollerHigh, t);
 
-		Navigation navigator = new Navigation(odometer);
+		Navigation navigator = new Navigation(odometer, usPollerLow);
 
 		int buttonChoice;
 
