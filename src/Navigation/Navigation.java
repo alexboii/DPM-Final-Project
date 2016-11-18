@@ -32,17 +32,18 @@ public class Navigation {
 	private static final double US_OFFSET = 20;
 
 	// Object avoidance constants
-	private static final double MIN_DISTANCE = 10;
-	private static final double SAFETY_RATIO = 1.8;
-	private static final double SAFETY_RATIO_2 = 1.5;
+	private static final double MIN_DISTANCE = 12;
+	private static final double SAFETY_RATIO = 1.5;
+	private static final double SAFETY_ANGLE = 60;
 
 	// isWooden constants
-	private static final double MIN_WOODEN_SIZE = 16.5;
+	private static final double MIN_WOODEN_SIZE = 18;
 
 	// temp variable, debug purposes
-	public static double[] data = new double[4];
+	//public static double[] data = new double[4];
 
 	public static final int SLOW_ROTATE_SPEED = 30;
+	public static final int FORWARD_SPEED = 150;
 
 	public static final int ROTATE_SPEED = 50;
 
@@ -53,11 +54,6 @@ public class Navigation {
 	public Navigation(Odometer odo, USPoller us) {
 		this.odometer = odo;
 		this.us = us;
-		data[0] = 0;
-		data[1] = 0;
-		data[2] = 0;
-		data[3] = 0;
-
 		EV3LargeRegulatedMotor[] motors = this.odometer.getMotors();
 		this.leftMotor = motors[0];
 		this.rightMotor = motors[1];
@@ -101,7 +97,7 @@ public class Navigation {
 		ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
 		double initialDistance = us.getDistance();
 		results[3] = initialDistance;
-		data[3] = initialDistance;
+	//	data[3] = initialDistance;
 		double initialAngle = odometer.getTheta();
 		Vector vector = new Vector(us.getDistance(), odometer.getTheta());
 		;
@@ -135,11 +131,8 @@ public class Navigation {
 
 		firstObjectEdge = list_of_vectors.get(list_of_vectors.size() - 1);
 		list_of_vectors.removeAll(list_of_vectors);
-
 		turnTo(initialAngle, false);
-
 		vector = new Vector(us.getDistance(), odometer.getTheta());
-
 		setSpeeds(SLOW_ROTATE_SPEED, -SLOW_ROTATE_SPEED);
 
 		// Second edge
@@ -158,7 +151,6 @@ public class Navigation {
 		}
 
 		stop();
-
 		turnTo(initialAngle, true);
 
 		secondObjectEdge = list_of_vectors.get(list_of_vectors.size() - 1);
@@ -180,7 +172,7 @@ public class Navigation {
 			length = rightLength + leftLength;
 			ratio = length;
 
-			// length= ((int)((length / 5) + 0.5 )) * 5; ;
+			length= ((int)((length / 2) + 0.5 )) * 2; ;
 			ratio = (length) / ratio;
 
 			if (length > 20)
@@ -190,7 +182,7 @@ public class Navigation {
 			results[1] = rightLength * ratio;
 			results[2] = leftLength * ratio;
 		}
-		data = results; // static variable contains last set of results for
+		//data = results; // static variable contains last set of results for
 						// print&debug
 		return results;
 	}
@@ -219,7 +211,7 @@ public class Navigation {
 	 * Will travel to designated position, while constantly updating it's
 	 * heading
 	 */
-	public void travelTo(double x, double y) {
+	public void travelTo(double x, double y, boolean avoid) {
 		double minAng;
 		double[] data = new double[4];
 		boolean object = false;
@@ -244,23 +236,33 @@ public class Navigation {
 
 			// if object too close, object avoidance
 
-			if (us.getDistance() < MIN_DISTANCE) {
-
+			if (us.getDistance() < MIN_DISTANCE && avoid) {
 				object = true;
 				this.setSpeeds(0, 0);
 				data = scanObject();
-				turnTo(odometer.getTheta() + 55, true);
-				goForward(Math.abs(data[0] * SAFETY_RATIO));
-				travelTo(x, y);
+				turnTo(odometer.getTheta() + SAFETY_ANGLE, true);
+				goForward(20 * SAFETY_RATIO);	
+			//	turnTo(90, true);
+				
+				travelTo(x, y, true);
 			}
-
 		}
 		if (!object) {
 			this.setSpeeds(0, 0);
 		}
-
 	}
-
+	
+	
+	public void avoidObject(){
+		double[] data = new double[4];
+		
+		this.setSpeeds(0, 0);
+		//data = scanObject();
+		turnTo(odometer.getTheta() + SAFETY_ANGLE, true);
+		goForward(20 * SAFETY_RATIO);	
+	//	turnTo(90, true);
+	}
+	
 	/*
 	 * TurnTo function which takes an angle and boolean as arguments The boolean
 	 * controls whether or not to stop the motors when the turn is completed
@@ -293,22 +295,22 @@ public class Navigation {
 
 		double[] data = new double[4];
 		data = scanObject();
-		if (data[0] > MIN_WOODEN_SIZE) {
+		if (data[0] >= MIN_WOODEN_SIZE) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	// debug purposes
-	public double[] getData() {
-		return data;
-	}
 
 	public void goForward(double distance) {
-		this.travelTo(odometer.getX() + Math.cos(Math.toRadians(this.odometer.getTheta())) * distance,
-				odometer.getY() + Math.sin(Math.toRadians(this.odometer.getTheta())) * distance);
-
+		//this.travelTo(odometer.getX() + Math.cos(Math.toRadians(this.odometer.getTheta())) * distance,
+			//	odometer.getY() + Math.sin(Math.toRadians(this.odometer.getTheta())) * distance, false);
+		
+		this.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+		
+		leftMotor.rotate(    (int) ((180.0 * distance) / (Math.PI * odometer.getRadius()))   , true);
+		rightMotor.rotate((int) ((180.0 * distance) / (Math.PI * odometer.getRadius())) , false);
 	}
 
 	public void stop() {
