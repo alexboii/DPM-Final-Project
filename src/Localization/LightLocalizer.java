@@ -94,14 +94,16 @@ public class LightLocalizer {
 		System.out.println("\n\n\n" + deltaTheta + "//" + odo.getTheta() + "//" + (odo.getTheta() + deltaTheta));
 
 		// SET NEW POSITION ON ODOMETER
-		this.odo.setPosition(new double[] { deltaX, deltaY, deltaTheta },
-				new boolean[] { true, true, true });
+//		this.odo.setPosition(new double[] { deltaX, deltaY, deltaTheta },
+//				new boolean[] { true, true, true });
 
 		// TRAVEL TO DESIRED (0, 0) POINT
 //		navigator.travelTo(ZERO_X, ZERO_Y);
 
 		// ADJUST TO CORRECT Y+ AXIS
-		navigator.turnTo(150, true); //Put up from 135 to 150
+//		navigator.turnTo(150, true); //Put up from 135 to 150
+		
+		navigator.turnTo(0, true);
 		// navigator.turnTo(180, true);
 		odo.setPosition(new double[] { deltaX, deltaY, 90 }, new boolean[] { false, false, true });
 

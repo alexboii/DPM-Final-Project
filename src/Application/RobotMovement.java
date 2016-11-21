@@ -28,7 +28,7 @@ public class RobotMovement extends Thread {
 	USPoller usPollerLow;
 	USPoller usPollerHigh;
 	protected boolean blue_found = false;
-	public static final int ROTATE_SPEED = 50;
+	public static final int ROTATE_SPEED = 76;
 	private static final int BAND_WIDTH = 15;
 
 	private static final int TURN_ANGLE_1 = 75;
@@ -50,15 +50,17 @@ public class RobotMovement extends Thread {
 	private static final int WAYPOINT_Y = 70;
 	private static final int CAGE_FULL_DOWN = 1200;
 
-	private static final int pulleySpeed = -500;
-	private static final int pullDownFull = 1200;
-	private static final int closeClaw_1 = -40;
-	private static final int openClaw_1 = 100;
-	private static final int pullDownToBlock = 700;
-	private static final int closeClaw_2 = -200;
-	private static final int pullUpFromBlock = -2000;
-	private static final int distanceScanThreshold = 30;
-	private static final int distanceApproachThreshold = 11;
+	private static final int PULLEY_SPEED = -500;
+	private static final int PULL_DOWN_FULL = 1200;
+	private static final int CLOSE_CLAW_1 = -40;
+	private static final int OPEN_CLAW_1 = 100;
+	private static final int PULL_DOWN_TO_BLOCK = 700;
+	private static final int CLOSE_CLAW_2 = -200;
+	private static final int PULL_UP_FROM_BLOCK = -2000;
+	private static final int DISTANCE_SCAN_THRESHOLD = 41;
+	private static final int DISTANCE_APPROACH_THRESHOLD = 11;
+	private static final int ADDITION_SLEEP_TIME = 73;
+
 
 	EV3LargeRegulatedMotor clawMotor;
 	EV3LargeRegulatedMotor pulleyMotor;
@@ -97,7 +99,7 @@ public class RobotMovement extends Thread {
 	public void run() {
 		boolean isWooden;
 	//	pullCageDown();
-	clawMotor.rotate(openClaw_1);
+	clawMotor.rotate(OPEN_CLAW_1);
 
 		while (!blue_found) {
 
@@ -111,7 +113,7 @@ public class RobotMovement extends Thread {
 
 				Vector vector = new Vector(usPollerLow.getDistance(), odometer.getTheta());
 				try {
-					Thread.sleep(150);
+					Thread.sleep(ADDITION_SLEEP_TIME);
 				} catch (InterruptedException e) {
 				}
 				list_of_vectors.add(vector);
@@ -130,10 +132,10 @@ public class RobotMovement extends Thread {
 			} catch (InterruptedException e) {
 			}
 			
-			if ((list_of_vectors.get(0).getDistance()) < distanceScanThreshold) {
+			if ((list_of_vectors.get(0).getDistance()) < DISTANCE_SCAN_THRESHOLD) {
 
 				navigator.turnTo(list_of_vectors.get(0).getAngle(), true);
-				navigator.goForward((list_of_vectors.get(0).getDistance()) - distanceApproachThreshold);
+				navigator.goForward((list_of_vectors.get(0).getDistance()) - DISTANCE_APPROACH_THRESHOLD);
 				
 				isWooden = navigator.isWooden();
 				
@@ -142,7 +144,7 @@ public class RobotMovement extends Thread {
 					navigator.avoidObject();
 					continue;
 				} else {
-					navigator.goForward(distanceApproachThreshold-3);
+					navigator.goForward(DISTANCE_APPROACH_THRESHOLD-3);
 					pullCageDown();
 					grabObject();
 					list_of_vectors.clear();
@@ -156,14 +158,15 @@ public class RobotMovement extends Thread {
 			list_of_vectors.clear();
 			
 			navigator.turnTo(135, true);
-			navigator.goForward(distanceScanThreshold * 0.5);
+			navigator.goForward(DISTANCE_SCAN_THRESHOLD * 0.5);
 
 		}
 		
 	//	navigator.travelTo(-100, 100, true);
 		navigator.travelTo((StartRobot.UGZx + StartRobot.LGZx)/2 , (StartRobot.UGZy + StartRobot.LGZy)/2 , true);
-		clawMotor.rotate(openClaw_1);
-//		clawMotor.rotate(openClaw_1);
+		pullCageDown();
+		clawMotor.rotate(OPEN_CLAW_1);
+//		clawMotor.rotate(OPEN_CLAW_1);
 
 	}
 
@@ -172,17 +175,17 @@ public class RobotMovement extends Thread {
 	}
 
 	private void pullCageDown() {
-		pulleyMotor.setSpeed(pulleySpeed);
-		pulleyMotor.rotate(pullDownFull);
-//		clawMotor.rotate(closeClaw_1);
+		pulleyMotor.setSpeed(PULLEY_SPEED);
+		pulleyMotor.rotate(PULL_DOWN_FULL);
+//		clawMotor.rotate(CLOSE_CLAW_1);
 	}
 
 	private void grabObject() {
-//		clawMotor.rotate(openClaw_1);
+//		clawMotor.rotate(OPEN_CLAW_1);
 		clawMotor.setAcceleration(5000);
-		pulleyMotor.rotate(pullDownToBlock);
-		clawMotor.rotate(closeClaw_2);
-		pulleyMotor.rotate(pullUpFromBlock);
+		pulleyMotor.rotate(PULL_DOWN_TO_BLOCK);
+		clawMotor.rotate(CLOSE_CLAW_2);
+		pulleyMotor.rotate(PULL_UP_FROM_BLOCK);
 	}
 
 }

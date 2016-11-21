@@ -33,14 +33,14 @@ public class Navigation {
 
 	// Object avoidance constants
 	private static final double MIN_DISTANCE = 12;
-	private static final double SAFETY_RATIO = 1.5;
+	private static final double SAFETY_RATIO = 1.6;
 	private static final double SAFETY_ANGLE = 60;
 
 	// isWooden constants
-	private static final double MIN_WOODEN_SIZE = 18;
+	private static final double MIN_WOODEN_SIZE = 19;
 
 	// temp variable, debug purposes
-	//public static double[] data = new double[4];
+	// public static double[] data = new double[4];
 
 	public static final int SLOW_ROTATE_SPEED = 30;
 	public static final int FORWARD_SPEED = 150;
@@ -97,7 +97,8 @@ public class Navigation {
 		ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
 		double initialDistance = us.getDistance();
 		results[3] = initialDistance;
-	//	data[3] = initialDistance;
+		boolean nullPointer = false;
+		// data[3] = initialDistance;
 		double initialAngle = odometer.getTheta();
 		Vector vector = new Vector(us.getDistance(), odometer.getTheta());
 		;
@@ -129,7 +130,14 @@ public class Navigation {
 		}
 		// stop();
 
-		firstObjectEdge = list_of_vectors.get(list_of_vectors.size() - 1);
+		if( list_of_vectors.size()==0){
+			nullPointer = true;
+			firstObjectEdge = vector;
+		} else {
+			firstObjectEdge = list_of_vectors.get(list_of_vectors.size() - 1);
+		}
+		
+		
 		list_of_vectors.removeAll(list_of_vectors);
 		turnTo(initialAngle, false);
 		vector = new Vector(us.getDistance(), odometer.getTheta());
@@ -153,8 +161,14 @@ public class Navigation {
 		stop();
 		turnTo(initialAngle, true);
 
-		secondObjectEdge = list_of_vectors.get(list_of_vectors.size() - 1);
-
+		if( list_of_vectors.size()==0){
+			nullPointer = true;
+			secondObjectEdge = vector;
+		} else {
+			secondObjectEdge = list_of_vectors.get(list_of_vectors.size() - 1);
+		}
+		
+		
 		list_of_vectors.removeAll(list_of_vectors);
 
 		alpha = initialAngle - firstObjectEdge.getAngle();
@@ -172,18 +186,29 @@ public class Navigation {
 			length = rightLength + leftLength;
 			ratio = length;
 
-			length= ((int)((length / 2) + 0.5 )) * 2; ;
+		//	length = ((int) ((length / 1) + 0.5)) * 1;
+			;
 			ratio = (length) / ratio;
 
 			if (length > 20)
 				length = 20;
 
+			
+			if(!nullPointer){
 			results[0] = length;
 			results[1] = rightLength * ratio;
 			results[2] = leftLength * ratio;
+			} else {
+				results[0] = 20;
+				results[1] = rightLength * ratio;
+				results[2] = leftLength * ratio;
+			}
+			
+			
+			
 		}
-		//data = results; // static variable contains last set of results for
-						// print&debug
+		// data = results; // static variable contains last set of results for
+		// print&debug
 		return results;
 	}
 
@@ -241,9 +266,9 @@ public class Navigation {
 				this.setSpeeds(0, 0);
 				data = scanObject();
 				turnTo(odometer.getTheta() + SAFETY_ANGLE, true);
-				goForward(20 * SAFETY_RATIO);	
-			//	turnTo(90, true);
-				
+				goForward(21 * SAFETY_RATIO);
+				// turnTo(90, true);
+
 				travelTo(x, y, true);
 			}
 		}
@@ -251,18 +276,17 @@ public class Navigation {
 			this.setSpeeds(0, 0);
 		}
 	}
-	
-	
-	public void avoidObject(){
+
+	public void avoidObject() {
 		double[] data = new double[4];
-		
+
 		this.setSpeeds(0, 0);
-		//data = scanObject();
+		// data = scanObject();
 		turnTo(odometer.getTheta() + SAFETY_ANGLE, true);
-		goForward(20 * SAFETY_RATIO);	
-	//	turnTo(90, true);
+		goForward(20 * SAFETY_RATIO);
+		// turnTo(90, true);
 	}
-	
+
 	/*
 	 * TurnTo function which takes an angle and boolean as arguments The boolean
 	 * controls whether or not to stop the motors when the turn is completed
@@ -302,15 +326,16 @@ public class Navigation {
 		}
 	}
 
-
 	public void goForward(double distance) {
-		//this.travelTo(odometer.getX() + Math.cos(Math.toRadians(this.odometer.getTheta())) * distance,
-			//	odometer.getY() + Math.sin(Math.toRadians(this.odometer.getTheta())) * distance, false);
-		
+		// this.travelTo(odometer.getX() +
+		// Math.cos(Math.toRadians(this.odometer.getTheta())) * distance,
+		// odometer.getY() + Math.sin(Math.toRadians(this.odometer.getTheta()))
+		// * distance, false);
+
 		this.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
-		
-		leftMotor.rotate(    (int) ((180.0 * distance) / (Math.PI * odometer.getRadius()))   , true);
-		rightMotor.rotate((int) ((180.0 * distance) / (Math.PI * odometer.getRadius())) , false);
+
+		leftMotor.rotate((int) ((180.0 * distance) / (Math.PI * 2.1)), true);
+		rightMotor.rotate((int) ((180.0 * distance) / (Math.PI * 2.1)), false);
 	}
 
 	public void stop() {

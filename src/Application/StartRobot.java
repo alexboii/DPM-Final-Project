@@ -1,5 +1,6 @@
 package Application;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import Localization.LightLocalizer;
@@ -8,6 +9,7 @@ import Navigation.Navigation;
 import Odometer.LCDInfo;
 import Odometer.Odometer;
 import SensorData.USPoller;
+import Wifi.WifiConnection;
 import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
@@ -50,7 +52,7 @@ public class StartRobot {
 	/**
 	 * Server IP's and team number, used for retrieval of parameters
 	 */
-	private static final String SERVER_IP = "192.168.2.10";
+	private static final String SERVER_IP = "192.168.2.3";
 	private static final int TEAM_NUMBER = 14;
 
 	/**
@@ -130,42 +132,41 @@ public class StartRobot {
 			// usPollerHigh.start();
 			t.clear();
 			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow); // t.clear();
-			// WifiConnection conn = null;
-			// try {
-			// System.out.println("Connecting...");
-			// conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, true);
-			// } catch (IOException e) {
-			// System.out.println("Connection failed");
-			// }
-			//
-			// /*
-			// * This section of the code reads and prints the data received
-			// from
-			// * the server, stored as a HashMap with String keys and Integer
-			// * values.
-			// */
-			// if (conn != null) {
-			// text = conn.StartData;
-			// if (t == null) {
-			// System.out.println("Failed to read transmission");
-			// } else {
-			// System.out.println("Transmission read:\n" + text.toString());
+			WifiConnection conn = null;
+			try {
+				System.out.println("Connecting...");
+				conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, true);
+			} catch (IOException e) {
+				System.out.println("Connection failed");
+			}
 
-			// setLGZy(text.get("LGZy"));
-			// setLGZx(text.get("LGZx"));
-			// setCSC(text.get("CSC"));
-			// setBSC(text.get("BSC"));
-			// setCTN(text.get("CTN"));
-			// setBTN(text.get("BTN"));
-			// setURZx(text.get("URZx"));
-			// setLRZy(text.get("LRZy"));
-			// setLRZx(text.get("LRZx"));
-			// setURZy(text.get("URZy"));
-			// setUGZy(text.get("UGZy"));
-			// setUGZx(text.get("UGZx"));
+			/*
+			 * This section of the code reads and prints the data received from
+			 * the server, stored as a HashMap with String keys and Integer
+			 * values.
+			 */
+			if (conn != null) {
+				text = conn.StartData;
+				if (t == null) {
+					System.out.println("Failed to read transmission");
+				} else {
+					System.out.println("Transmission read:\n" + text.toString());
 
-			// }
-			// }
+					setLGZy(text.get("LGZy"));
+					setLGZx(text.get("LGZx"));
+					setCSC(text.get("CSC"));
+					setBSC(text.get("BSC"));
+					setCTN(text.get("CTN"));
+					setBTN(text.get("BTN"));
+					setURZx(text.get("URZx"));
+					setLRZy(text.get("LRZy"));
+					setLRZx(text.get("LRZx"));
+					setURZy(text.get("URZy"));
+					setUGZy(text.get("UGZy"));
+					setUGZx(text.get("UGZx"));
+
+				}
+			}
 
 			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
 			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
@@ -190,23 +191,23 @@ public class StartRobot {
 			t.clear();
 			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow);
 
-			setLGZy(100);
-			setLGZx(-100);
-			setUGZy(120);
-			setUGZx(-120);
-			
+			setLGZy(2);
+			setLGZx(2);
+			setUGZy(3);
+			setUGZx(3);
+
 			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
 			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
 
 			// // DO US LOCALIZATION
-			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
-			usl.doLocalization(navigator);
+//			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
+//			usl.doLocalization(navigator);
 
 			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
 
 			// DO LIGHT LOCALIZATION
-			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
-			lsl.doLocalization(navigator);
+//			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
+//			lsl.doLocalization(navigator);
 
 			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
 					pulleyMotor);
@@ -218,8 +219,8 @@ public class StartRobot {
 			// }
 
 			// pulleyMotor.rotate(-3000);
-//			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
-//			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+			// SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
+			// float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
 
 			//// // DO US LOCALIZATION
 			// USLocalizer usl = new USLocalizer(odometer, usValueLow,
@@ -246,9 +247,10 @@ public class StartRobot {
 
 			// clawMotor.rotate(100);
 
-//			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
-//					pulleyMotor);
-//			attempt.start();
+			// RobotMovement attempt = new RobotMovement(odometer, navigator,
+			// usPollerLow, usPollerHigh, clawMotor,
+			// pulleyMotor);
+			// attempt.start();
 
 			// odometer.setPosition(new double[] { 0, 0, 0 },
 			// new boolean[] { true, true, true });
@@ -389,7 +391,7 @@ public class StartRobot {
 	 *            coordinate of upper right corner of Green Zone
 	 */
 	public static void setLGZy(int lGZy) {
-		LGZy = lGZy;
+		LGZy = (int)(lGZy * 30.48);
 	}
 
 	/**
@@ -406,7 +408,7 @@ public class StartRobot {
 	 *            coordinate of upper right corner of Green Zone
 	 */
 	public static void setLGZx(int lGZx) {
-		LGZx = lGZx;
+		LGZx = -(int)(lGZx * 30.48);
 	}
 
 	/**
@@ -550,7 +552,7 @@ public class StartRobot {
 	 * @param uGZy
 	 */
 	public static void setUGZy(int uGZy) {
-		UGZy = uGZy;
+		UGZy = uGZy * 30;
 	}
 
 	/**
@@ -566,7 +568,7 @@ public class StartRobot {
 	 * @param uGZx
 	 */
 	public static void setUGZx(int uGZx) {
-		UGZx = uGZx;
+		UGZx = uGZx * -30;
 	}
 
 }
