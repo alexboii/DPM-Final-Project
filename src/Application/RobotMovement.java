@@ -111,7 +111,7 @@ public class RobotMovement extends Thread {
 			while (odometer.getTheta() < ANGLE_LIMIT) {
 				navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
 
-				Vector vector = new Vector(usPollerLow.getDistance(), odometer.getTheta());
+				Vector vector = new Vector(usPollerLow.getDistance(), odometer.getTheta(), odometer.getX(), odometer.getY());
 				try {
 					Thread.sleep(ADDITION_SLEEP_TIME);
 				} catch (InterruptedException e) {
