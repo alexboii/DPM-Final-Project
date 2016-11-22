@@ -338,7 +338,7 @@ public class Navigation {
 
 		double[] data = new double[4];
 		data = scanObject();
-		if (data[0] >= MIN_WOODEN_SIZE) {
+		if (data[3] == 0) {
 			return true;
 		} else {
 			return false;
