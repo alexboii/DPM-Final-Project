@@ -49,11 +49,12 @@ public class Navigation {
 
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
-	private USPoller us;
+	private USPoller us, highUs;
 
-	public Navigation(Odometer odo, USPoller us) {
+	public Navigation(Odometer odo, USPoller us, USPoller highUs) {
 		this.odometer = odo;
 		this.us = us;
+		this.highUs = highUs;
 		EV3LargeRegulatedMotor[] motors = this.odometer.getMotors();
 		this.leftMotor = motors[0];
 		this.rightMotor = motors[1];
@@ -96,7 +97,7 @@ public class Navigation {
 		double[] results = new double[4];
 		ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
 		double initialDistance = us.getDistance();
-		results[3] = initialDistance;
+		results[3] = 0;
 		boolean nullPointer = false;
 		// data[3] = initialDistance;
 		double initialAngle = odometer.getTheta();
@@ -105,6 +106,7 @@ public class Navigation {
 		Vector firstObjectEdge, secondObjectEdge;
 		double alpha, beta;
 		double leftLength, rightLength, length;
+		double minHighSensorDistance = highUs.getDistance();
 		double ratio;
 
 		boolean wall = false;
@@ -116,7 +118,11 @@ public class Navigation {
 			waitMs(SCAN_TIME);
 
 			setSpeeds(-SLOW_ROTATE_SPEED, SLOW_ROTATE_SPEED);
-
+			
+			if(highUs.getDistance()< minHighSensorDistance){
+				minHighSensorDistance = highUs.getDistance();
+			}
+			
 			vector = new Vector(us.getDistance(), odometer.getTheta());
 			list_of_vectors.add(vector);
 
@@ -148,6 +154,12 @@ public class Navigation {
 				.abs((initialDistance / Math.abs(Math.cos(Math.toRadians(odometer.getTheta()))))
 						+ initialDistance * MARGIN))) {
 			waitMs(SCAN_TIME);
+			
+			
+			if(highUs.getDistance()< minHighSensorDistance){
+				minHighSensorDistance = highUs.getDistance();
+			}
+			
 
 			vector = new Vector(us.getDistance(), odometer.getTheta());
 			list_of_vectors.add(vector);
@@ -181,6 +193,8 @@ public class Navigation {
 			results[0] = -1;
 			results[1] = -1;
 			results[2] = -1;
+			results[3] = -1;
+			
 		} else {
 
 			length = rightLength + leftLength;
@@ -198,10 +212,15 @@ public class Navigation {
 			results[0] = length;
 			results[1] = rightLength * ratio;
 			results[2] = leftLength * ratio;
+			results[3] = ( minHighSensorDistance < initialDistance + 8   )
+					? 0 // WOODEN BLOCK
+                    : 1;  // BLUE BLOCK
+			
 			} else {
 				results[0] = 20;
 				results[1] = rightLength * ratio;
 				results[2] = leftLength * ratio;
+				results[3] = 0; // WOODEN BLOCK
 			}
 			
 			
