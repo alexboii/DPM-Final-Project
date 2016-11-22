@@ -23,6 +23,9 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 public class Navigation {
 	final static int FAST = 200, SLOW = 100, ACCELERATION = 4000;
 	final static double DEG_ERR = 3.0, CM_ERR = 2.7;
+	
+
+
 
 	// ScanObject constants
 	private static final double ANGLE_LIMIT = 80;
@@ -30,6 +33,7 @@ public class Navigation {
 	private static final double SCAN_DISTANCE = 5;
 	private static final int SCAN_TIME = 30;
 	private static final double US_OFFSET = 20;
+	private static final double SENSORS_OFFSET = 12;
 
 	// Object avoidance constants
 	private static final double MIN_DISTANCE = 12;
@@ -101,8 +105,9 @@ public class Navigation {
 		boolean nullPointer = false;
 		// data[3] = initialDistance;
 		double initialAngle = odometer.getTheta();
-		Vector vector = new Vector(us.getDistance(), odometer.getTheta());
-		;
+		Vector 			 vector = new Vector(us.getDistance(), odometer.getTheta(),
+				odometer.getX(), odometer.getY());
+		
 		Vector firstObjectEdge, secondObjectEdge;
 		double alpha, beta;
 		double leftLength, rightLength, length;
@@ -123,7 +128,9 @@ public class Navigation {
 				minHighSensorDistance = highUs.getDistance();
 			}
 			
-			vector = new Vector(us.getDistance(), odometer.getTheta());
+			 vector = new Vector(us.getDistance(), odometer.getTheta(),
+						odometer.getX(), odometer.getY());
+
 			list_of_vectors.add(vector);
 
 			if (initialAngle - odometer.getTheta() > ANGLE_LIMIT) {
@@ -146,7 +153,10 @@ public class Navigation {
 		
 		list_of_vectors.removeAll(list_of_vectors);
 		turnTo(initialAngle, false);
-		vector = new Vector(us.getDistance(), odometer.getTheta());
+		 vector = new Vector(us.getDistance(), odometer.getTheta(),
+					odometer.getX(), odometer.getY());		
+		
+		
 		setSpeeds(SLOW_ROTATE_SPEED, -SLOW_ROTATE_SPEED);
 
 		// Second edge
@@ -161,8 +171,10 @@ public class Navigation {
 			}
 			
 
-			vector = new Vector(us.getDistance(), odometer.getTheta());
-			list_of_vectors.add(vector);
+			 vector = new Vector(us.getDistance(), odometer.getTheta(),
+					odometer.getX(), odometer.getY());
+			 
+			 list_of_vectors.add(vector);
 
 			if (odometer.getTheta() - initialAngle > ANGLE_LIMIT) {
 				// wall = true;
@@ -212,7 +224,7 @@ public class Navigation {
 			results[0] = length;
 			results[1] = rightLength * ratio;
 			results[2] = leftLength * ratio;
-			results[3] = ( minHighSensorDistance < initialDistance + 8   )
+			results[3] = ( minHighSensorDistance < initialDistance + SENSORS_OFFSET   )
 					? 0 // WOODEN BLOCK
                     : 1;  // BLUE BLOCK
 			
@@ -335,7 +347,6 @@ public class Navigation {
 	}
 
 	public boolean isWooden() {
-
 		double[] data = new double[4];
 		data = scanObject();
 		if (data[3] == 0) {
