@@ -111,7 +111,6 @@ public class StartRobot {
 		lsPoller.start();
 		usPollerHigh.start();
 		usPollerLow.start();
-		Navigation navigator = new Navigation(odometer, usPollerLow, usPollerHigh);
 
 		int buttonChoice;
 
@@ -170,8 +169,7 @@ public class StartRobot {
 				}
 			}
 
-			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
-			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+			
 
 			// // DO US LOCALIZATION
 			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
@@ -198,8 +196,7 @@ public class StartRobot {
 			setUGZy(3);
 			setUGZx(3);
 
-			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
-			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+			
 
 			// // DO US LOCALIZATION
 //			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
