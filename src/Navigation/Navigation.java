@@ -23,6 +23,9 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 public class Navigation {
 	final static int FAST = 200, SLOW = 100, ACCELERATION = 4000;
 	final static double DEG_ERR = 3.0, CM_ERR = 2.7;
+	
+
+
 
 	// ScanObject constants
 	private static final double ANGLE_LIMIT = 80;
@@ -30,6 +33,7 @@ public class Navigation {
 	private static final double SCAN_DISTANCE = 5;
 	private static final int SCAN_TIME = 30;
 	private static final double US_OFFSET = 20;
+	private static final double SENSORS_OFFSET = 12;
 
 	// Object avoidance constants
 	private static final double MIN_DISTANCE = 12;
@@ -49,11 +53,12 @@ public class Navigation {
 
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
-	private USPoller us;
+	private USPoller us, highUs;
 
-	public Navigation(Odometer odo, USPoller us) {
+	public Navigation(Odometer odo, USPoller us, USPoller highUs) {
 		this.odometer = odo;
 		this.us = us;
+		this.highUs = highUs;
 		EV3LargeRegulatedMotor[] motors = this.odometer.getMotors();
 		this.leftMotor = motors[0];
 		this.rightMotor = motors[1];
@@ -96,15 +101,17 @@ public class Navigation {
 		double[] results = new double[4];
 		ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
 		double initialDistance = us.getDistance();
-		results[3] = initialDistance;
+		results[3] = 0;
 		boolean nullPointer = false;
 		// data[3] = initialDistance;
 		double initialAngle = odometer.getTheta();
-		Vector vector = new Vector(us.getDistance(), odometer.getTheta());
-		;
+		Vector 			 vector = new Vector(us.getDistance(), odometer.getTheta(),
+				odometer.getX(), odometer.getY());
+		
 		Vector firstObjectEdge, secondObjectEdge;
 		double alpha, beta;
 		double leftLength, rightLength, length;
+		double minHighSensorDistance = highUs.getDistance();
 		double ratio;
 
 		boolean wall = false;
@@ -116,8 +123,14 @@ public class Navigation {
 			waitMs(SCAN_TIME);
 
 			setSpeeds(-SLOW_ROTATE_SPEED, SLOW_ROTATE_SPEED);
+			
+			if(highUs.getDistance()< minHighSensorDistance){
+				minHighSensorDistance = highUs.getDistance();
+			}
+			
+			 vector = new Vector(us.getDistance(), odometer.getTheta(),
+						odometer.getX(), odometer.getY());
 
-			vector = new Vector(us.getDistance(), odometer.getTheta());
 			list_of_vectors.add(vector);
 
 			if (initialAngle - odometer.getTheta() > ANGLE_LIMIT) {
@@ -140,7 +153,10 @@ public class Navigation {
 		
 		list_of_vectors.removeAll(list_of_vectors);
 		turnTo(initialAngle, false);
-		vector = new Vector(us.getDistance(), odometer.getTheta());
+		 vector = new Vector(us.getDistance(), odometer.getTheta(),
+					odometer.getX(), odometer.getY());		
+		
+		
 		setSpeeds(SLOW_ROTATE_SPEED, -SLOW_ROTATE_SPEED);
 
 		// Second edge
@@ -148,9 +164,17 @@ public class Navigation {
 				.abs((initialDistance / Math.abs(Math.cos(Math.toRadians(odometer.getTheta()))))
 						+ initialDistance * MARGIN))) {
 			waitMs(SCAN_TIME);
+			
+			
+			if(highUs.getDistance()< minHighSensorDistance){
+				minHighSensorDistance = highUs.getDistance();
+			}
+			
 
-			vector = new Vector(us.getDistance(), odometer.getTheta());
-			list_of_vectors.add(vector);
+			 vector = new Vector(us.getDistance(), odometer.getTheta(),
+					odometer.getX(), odometer.getY());
+			 
+			 list_of_vectors.add(vector);
 
 			if (odometer.getTheta() - initialAngle > ANGLE_LIMIT) {
 				// wall = true;
@@ -181,6 +205,8 @@ public class Navigation {
 			results[0] = -1;
 			results[1] = -1;
 			results[2] = -1;
+			results[3] = -1;
+			
 		} else {
 
 			length = rightLength + leftLength;
@@ -198,10 +224,15 @@ public class Navigation {
 			results[0] = length;
 			results[1] = rightLength * ratio;
 			results[2] = leftLength * ratio;
+			results[3] = ( minHighSensorDistance < initialDistance + SENSORS_OFFSET   )
+					? 0 // WOODEN BLOCK
+                    : 1;  // BLUE BLOCK
+			
 			} else {
 				results[0] = 20;
 				results[1] = rightLength * ratio;
 				results[2] = leftLength * ratio;
+				results[3] = 0; // WOODEN BLOCK
 			}
 			
 			
@@ -316,10 +347,9 @@ public class Navigation {
 	}
 
 	public boolean isWooden() {
-
 		double[] data = new double[4];
 		data = scanObject();
-		if (data[0] >= MIN_WOODEN_SIZE) {
+		if (data[3] == 0) {
 			return true;
 		} else {
 			return false;

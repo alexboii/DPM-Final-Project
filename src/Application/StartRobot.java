@@ -8,9 +8,12 @@ import Localization.USLocalizer;
 import Navigation.Navigation;
 import Odometer.LCDInfo;
 import Odometer.Odometer;
+import Odometer.OdometerCorrection;
+import SensorData.LSPoller;
 import SensorData.USPoller;
 import Wifi.WifiConnection;
 import lejos.hardware.Button;
+import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
@@ -92,24 +95,22 @@ public class StartRobot {
 		USLocalizer.LocalizationType type = USLocalizer.LocalizationType.FALLING_EDGE;
 
 		Odometer odometer = new Odometer(leftMotor, rightMotor, 50, true);
+		OdometerCorrection odoCor = new OdometerCorrection(odometer);
+		
+		SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
+		float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
 
 		USPoller usPollerHigh = new USPoller(usValueHigh, usDataHigh);
 		USPoller usPollerLow = new USPoller(usValueLow, usDataLow);
 
+		
+
+		Navigation navigator = new Navigation(odometer, usPollerLow, usPollerHigh);
+		 LSPoller lsPoller = new LSPoller(colorValueLoc, colorDataLoc, odoCor);
+		
+		lsPoller.start();
 		usPollerHigh.start();
-		new Thread(usPollerLow).start();
-		// odometer.start();
-
-		// INITIALIZE COLOUR SENSOR, FIRST IN RGB MODE
-		//// EV3ColorSensor colorSensor = new EV3ColorSensor(colorPort);
-		// colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
-		// SampleProvider colorValue = colorSensor.getMode("RGB");
-		// float[] colorData = new float[colorValue.sampleSize()];
-		// LSPoller lsPoller = new LSPoller(colorValue, colorData);
-
-		ObjectDetector objectDetect = new ObjectDetector(usPollerLow, usPollerHigh, t);
-
-		Navigation navigator = new Navigation(odometer, usPollerLow);
+		usPollerLow.start();
 
 		int buttonChoice;
 
@@ -168,8 +169,7 @@ public class StartRobot {
 				}
 			}
 
-			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
-			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+			
 
 			// // DO US LOCALIZATION
 			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
@@ -196,8 +196,7 @@ public class StartRobot {
 			setUGZy(3);
 			setUGZx(3);
 
-			SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
-			float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
+			
 
 			// // DO US LOCALIZATION
 //			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
