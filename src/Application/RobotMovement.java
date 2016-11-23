@@ -23,8 +23,8 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
  */
 public class RobotMovement extends Thread {
 
-	Odometer odometer;
-	Navigation navigator;
+	static Odometer odometer;
+	static Navigation navigator;
 	USPoller usPollerLow;
 	USPoller usPollerHigh;
 	
@@ -130,16 +130,16 @@ public class RobotMovement extends Thread {
 
 	}
 
-	public void goToNextWayPoint(){
+	public static void goToNextWayPoint(){
 		
 		double x, y;
 		
 		if((int)(odometer.getX()/TILE) - 1 < Navigation.MAX_X_BOARD ){
-			x = odometer.getX() - TILE;
-			y = odometer.getY();
+			x = lastWayPoint.getInitialX() - TILE;
+			y = lastWayPoint.getInitialY();
 		} else { 
-			x = odometer.getX();
-			y = odometer.getY() + TILE;
+			x = lastWayPoint.getInitialX();
+			y = lastWayPoint.getInitialY() + TILE;
 		}
 		
 		navigator.travelTo(x,y, true);	

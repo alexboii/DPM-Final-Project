@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import Application.RobotMovement;
 import Application.Vector;
 /*
  * File: Navigation.java
@@ -299,47 +300,47 @@ public class Navigation {
 
 			this.setSpeeds(FAST, FAST);
 
-			// if object too close, object avoidance
-			
+			//if wayPoint blocked, go to next one
 			if((us.getDistance() < MIN_DISTANCE) &&
 					(Math.hypot(x - odometer.getX(), y - odometer.getY())) < 
 					MIN_DISTANCE + WAYPOINT_BLOCKED_BW  ) {
-				
-				
-				
-				
-				
+				RobotMovement.goToNextWayPoint();
+				return;
 			}
 			
+			
+			
+			// if object too close, object avoidance
 			if (us.getDistance() < MIN_DISTANCE && avoid) {
-				
-		//		if(isWooden()){
+				blockProperties = isWooden();
+				if(blockProperties[0]==1){ //wooden block
 					//avoid
 					turnTo(odometer.getTheta() + SAFETY_ANGLE, true);
-					
+					goForward(25);
 				//figure out this part	
 					
 			//	} 
 				
 				
-				turnTo(odometer.getTheta() + SAFETY_ANGLE, true);
-				goForward(21 * SAFETY_RATIO);
 				// turnTo(90, true);
 
 				travelTo(x, y, true);
+			} else {
+				//pick up block, i guess, but it doesnt make much sense to find a blue block here
 			}
 		}
-		if (!object) {
-			this.setSpeeds(0, 0);
+				if 	(!object) {
+					this.setSpeeds(0, 0);
+				}
 		}
 	}
-
 	public void avoidObject() {
-		double[] data = new double[4];
+		double[] data = new double[2];
 
 		this.setSpeeds(0, 0);
-		// data = scanObject();
-		turnTo(odometer.getTheta() + SAFETY_ANGLE, true);
+		data = isWooden();
+
+		turnTo(odometer.getTheta() + SAFETY_ANGLE, true);		
 		goForward(20 * SAFETY_RATIO);
 		// turnTo(90, true);
 	}
