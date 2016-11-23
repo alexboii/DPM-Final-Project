@@ -14,7 +14,7 @@ import lejos.robotics.SampleProvider;
  */
 public class USPoller extends Thread {
 
-	private double distance, returnDistance;
+	private double distance;
 
 	private SampleProvider us;
 	private float[] usData;
@@ -48,23 +48,15 @@ public class USPoller extends Thread {
 
 		while (true) {
 			synchronized (lock) {
-				this.us.fetchSample(usData, 0);
-				distance = usData[0] * 100;
-				returnDistance = 0;
-
-				if (distance > 50) {
-					distance = 255;
+				us.fetchSample(usData, 0);// acquire data
+				if (usData[0] >= 255.0) {
+					continue;
 				}
-
-				float median = getMedian(medianFilter);
-				if (distance < median) {
-					returnDistance = median;
-				} else {
-					returnDistance = distance;
-				}
-
-				medianFilter.poll();
-				medianFilter.add((float) distance);
+				distance = (usData[0] * 100.0);
+				try {
+					Thread.sleep(20);
+				} catch (Exception e) {
+				} // timed sampling rate
 			}
 		}
 	}
@@ -72,35 +64,35 @@ public class USPoller extends Thread {
 	/**
 	 * @return Distance Read by Ultrasonic Sensor
 	 */
-	public double getDistance() {
-		synchronized (lock) {
-			return returnDistance;
-		}
-	}
+	// public double getDistance() {
+	// synchronized (lock) {
+	// return distance;
+	// }
+	// }
 
-//	private float getDistance() {
-//
-//			this.us.fetchSample(usData, 0);
-//			float distance = usData[0] * 100;
-//			float returnDistance = 0;
-//
-//			if (distance > 50) {
-//				distance = 255;
-//			}
-//
-//			float median = getMedian(medianFilter);
-//			if (distance < median) {
-//				returnDistance = median;
-//			} else {
-//				returnDistance = distance;
-//			}
-//
-//			medianFilter.poll();
-//			medianFilter.add(distance);
-//
-//			return returnDistance;
-//		
-//	}
+	private float getDistance() {
+
+		// this.us.fetchSample(usData, 0);
+		// float distance = usData[0] * 100;
+		float returnDistance = 0;
+
+		if (distance > 50) {
+			distance = 255;
+		}
+
+		float median = getMedian(medianFilter);
+		if (distance < median) {
+			returnDistance = median;
+		} else {
+			returnDistance = (float) distance;
+		}
+
+		medianFilter.poll();
+		medianFilter.add((float) distance);
+
+		return returnDistance;
+
+	}
 
 	private float getMedian(LinkedList<Float> f) {
 		Float[] array = f.toArray(new Float[f.size()]);
