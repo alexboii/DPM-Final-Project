@@ -65,9 +65,8 @@ public class USPoller extends Thread {
 	 * @return Distance Read by Ultrasonic Sensor
 	 */
 	public double getDistance() {
-		synchronized (lock) {
-			return distance;
-		}
+		return distance;
+
 	}
 
 	public float getFilteredDistance() {

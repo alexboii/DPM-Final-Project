@@ -67,6 +67,7 @@ public class RobotMovement extends Thread {
 
 	private final double DISTANCE_THRESHOLD_LOW = 20;
 	private final double DISTANCE_THRESHOLD_UP = 6;
+	private int blue_counter = 0;
 
 	/**
 	 * Constructor
@@ -101,7 +102,7 @@ public class RobotMovement extends Thread {
 	//	pullCageDown();
 	clawMotor.rotate(OPEN_CLAW_1);
 
-		while (!blue_found) {
+		while (blue_counter < 3) {
 
 			navigator.turnTo(TURN_ANGLE_1, true);
 			navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
