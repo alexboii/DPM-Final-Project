@@ -58,11 +58,13 @@ public class RobotMovement extends Thread {
 	private static final int PULL_DOWN_FULL = 1200;
 	private static final int CLOSE_CLAW_1 = -40;
 	private static final int OPEN_CLAW_1 = 100;
+	private static final int OPEN_CLAW_2 = 20;
+	private static final int OPEN_CLAW_3 = 80;
 	private static final int PULL_DOWN_TO_BLOCK = 700;
 	private static final int CLOSE_CLAW_2 = -200;
 	private static final int PULL_UP_FROM_BLOCK = -2000;
 	private static final int DISTANCE_SCAN_THRESHOLD = 41;
-	private static final int DISTANCE_APPROACH_THRESHOLD = 5;
+	private static final int DISTANCE_APPROACH_THRESHOLD = 8;
 	private static final int ADDITION_SLEEP_TIME = 73;
 
 
@@ -106,7 +108,7 @@ public class RobotMovement extends Thread {
 	//	pullCageDown();
 	clawMotor.rotate(OPEN_CLAW_1);
 
-		while (blue_counter < 3) {
+		while (blue_counter < 4) {
 
 			navigator.turnTo(TURN_ANGLE_1, true);
 			navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
@@ -151,11 +153,14 @@ public class RobotMovement extends Thread {
 				} else {
 					navigator.goForward(DISTANCE_APPROACH_THRESHOLD-3);
 					pullCageDown();
+
+					if(!(blue_counter == 0)){
+						clawMotor.rotate(OPEN_CLAW_2);
+						clawMotor.rotate(OPEN_CLAW_3);
+					}
 					grabObject();
 					list_of_vectors.clear();
-					blue_found = true;
-					break;
-
+					blue_counter++;
 				}
 				
 			}
@@ -182,7 +187,6 @@ public class RobotMovement extends Thread {
 	private void pullCageDown() {
 		pulleyMotor.setSpeed(PULLEY_SPEED);
 		pulleyMotor.rotate(PULL_DOWN_FULL);
-//		clawMotor.rotate(CLOSE_CLAW_1);
 	}
 
 	private void grabObject() {

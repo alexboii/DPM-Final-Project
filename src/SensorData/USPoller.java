@@ -77,7 +77,7 @@ public class USPoller extends Thread {
 		float returnDistance = 0;
 
 
-		if (distance > 50) {
+		if (distance > 80) {
 			distance = 255;
 		}
 
