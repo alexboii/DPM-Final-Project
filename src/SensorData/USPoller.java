@@ -64,13 +64,13 @@ public class USPoller extends Thread {
 	/**
 	 * @return Distance Read by Ultrasonic Sensor
 	 */
-	// public double getDistance() {
-	// synchronized (lock) {
-	// return distance;
-	// }
-	// }
+	public double getDistance() {
+		synchronized (lock) {
+			return distance;
+		}
+	}
 
-	private float getDistance() {
+	public float getFilteredDistance() {
 
 		// this.us.fetchSample(usData, 0);
 		// float distance = usData[0] * 100;
