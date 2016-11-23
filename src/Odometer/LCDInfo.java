@@ -1,4 +1,5 @@
 package Odometer;
+import SensorData.LSPoller;
 import SensorData.USPoller;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
@@ -15,7 +16,9 @@ public class LCDInfo implements TimerListener{
 	private Odometer odo;
 	private Timer lcdTimer;
 	private USPoller highUs, lowUs;
-	private TextLCD LCD = LocalEV3.get().getTextLCD();;
+	private TextLCD LCD = LocalEV3.get().getTextLCD();
+	private LSPoller lsPoller;
+
 	
 	// arrays for displaying data
 	private double [] pos;
@@ -24,12 +27,12 @@ public class LCDInfo implements TimerListener{
 	 * Constructor
 	 * @param odo Odometer
 	 */
-	public LCDInfo(Odometer odo, USPoller highUs, USPoller lowUs) {
+	public LCDInfo(Odometer odo, USPoller highUs, USPoller lowUs, LSPoller lsPoller) {
 		this.odo = odo;
 		this.lcdTimer = new Timer(LCD_REFRESH, this);
 		this.highUs = highUs;
 		this.lowUs = lowUs;
-
+		this.lsPoller = lsPoller;
 		
 		// initialise the arrays for displaying data
 		pos = new double [3];
@@ -51,10 +54,14 @@ public class LCDInfo implements TimerListener{
 		LCD.drawInt((int)(pos[1]), 3, 1);
 		LCD.drawInt((int)Math.toDegrees(pos[2]), 3, 2);
 		
+		LCD.drawString("LS: ", 0, 3);
+		LCD.drawInt((lsPoller.getLightLevel() ), 4, 3);
+
+		
 		LCD.drawString("UP: ", 0, 4);
 		LCD.drawString("DN: ", 0, 5);
-		LCD.drawInt((int)(highUs.getDistance()), 4, 4);
-		LCD.drawInt((int)(lowUs.getDistance()), 4, 5);
+		LCD.drawInt((int)(highUs.getFilteredDistance()), 4, 4);
+		LCD.drawInt((int)(lowUs.getFilteredDistance()), 4, 5);
 		
 		
 		
