@@ -27,6 +27,10 @@ public class RobotMovement extends Thread {
 	Navigation navigator;
 	USPoller usPollerLow;
 	USPoller usPollerHigh;
+	
+	ArrayList<Vector> visited_waypoints = new ArrayList<Vector>();
+
+	
 	protected boolean blue_found = false;
 	public static final int ROTATE_SPEED = 76;
 	private static final int BAND_WIDTH = 15;
@@ -58,7 +62,7 @@ public class RobotMovement extends Thread {
 	private static final int CLOSE_CLAW_2 = -200;
 	private static final int PULL_UP_FROM_BLOCK = -2000;
 	private static final int DISTANCE_SCAN_THRESHOLD = 41;
-	private static final int DISTANCE_APPROACH_THRESHOLD = 11;
+	private static final int DISTANCE_APPROACH_THRESHOLD = 5;
 	private static final int ADDITION_SLEEP_TIME = 73;
 
 

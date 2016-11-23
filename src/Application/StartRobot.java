@@ -49,6 +49,8 @@ public class StartRobot {
 	private static final SensorModes usSensorHigh = new EV3UltrasonicSensor(LocalEV3.get().getPort("S1"));
 	private static final SensorModes usSensorLow = new EV3UltrasonicSensor(LocalEV3.get().getPort("S2"));
 	private static final EV3ColorSensor lightSensorBottom = new EV3ColorSensor(LocalEV3.get().getPort("S4"));
+	//                                                               private static final EV3ColorSensor lightSensorBack = new EV3ColorSensor(LocalEV3.get().getPort("S3"));
+
 	// private static final EV3ColorSensor lightSensorClaw = new
 	// EV3ColorSensor(LocalEV3.get().getPort("S3"));
 
@@ -110,7 +112,7 @@ public class StartRobot {
 		
 		lsPoller.start();
 		usPollerHigh.start();
-		usPollerLow.start();
+		new Thread(usPollerLow).start();
 
 		int buttonChoice;
 
@@ -132,7 +134,7 @@ public class StartRobot {
 		if (buttonChoice == Button.ID_LEFT) {
 			// usPollerHigh.start();
 			t.clear();
-			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow); // t.clear();
+			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow, lsPoller); // t.clear();
 			WifiConnection conn = null;
 			try {
 				System.out.println("Connecting...");
@@ -189,7 +191,7 @@ public class StartRobot {
 
 			// pulleyMotor.rotate(90);
 			t.clear();
-			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow);
+			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow, lsPoller);
 
 			setLGZy(2);
 			setLGZx(2);
@@ -208,9 +210,9 @@ public class StartRobot {
 //			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
 //			lsl.doLocalization(navigator);
 
-			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
-					pulleyMotor);
-			attempt.start();
+		//	RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
+		//			pulleyMotor);
+		//	attempt.start();
 
 			// while(true){
 			// t.drawString("TACHO: " + pulleyMotor.getTachoCount(), 0, 3);
@@ -254,31 +256,31 @@ public class StartRobot {
 			// odometer.setPosition(new double[] { 0, 0, 0 },
 			// new boolean[] { true, true, true });
 			//
-			while (Button.waitForAnyPress() != Button.ID_ESCAPE) {
-				buttonChoice = Button.waitForAnyPress();
-
-				if (buttonChoice == Button.ID_RIGHT) {
-					closeClaw();
-				}
-
-				if (buttonChoice == Button.ID_LEFT) {
-					openClaw();
-				}
-
-				if (buttonChoice == Button.ID_UP) {
-					pulleyUp(1);
-					// navigator.goForward(4);
-				}
-
-				if (buttonChoice == Button.ID_DOWN) {
-					pulleyDown(1);
-					// navigator.goForward(-4);
-
-				}
-
-			}
-
-			double[] distances = new double[20];
+//			while (Button.waitForAnyPress() != Button.ID_ESCAPE) {
+//				buttonChoice = Button.waitForAnyPress();
+//
+//				if (buttonChoice == Button.ID_RIGHT) {
+//					closeClaw();
+//				}
+//
+//				if (buttonChoice == Button.ID_LEFT) {
+//					openClaw();
+//				}
+//
+//				if (buttonChoice == Button.ID_UP) {
+//					pulleyUp(1);
+//					// navigator.goForward(4);
+//				}
+//
+//				if (buttonChoice == Button.ID_DOWN) {
+//					pulleyDown(1);
+//					// navigator.goForward(-4);
+//
+//				}
+//
+//			}
+//
+//			double[] distances = new double[20];
 
 			// scan for objects
 			// with lower sensor
@@ -316,9 +318,35 @@ public class StartRobot {
 
 			// navigator.turnTo(Math.PI/2);
 
+			
+			
+			
 		}
+		lightSensorBottom.setFloodlight(true);
+		
+		odometer.setPosition(new double[] { 0, 0, 90 }, new boolean[] { false, false, true });
+		
+	//	navigator.travelTo(-2.5 * TILE, 2.5 * TILE, true);
 
-		while (Button.waitForAnyPress() != Button.ID_ESCAPE)
+		
+		
+		RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
+						pulleyMotor);
+				attempt.start();
+		
+		
+//		while (Button.waitForAnyPress() != Button.ID_ESCAPE){
+//			
+//			if(navigator.isWooden()){
+//				Sound.beepSequence();
+//			} else {
+//				Sound.beep();
+//				Sound.beep();
+//			}
+					
+			while (Button.waitForAnyPress() != Button.ID_ENTER)
+				;
+	//	}
 			;
 		System.exit(0);
 

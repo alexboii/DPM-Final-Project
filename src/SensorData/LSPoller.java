@@ -1,6 +1,7 @@
 package SensorData;
 import Navigation.Navigation;
 import Odometer.OdometerCorrection;
+import lejos.hardware.Sound;
 import lejos.robotics.SampleProvider;
 
 /**
@@ -28,6 +29,7 @@ public class LSPoller extends Thread {
 		this.Val = Val;
 		this.lock = new Object();
 		this.odoCor = odoCor;
+		
 	}
 
 	/**
@@ -44,7 +46,7 @@ public class LSPoller extends Thread {
 				
 				
 				if(intensity < TRESHOLD){
-					
+					crossedLine();
 				}
 				
 				
@@ -69,9 +71,14 @@ public class LSPoller extends Thread {
 	}
 	
 	
+	public int getLightLevel(){
+		return (int) ( 100* this.Val[0]);
+	}
+	
 	
 public void crossedLine(){
-	odoCor.correct();
+	//Sound.beep();
+	odoCor.CorrectorFormula();
 }
 	
 	

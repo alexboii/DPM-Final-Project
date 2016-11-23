@@ -40,6 +40,7 @@ public class Odometer implements TimerListener {
 	private final int DEFAULT_TIMEOUT_PERIOD = 20;
 	private double leftRadius, rightRadius, width;
 	private double x, y, theta;
+	private boolean rotating = false;
 	private double[] oldDH, dDH;
 	
 	// constructor
@@ -51,7 +52,7 @@ public class Odometer implements TimerListener {
 		// default values, modify for your robot
 		this.rightRadius = 2.1;
 		this.leftRadius = 2.1;
-		this.width = 16.8;
+		this.width = 16;
 		
 		this.x = 0.0;
 		this.y = 0.0;
@@ -131,6 +132,25 @@ public class Odometer implements TimerListener {
 		}
 	}
 
+	
+	public void setTheta(double theta){
+		synchronized(this){
+			this.theta = theta;
+		}
+	}
+	
+	public void setY(double y){
+		synchronized(this){
+			this.y = y;
+		}
+	}
+	
+	public void setX(double x){
+		synchronized(this){
+			this.x = x;
+		}
+	}
+	
 	// set x,y,theta
 	public void setPosition(double[] position, boolean[] update) {
 		synchronized (this) {
@@ -177,6 +197,15 @@ public class Odometer implements TimerListener {
 		return angle % 360.0;
 	}
 
+	public void setRotating(boolean rot){
+		rotating = rot;
+	}
+	
+	public boolean isRotating(){
+		return rotating;
+	}
+	
+	
 	public static double minimumAngleFromTo(double a, double b) {
 		double d = fixDegAngle(b - a);
 

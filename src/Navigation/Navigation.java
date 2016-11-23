@@ -22,23 +22,22 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Navigation {
 	final static int FAST = 200, SLOW = 100, ACCELERATION = 4000;
-	final static double DEG_ERR = 3.0, CM_ERR = 2.7;
+	final static double DEG_ERR = 3.0, CM_ERR = 1;
 	
-
 
 
 	// ScanObject constants
 	private static final double ANGLE_LIMIT = 80;
 	private static final double MARGIN = 0.15;
 	private static final double SCAN_DISTANCE = 5;
-	private static final int SCAN_TIME = 30;
+	private static final int SCAN_TIME = 10;
 	private static final double US_OFFSET = 20;
 	private static final double SENSORS_OFFSET = 12;
 
 	// Object avoidance constants
 	private static final double MIN_DISTANCE = 12;
 	private static final double SAFETY_RATIO = 1.6;
-	private static final double SAFETY_ANGLE = 60;
+	private static final double SAFETY_ANGLE = 73;
 
 	// isWooden constants
 	private static final double MIN_WOODEN_SIZE = 19;
@@ -46,10 +45,10 @@ public class Navigation {
 	// temp variable, debug purposes
 	// public static double[] data = new double[4];
 
-	public static final int SLOW_ROTATE_SPEED = 30;
+	public static final int SLOW_ROTATE_SPEED = 50;
 	public static final int FORWARD_SPEED = 150;
 
-	public static final int ROTATE_SPEED = 50;
+	public static final int ROTATE_SPEED = 80;
 
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
@@ -111,7 +110,7 @@ public class Navigation {
 		Vector firstObjectEdge, secondObjectEdge;
 		double alpha, beta;
 		double leftLength, rightLength, length;
-		double minHighSensorDistance = highUs.getDistance();
+		double minHighSensorDistance = highUs.getFilteredDistance();
 		double ratio;
 
 		boolean wall = false;
@@ -124,8 +123,8 @@ public class Navigation {
 
 			setSpeeds(-SLOW_ROTATE_SPEED, SLOW_ROTATE_SPEED);
 			
-			if(highUs.getDistance()< minHighSensorDistance){
-				minHighSensorDistance = highUs.getDistance();
+			if(highUs.getFilteredDistance()< minHighSensorDistance){
+				minHighSensorDistance = highUs.getFilteredDistance();
 			}
 			
 			 vector = new Vector(us.getDistance(), odometer.getTheta(),
@@ -134,8 +133,8 @@ public class Navigation {
 			list_of_vectors.add(vector);
 
 			if (initialAngle - odometer.getTheta() > ANGLE_LIMIT) {
-				wall = true;
-				Sound.beep();
+			//	wall = true;
+			//	Sound.beep();
 			}
 		}
 
@@ -166,8 +165,8 @@ public class Navigation {
 			waitMs(SCAN_TIME);
 			
 			
-			if(highUs.getDistance()< minHighSensorDistance){
-				minHighSensorDistance = highUs.getDistance();
+			if(highUs.getFilteredDistance()< minHighSensorDistance){
+				minHighSensorDistance = highUs.getFilteredDistance();
 			}
 			
 
@@ -291,7 +290,11 @@ public class Navigation {
 			this.setSpeeds(FAST, FAST);
 
 			// if object too close, object avoidance
-
+			
+			if((us.getDistance() < MIN_DISTANCE) &&
+					(Math.hypot(x - odometer.getX(), y - odometer.getY())) < MIN_DISTANCE + 4  )
+			
+			
 			if (us.getDistance() < MIN_DISTANCE && avoid) {
 				object = true;
 				this.setSpeeds(0, 0);
@@ -323,11 +326,11 @@ public class Navigation {
 	 * controls whether or not to stop the motors when the turn is completed
 	 */
 	public void turnTo(double angle, boolean stop) {
-
+		
 		double error = angle - this.odometer.getTheta();
 
 		while (Math.abs(error) > DEG_ERR) {
-
+			odometer.setRotating(true);
 			error = angle - this.odometer.getTheta();
 
 			if (error < -180.0) {
@@ -340,7 +343,7 @@ public class Navigation {
 				this.setSpeeds(-SLOW, SLOW);
 			}
 		}
-
+		odometer.setRotating(false);
 		if (stop) {
 			this.setSpeeds(0, 0);
 		}
@@ -356,6 +359,42 @@ public class Navigation {
 		}
 	}
 
+	
+	public void rotateCounterClockwise(boolean fast) 
+	{
+		if(fast){
+			leftMotor.setSpeed(ROTATE_SPEED);
+			rightMotor.setSpeed(ROTATE_SPEED);
+		} else {
+			leftMotor.setSpeed((int)(0.5 * SLOW_ROTATE_SPEED));
+			rightMotor.setSpeed((int)(0.5 * SLOW_ROTATE_SPEED));
+		}
+		odometer.setRotating(true);
+		leftMotor.backward();
+		rightMotor.forward();
+	}
+
+	public	void rotateClockwise(boolean fast) 
+	{
+		
+		if(fast){
+			leftMotor.setSpeed(ROTATE_SPEED);
+			rightMotor.setSpeed(ROTATE_SPEED);
+		} else {
+			leftMotor.setSpeed((int)0.5 * SLOW_ROTATE_SPEED);
+			rightMotor.setSpeed((int)(0.5 * SLOW_ROTATE_SPEED));
+		}
+		odometer.setRotating(true);
+		leftMotor.forward();
+		rightMotor.backward();
+	}
+	
+	
+	
+	
+	
+	
+	
 	public void goForward(double distance) {
 		// this.travelTo(odometer.getX() +
 		// Math.cos(Math.toRadians(this.odometer.getTheta())) * distance,
@@ -369,8 +408,10 @@ public class Navigation {
 	}
 
 	public void stop() {
+		
 		leftMotor.stop();
 		rightMotor.stop();
+		odometer.setRotating(false);
 	}
 
 	public EV3LargeRegulatedMotor getLeftMotor() {
