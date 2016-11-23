@@ -65,8 +65,8 @@ public class USPoller extends Thread {
 	 * @return Distance Read by Ultrasonic Sensor
 	 */
 	public double getDistance() {
-		
-			return distance;
+
+		return distance;
 
 	}
 
@@ -76,7 +76,8 @@ public class USPoller extends Thread {
 		// float distance = usData[0] * 100;
 		float returnDistance = 0;
 
-		if (distance > 80) {
+
+		if (distance > 50) {
 			distance = 255;
 		}
 
