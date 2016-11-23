@@ -25,6 +25,11 @@ public class Navigation {
 	final static double DEG_ERR = 3.0, CM_ERR = 1;
 	
 
+	//Board constants
+	public static final int MAX_X_BOARD = -3;
+	public static final int MIN_X_BOARD = 1;
+	public static final int MAX_Y_BOARD = 3;
+	public static final int MIN_Y_BOARD = 1;
 
 	// ScanObject constants
 	private static final double ANGLE_LIMIT = 80;
@@ -32,7 +37,7 @@ public class Navigation {
 	private static final double SCAN_DISTANCE = 5;
 	private static final int SCAN_TIME = 10;
 	private static final double US_OFFSET = 20;
-	private static final double SENSORS_OFFSET = 12;
+	private static final double SENSORS_OFFSET = 9;
 
 	// Object avoidance constants
 	private static final double MIN_DISTANCE = 12;
@@ -40,13 +45,15 @@ public class Navigation {
 	private static final double SAFETY_ANGLE = 73;
 
 	// isWooden constants
-	private static final double MIN_WOODEN_SIZE = 19;
+	private static final double DELTA_DISTANCE = 10;
+	private static final double SCAN_ANGLE = 35;
 
 	// temp variable, debug purposes
 	// public static double[] data = new double[4];
 
 	public static final int SLOW_ROTATE_SPEED = 50;
 	public static final int FORWARD_SPEED = 150;
+	public static final int WAYPOINT_BLOCKED_BW = 3;
 
 	public static final int ROTATE_SPEED = 80;
 
@@ -96,6 +103,8 @@ public class Navigation {
 			this.rightMotor.forward();
 	}
 
+	
+	
 	public double[] scanObject() {
 		double[] results = new double[4];
 		ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
@@ -110,7 +119,7 @@ public class Navigation {
 		Vector firstObjectEdge, secondObjectEdge;
 		double alpha, beta;
 		double leftLength, rightLength, length;
-		double minHighSensorDistance = highUs.getFilteredDistance();
+		double minHighSensorDistance = highUs.getDistance();
 		double ratio;
 
 		boolean wall = false;
@@ -123,8 +132,8 @@ public class Navigation {
 
 			setSpeeds(-SLOW_ROTATE_SPEED, SLOW_ROTATE_SPEED);
 			
-			if(highUs.getFilteredDistance()< minHighSensorDistance){
-				minHighSensorDistance = highUs.getFilteredDistance();
+			if(highUs.getDistance()< minHighSensorDistance){
+				minHighSensorDistance = highUs.getDistance();
 			}
 			
 			 vector = new Vector(us.getDistance(), odometer.getTheta(),
@@ -165,8 +174,8 @@ public class Navigation {
 			waitMs(SCAN_TIME);
 			
 			
-			if(highUs.getFilteredDistance()< minHighSensorDistance){
-				minHighSensorDistance = highUs.getFilteredDistance();
+			if(highUs.getDistance()< minHighSensorDistance){
+				minHighSensorDistance = highUs.getDistance();
 			}
 			
 
@@ -206,7 +215,7 @@ public class Navigation {
 			results[2] = -1;
 			results[3] = -1;
 			
-		} else {
+		} else { //if no wall
 
 			length = rightLength + leftLength;
 			ratio = length;
@@ -215,11 +224,11 @@ public class Navigation {
 			;
 			ratio = (length) / ratio;
 
-			if (length > 20)
+			if (length > 20)//max length 20
 				length = 20;
 
 			
-			if(!nullPointer){
+			if(!nullPointer){ //if read any value at all
 			results[0] = length;
 			results[1] = rightLength * ratio;
 			results[2] = leftLength * ratio;
@@ -227,7 +236,7 @@ public class Navigation {
 					? 0 // WOODEN BLOCK
                     : 1;  // BLUE BLOCK
 			
-			} else {
+			} else { //catching null pointer, imaging block
 				results[0] = 20;
 				results[1] = rightLength * ratio;
 				results[2] = leftLength * ratio;
@@ -270,6 +279,7 @@ public class Navigation {
 		double minAng;
 		double[] data = new double[4];
 		boolean object = false;
+		double[] blockProperties = new double[2];
 
 		while ((Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR) && (!object)) {
 			minAng = (Math.atan2(y - odometer.getY(), x - odometer.getX())) * (180.0 / Math.PI);
@@ -292,13 +302,26 @@ public class Navigation {
 			// if object too close, object avoidance
 			
 			if((us.getDistance() < MIN_DISTANCE) &&
-					(Math.hypot(x - odometer.getX(), y - odometer.getY())) < MIN_DISTANCE + 4  )
-			
+					(Math.hypot(x - odometer.getX(), y - odometer.getY())) < 
+					MIN_DISTANCE + WAYPOINT_BLOCKED_BW  ) {
+				
+				
+				
+				
+				
+			}
 			
 			if (us.getDistance() < MIN_DISTANCE && avoid) {
-				object = true;
-				this.setSpeeds(0, 0);
-				data = scanObject();
+				
+		//		if(isWooden()){
+					//avoid
+					turnTo(odometer.getTheta() + SAFETY_ANGLE, true);
+					
+				//figure out this part	
+					
+			//	} 
+				
+				
 				turnTo(odometer.getTheta() + SAFETY_ANGLE, true);
 				goForward(21 * SAFETY_RATIO);
 				// turnTo(90, true);
@@ -349,14 +372,44 @@ public class Navigation {
 		}
 	}
 
-	public boolean isWooden() {
-		double[] data = new double[4];
-		data = scanObject();
-		if (data[3] == 0) {
-			return true;
-		} else {
-			return false;
+	public double[] isWooden() {
+		double minLow, minHigh, initialAngle;
+		double[] results = new double[2];
+		
+		minLow = us.getDistance();
+		minHigh = highUs.getDistance();
+		initialAngle = odometer.getTheta();
+		
+		turnTo(initialAngle - SCAN_ANGLE, true);
+		setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
+		
+		while(odometer.getTheta() <initialAngle + SCAN_ANGLE){
+			if(us.getDistance() < minLow){
+				minLow = us.getDistance();
+			}
+			
+			if(highUs.getDistance() < minHigh){
+				minHigh = highUs.getDistance();
+			}
+			
+			try {
+				Thread.sleep(SCAN_TIME/2);
+			} catch (InterruptedException e) {
+			//oh, boii, hope nothing happens here
+				}
 		}
+		
+		stop();
+		turnTo(initialAngle, true);
+		
+		if(minHigh < minLow + DELTA_DISTANCE){
+			results[0] = 1; //wooden
+		} else {
+			results[0] = 0; //blue block
+		}	
+		
+		results[1] = minLow;
+		return results;
 	}
 
 	
@@ -390,10 +443,7 @@ public class Navigation {
 	}
 	
 	
-	
-	
-	
-	
+
 	
 	public void goForward(double distance) {
 		// this.travelTo(odometer.getX() +

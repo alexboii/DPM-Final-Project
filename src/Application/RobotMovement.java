@@ -29,11 +29,15 @@ public class RobotMovement extends Thread {
 	USPoller usPollerHigh;
 	
 	ArrayList<Vector> visited_waypoints = new ArrayList<Vector>();
+	public static Vector lastWayPoint;
+	
 
 	
 	protected boolean blue_found = false;
 	public static final int ROTATE_SPEED = 76;
 	private static final int BAND_WIDTH = 15;
+	
+	private static final double TILE = 30.48;
 
 	private static final int TURN_ANGLE_1 = 75;
 	private static final int TURN_ANGLE_2 = 100;
@@ -65,7 +69,7 @@ public class RobotMovement extends Thread {
 	private static final int PULL_UP_FROM_BLOCK = -2000;
 	private static final int DISTANCE_SCAN_THRESHOLD = 41;
 	private static final int DISTANCE_APPROACH_THRESHOLD = 8;
-	private static final int ADDITION_SLEEP_TIME = 73;
+	private static final int ADDITION_SLEEP_TIME = 30;
 
 
 	EV3LargeRegulatedMotor clawMotor;
@@ -105,71 +109,17 @@ public class RobotMovement extends Thread {
 	 */
 	public void run() {
 		boolean isWooden;
+
 	//	pullCageDown();
 	clawMotor.rotate(OPEN_CLAW_1);
 
 		while (blue_counter < 4) {
+			lastWayPoint = new Vector(usPollerLow.getDistance(), odometer.getTheta(), odometer.getX(), odometer.getY());
 
-			navigator.turnTo(TURN_ANGLE_1, true);
-			navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
-
-			ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
-
-			while (odometer.getTheta() < ANGLE_LIMIT) {
-				navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
-
-				Vector vector = new Vector(usPollerLow.getDistance(), odometer.getTheta(), odometer.getX(), odometer.getY());
-				try {
-					Thread.sleep(ADDITION_SLEEP_TIME);
-				} catch (InterruptedException e) {
-				}
-				list_of_vectors.add(vector);
-
-			}
-
-			Collections.sort(list_of_vectors, new Comparator<Vector>() {
-				@Override
-				public int compare(Vector a, Vector b) {
-					return Double.compare(a.getDistance(), b.getDistance());
-				}
-			});
-
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-			}
+			findObject(TURN_ANGLE_1);
 			
-			if ((list_of_vectors.get(0).getDistance()) < DISTANCE_SCAN_THRESHOLD) {
-
-				navigator.turnTo(list_of_vectors.get(0).getAngle(), true);
-				navigator.goForward((list_of_vectors.get(0).getDistance()) - DISTANCE_APPROACH_THRESHOLD);
-				
-				isWooden = navigator.isWooden();
-				
-				if (isWooden) {
-					
-					navigator.avoidObject();
-					continue;
-				} else {
-					navigator.goForward(DISTANCE_APPROACH_THRESHOLD-3);
-					pullCageDown();
-
-					if(!(blue_counter == 0)){
-						clawMotor.rotate(OPEN_CLAW_2);
-						clawMotor.rotate(OPEN_CLAW_3);
-					}
-					grabObject();
-					list_of_vectors.clear();
-					blue_counter++;
-				}
-				
-			}
-			Sound.beepSequenceUp();
-			list_of_vectors.clear();
+			goToNextWayPoint();
 			
-			navigator.turnTo(135, true);
-			navigator.goForward(DISTANCE_SCAN_THRESHOLD * 0.5);
-
 		}
 		
 	//	navigator.travelTo(-100, 100, true);
@@ -180,9 +130,90 @@ public class RobotMovement extends Thread {
 
 	}
 
-	private boolean isWooden() {
-		return usPollerLow.getDistance() < DISTANCE_THRESHOLD_LOW && usPollerHigh.getDistance() < DISTANCE_THRESHOLD_UP;
+	public void goToNextWayPoint(){
+		
+		double x, y;
+		
+		if((int)(odometer.getX()/TILE) - 1 < Navigation.MAX_X_BOARD ){
+			x = odometer.getX() - TILE;
+			y = odometer.getY();
+		} else { 
+			x = odometer.getX();
+			y = odometer.getY() + TILE;
+		}
+		
+		navigator.travelTo(x,y, true);	
 	}
+	
+	
+	public void findObject(double angle){
+		ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
+		
+		double[] blockProperties = new double[2];
+
+
+		navigator.turnTo(angle, true);
+		navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
+
+
+		while (odometer.getTheta() < ANGLE_LIMIT) {
+			navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
+
+			Vector vector = new Vector(usPollerLow.getDistance(), odometer.getTheta(), odometer.getX(), odometer.getY());
+
+			list_of_vectors.add(vector);
+
+			try {
+				Thread.sleep(ADDITION_SLEEP_TIME);
+			} catch (InterruptedException e) {
+			}
+		}
+
+		Collections.sort(list_of_vectors, new Comparator<Vector>() {
+			@Override
+			public int compare(Vector a, Vector b) {
+				return Double.compare(a.getDistance(), b.getDistance());
+			}
+		});
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		
+		if ((list_of_vectors.get(0).getDistance()) < DISTANCE_SCAN_THRESHOLD) {
+
+			navigator.turnTo(list_of_vectors.get(0).getAngle(), true);
+			navigator.goForward((list_of_vectors.get(0).getDistance()) - DISTANCE_APPROACH_THRESHOLD);
+			
+			blockProperties = navigator.isWooden();
+					
+					
+					if (blockProperties[0] == 1) { //if wooden block
+						navigator.avoidObject();
+						return;
+						
+					} else {
+						if(blockProperties[1] < 2 * DISTANCE_APPROACH_THRESHOLD){
+							navigator.goForward(DISTANCE_APPROACH_THRESHOLD-3);
+							pullCageDown();
+		
+							if(!(blue_counter == 0)){
+								clawMotor.rotate(OPEN_CLAW_2);
+								clawMotor.rotate(OPEN_CLAW_3);
+							}
+							grabObject();
+							list_of_vectors.clear();
+							blue_counter++;
+							} else { return; } 
+					}
+		}
+		Sound.beepSequenceUp();
+		list_of_vectors.clear();
+	
+	}
+	
+	
 
 	private void pullCageDown() {
 		pulleyMotor.setSpeed(PULLEY_SPEED);

@@ -330,26 +330,31 @@ public class StartRobot {
 
 		
 		
-		RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
-						pulleyMotor);
-				attempt.start();
+	//	RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
+				//		pulleyMotor);
+		//		attempt.start();
 		
 		
-//		while (Button.waitForAnyPress() != Button.ID_ESCAPE){
-//			
-//			if(navigator.isWooden()){
-//				Sound.beepSequence();
-//			} else {
-//				Sound.beep();
-//				Sound.beep();
-//			}
+		
+		
+		
+		
+		
+	//	while (Button.waitForAnyPress() != Button.ID_ESCAPE){
+	//		
+	//		if(navigator.isWooden()){
+	//			Sound.beepSequence();
+	//		} else {
+	//			Sound.beep();
+	//			Sound.beep();
+	//		}
 					
-			while (Button.waitForAnyPress() != Button.ID_ENTER)
-				;
+	//		while (Button.waitForAnyPress() != Button.ID_ENTER)
+	//			;
 	//	}
-			;
-		System.exit(0);
-
+	//	
+	//	System.exit(0);
+//
 	}
 
 	public static int findSmallestDistance(double[] distances) {
