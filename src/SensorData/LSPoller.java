@@ -24,11 +24,10 @@ public class LSPoller extends Thread {
 	 * @param colorSensor Colour Sensor
 	 * @param Val RBG values
 	 */
-	public LSPoller(SampleProvider colorSensor, float[] Val, OdometerCorrection odoCor) {
+	public LSPoller(SampleProvider colorSensor, float[] Val) {
 		this.colorSensor = colorSensor;
 		this.Val = Val;
 		this.lock = new Object();
-		this.odoCor = odoCor;
 		
 	}
 
@@ -78,7 +77,7 @@ public class LSPoller extends Thread {
 	
 public void crossedLine(){
 	//Sound.beep();
-	odoCor.CorrectorFormula();
+	//odoCor.CorrectorFormula();
 }
 	
 	

@@ -97,7 +97,7 @@ public class StartRobot {
 		USLocalizer.LocalizationType type = USLocalizer.LocalizationType.FALLING_EDGE;
 
 		Odometer odometer = new Odometer(leftMotor, rightMotor, 50, true);
-		OdometerCorrection odoCor = new OdometerCorrection(odometer);
+		//OdometerCorrection odoCor = new OdometerCorrection(odometer);
 		
 		SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
 		float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
@@ -108,7 +108,7 @@ public class StartRobot {
 		
 
 		Navigation navigator = new Navigation(odometer, usPollerLow, usPollerHigh);
-		 LSPoller lsPoller = new LSPoller(colorValueLoc, colorDataLoc, odoCor);
+		 LSPoller lsPoller = new LSPoller(colorValueLoc, colorDataLoc);
 		
 		lsPoller.start();
 		usPollerHigh.start();
@@ -193,9 +193,12 @@ public class StartRobot {
 			t.clear();
 			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow, lsPoller);
 
-			setLGZy(2);
+			setLGZy(4);
+			setUGZy(5);
+
+			
+			
 			setLGZx(2);
-			setUGZy(3);
 			setUGZx(3);
 
 			
@@ -330,9 +333,9 @@ public class StartRobot {
 
 		
 		
-	//	RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
-				//		pulleyMotor);
-		//		attempt.start();
+		RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
+						pulleyMotor);
+				attempt.start();
 		
 		
 		
@@ -423,7 +426,7 @@ public class StartRobot {
 	 *            coordinate of upper right corner of Green Zone
 	 */
 	public static void setLGZy(int lGZy) {
-		LGZy = (int)(lGZy * 30.48);
+		LGZy = (int)(lGZy * TILE);
 	}
 
 	/**
@@ -440,7 +443,7 @@ public class StartRobot {
 	 *            coordinate of upper right corner of Green Zone
 	 */
 	public static void setLGZx(int lGZx) {
-		LGZx = -(int)(lGZx * 30.48);
+		LGZx = -(int)(lGZx * TILE);
 	}
 
 	/**
@@ -584,7 +587,7 @@ public class StartRobot {
 	 * @param uGZy
 	 */
 	public static void setUGZy(int uGZy) {
-		UGZy = uGZy * 30;
+		UGZy = (int) (uGZy * TILE);
 	}
 
 	/**
@@ -600,7 +603,7 @@ public class StartRobot {
 	 * @param uGZx
 	 */
 	public static void setUGZx(int uGZx) {
-		UGZx = uGZx * -30;
+		UGZx = (int) (uGZx * TILE);
 	}
 
 }
