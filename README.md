@@ -1,7 +1,7 @@
 # Tower of Haboii 
 
 ## Authors:
-[**Alexander Bratyshkin*](http://github.com/alexboii) - Project Software Manager
+[**Alexander Bratyshkin**](http://github.com/alexboii) - Project Software Manager
 
 [**Sebastian Andrade**](http://github.com/pepoandra) - Project Software Engineer
 
