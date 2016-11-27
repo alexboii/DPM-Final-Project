@@ -33,12 +33,7 @@ public class Navigation {
 	public static final int MIN_Y_BOARD = 1;
 
 	// ScanObject constants
-	private static final double ANGLE_LIMIT = 80;
-	private static final double MARGIN = 0.15;
-	private static final double SCAN_DISTANCE = 5;
 	private static final int SCAN_TIME = 10;
-	private static final double US_OFFSET = 20;
-	private static final double SENSORS_OFFSET = 9;
 
 	// Object avoidance constants
 	private static final double MIN_DISTANCE = 6;

@@ -28,36 +28,20 @@ public class RobotMovement extends Thread {
 	static Navigation navigator;
 	USPoller usPollerLow;
 	USPoller usPollerHigh;
-	
+
 	ArrayList<Vector> visited_waypoints = new ArrayList<Vector>();
 	public static Vector lastWayPoint;
 	public static int wayPointCounter = 0;
-	
-	public static int STACK_HEIGHT = 2;
-	
 
-	
+	public static int STACK_HEIGHT = 2;
+
 	protected boolean blue_found = false;
 	public static final int ROTATE_SPEED = 76;
-	
+
 	private static final double TILE = 30.48;
 
 	private static final int TURN_ANGLE_1 = 87;
-	private static final int TURN_ANGLE_2 = 100;
-	private static final int TURN_ANGLE_3 = -40;
-	private static final int RIGHT_ANGLE = 90;
-	private static final int SENSOR_ROTATE = 80;
-	private static final int FORWARD_DISTANCE = 10;
-	private static final int OBJECT_DISTANCE = 25;
-	private static final int DISTANCE_COUNTER_LIMIT = 10;
-	private static final int FORWARD_SPEED = 200;
-	private static final int BB_FAST_SPEED = 260;
-	private static final int BB_SLOW_SPEED = 115;
-	private static final int ANGLE_LIMIT_BB = 90;
 	private static final int ANGLE_LIMIT = 180;
-	private static final int DISTANCE_OFFSET = 5;
-	private static final int BB_OFFSET = 3;
-	private static final int CAGE_FULL_DOWN = 1200;
 
 	private static final int PULLEY_SPEED = -500;
 	private static final int PULL_DOWN_FULL = 1200;
@@ -68,10 +52,10 @@ public class RobotMovement extends Thread {
 	private static final int PULL_DOWN_TO_BLOCK = 690;
 	private static final int CLOSE_CLAW_2 = -(OPEN_CLAW_1 + OPEN_CLAW_2 + OPEN_CLAW_3);
 	private static final int PULL_UP_FROM_BLOCK = -1900;
-	private static final int DISTANCE_SCAN_THRESHOLD = (int)TILE;
+	private static final int DISTANCE_SCAN_THRESHOLD = (int) TILE;
 	private static final int DISTANCE_APPROACH_THRESHOLD = 6;
 	private static final int ADDITION_SLEEP_TIME = 15;
-	
+
 	static EV3LargeRegulatedMotor clawMotor;
 	static EV3LargeRegulatedMotor pulleyMotor;
 
@@ -99,7 +83,7 @@ public class RobotMovement extends Thread {
 		this.usPollerHigh = usPollerHigh;
 		this.clawMotor = clawMotor;
 		this.pulleyMotor = pulleyMotor;
-		
+
 		clawMotor.setAcceleration(200);
 
 	}
@@ -110,141 +94,120 @@ public class RobotMovement extends Thread {
 	public void run() {
 		boolean isWooden;
 
-	//	pullCageDown();
-	clawMotor.rotate(OPEN_CLAW_1);
+		// pullCageDown();
+		clawMotor.rotate(OPEN_CLAW_1);
 
 		while (blue_counter < STACK_HEIGHT) {
-			//Sound.beep();
+			// Sound.beep();
 			lastWayPoint = new Vector(usPollerLow.getDistance(), odometer.getTheta(), odometer.getX(), odometer.getY());
 
 			findObject(TURN_ANGLE_1, ANGLE_LIMIT);
-			
-		//	if(blue_counter < STACK_HEIGHT){
-		//		goToNextWayPoint();
-		//	}
-			//navigator.travelTo(lastWayPoint.getInitialX() - TILE, lastWayPoint.getInitialY(), true);
-			//Sound.beep();
-			
+
+			// if(blue_counter < STACK_HEIGHT){
+			// goToNextWayPoint();
+			// }
+			// navigator.travelTo(lastWayPoint.getInitialX() - TILE,
+			// lastWayPoint.getInitialY(), true);
+			// Sound.beep();
+
 		}
-		
-	//	navigator.travelTo(-100, 100, true);
-		//Sound.beepSequence();
-		goToGreenZone();
+
+		// navigator.travelTo(-100, 100, true);
+		// Sound.beepSequence();
+		goToDropOffZone();
 		pullCageDown();
 		clawMotor.rotate(OPEN_CLAW_1);
-//		clawMotor.rotate(OPEN_CLAW_1);
+		// clawMotor.rotate(OPEN_CLAW_1);
 
 	}
 
+	private void goToDropOffZone() {
+		navigator.travelTo(-((Math.abs(StartRobot.UDZx) + Math.abs(StartRobot.LDZx)) / 2),
+				(StartRobot.UDZy + StartRobot.LDZy) / 2, true);
 
-	
-	private void goToGreenZone() {
-		navigator.travelTo(
-				-((Math.abs(StartRobot.UGZx) + Math.abs(StartRobot.LGZx))/2) , // (-3 + -2 )/2 = -2.5 = 76.2
- 				(StartRobot.UGZy + StartRobot.LGZy)/2 , // ( 3 + 2) /2 = 2.5 = 
-				true);									//	times TILE
-		
 	}
 
-	
-	public static double average(double a, double b){
-		return ( (Math.abs(a)  + Math.abs(b)  )/2 );	
+	public static double average(double a, double b) {
+		return ((Math.abs(a) + Math.abs(b)) / 2);
 	}
-	
-	public static double getXWP(double distance, double angle){
-		double x = Math.abs(odometer.getX()) + distance * Math.cos(Math.toRadians( 180 - angle));
-		//LCDInfo.setLabel1("XW");
-	//	LCDInfo.setValue1((int)(x));
-		return	x;
+
+	public static double getXWP(double distance, double angle) {
+		double x = Math.abs(odometer.getX()) + distance * Math.cos(Math.toRadians(180 - angle));
+		// LCDInfo.setLabel1("XW");
+		// LCDInfo.setValue1((int)(x));
+		return x;
 	}
-	
-	public static double getYWP(double distance, double angle){
-		double y = Math.abs(odometer.getY()) + distance *Math.cos(Math.toRadians( angle - 90 ));
-		//LCDInfo.setLabel2("YW");
-		//LCDInfo.setValue2((int)(y));
-		return	y;
+
+	public static double getYWP(double distance, double angle) {
+		double y = Math.abs(odometer.getY()) + distance * Math.cos(Math.toRadians(angle - 90));
+		// LCDInfo.setLabel2("YW");
+		// LCDInfo.setValue2((int)(y));
+		return y;
 	}
-	
-	public static void goToNextWayPoint(){
-		
+
+	public static void goToNextWayPoint() {
+
 		double data[] = new double[2];
 		double x, y;
 		double finalX, finalY;
 		double distance;
 		double angle;
 		double length;
-		//calculate middle of green zone
-		finalX = average(StartRobot.UGZx, StartRobot.LGZx );
-		finalY = average(StartRobot.UGZy, StartRobot.LGZy );
+		// calculate middle of green zone
+		finalX = average(StartRobot.UGZx, StartRobot.LGZx);
+		finalY = average(StartRobot.UGZy, StartRobot.LGZy);
 
-		
-	//calculate distance from current position to middle of green zone
-		length = Math.hypot(
-				finalX - Math.abs(odometer.getX()) ,
-				finalY -  odometer.getY());
-				
+		// calculate distance from current position to middle of green zone
+		length = Math.hypot(finalX - Math.abs(odometer.getX()), finalY - odometer.getY());
+
 		angle = navigator.getMinAng(-finalX, finalY);
 
 		distance = TILE + 2 - DISTANCE_APPROACH_THRESHOLD;
 
-		x= getXWP(distance, angle);
-		y= getYWP(distance, angle);
+		x = getXWP(distance, angle);
+		y = getYWP(distance, angle);
 
-		if(!navigator.travelTo(-x,y)){
-			
+		if (!navigator.travelTo(-x, y)) {
+
 			data = navigator.isWooden();
-			if(data[0]==1){ //if wooden
+			if (data[0] == 1) { // if wooden
 				navigator.avoidObject(true);
 				return;
 			} else {
-				if(blue_counter < STACK_HEIGHT){
+				if (blue_counter < STACK_HEIGHT) {
 					pickUpBlock();
 				}
 			}
-			
+
 			angle = navigator.getMinAng(-finalX, finalY);
-			x= getXWP(distance, angle);
-			y= getYWP(distance, angle);
+			x = getXWP(distance, angle);
+			y = getYWP(distance, angle);
 			navigator.travelTo(x, y);
 		}
-	
-		
-		
-		
-	/*
-		if( wayPointCounter < -Navigation.MAX_X_BOARD - 1 ){
-			//Sound.beepSequence();
-			x = lastWayPoint.getInitialX() - TILE;
-			y = lastWayPoint.getInitialY();
-		} else { 
-			//Sound.beepSequenceUp();
-			x = lastWayPoint.getInitialX();
-			y = lastWayPoint.getInitialY() + TILE;
-		}
-	//	Sound.beep();
-		++wayPointCounter;
-		navigator.travelTo(x,y, true);	
-	//	Sound.beep();
-	 */
-	}
-	
-	
-	public void findObject(double initialAngle, double finalAngle){
-		ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
-		
-		double[] blockProperties = new double[2];
 
+		/*
+		 * if( wayPointCounter < -Navigation.MAX_X_BOARD - 1 ){
+		 * //Sound.beepSequence(); x = lastWayPoint.getInitialX() - TILE; y =
+		 * lastWayPoint.getInitialY(); } else { //Sound.beepSequenceUp(); x =
+		 * lastWayPoint.getInitialX(); y = lastWayPoint.getInitialY() + TILE; }
+		 * // Sound.beep(); ++wayPointCounter; navigator.travelTo(x,y, true); //
+		 * Sound.beep();
+		 */
+	}
+
+	public void findObject(double initialAngle, double finalAngle) {
+		ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
+
+		double[] blockProperties = new double[2];
 
 		navigator.turnTo(initialAngle, true);
 		navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
 
-
 		while (odometer.getTheta() < finalAngle) {
 			navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
 
-			Vector vector = new Vector(usPollerLow.getDistance(),
-					odometer.getTheta(),
-					odometer.getX(), odometer.getY());
+			Vector vector = new Vector(usPollerLow.getDistance(), odometer.getTheta(), odometer.getX(),
+					odometer.getY());
 
 			list_of_vectors.add(vector);
 
@@ -252,9 +215,9 @@ public class RobotMovement extends Thread {
 				Thread.sleep(ADDITION_SLEEP_TIME);
 			} catch (InterruptedException e) {
 			}
-		} //end scan
+		} // end scan
 
-		//look for smallest
+		// look for smallest
 		Collections.sort(list_of_vectors, new Comparator<Vector>() {
 			@Override
 			public int compare(Vector a, Vector b) {
@@ -262,96 +225,86 @@ public class RobotMovement extends Thread {
 			}
 		});
 
-		//waits for some reason
-	/*
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		}
-		*/
-		
-		//if closest object is not too far away, analyze it
+		// waits for some reason
+		/*
+		 * try { Thread.sleep(1000); } catch (InterruptedException e) { }
+		 */
+
+		// if closest object is not too far away, analyze it
 		if ((list_of_vectors.get(0).getDistance()) < DISTANCE_SCAN_THRESHOLD) {
 
 			navigator.turnTo(list_of_vectors.get(0).getAngle(), true);
-			
-			
-			if(usPollerLow.getDistance() < DISTANCE_SCAN_THRESHOLD) {
+
+			if (usPollerLow.getDistance() < DISTANCE_SCAN_THRESHOLD) {
 				navigator.goForward((usPollerLow.getDistance()) - DISTANCE_APPROACH_THRESHOLD);
 			} else {
-				navigator.goForward(list_of_vectors.get(0).getDistance() - DISTANCE_APPROACH_THRESHOLD );
+				navigator.goForward(list_of_vectors.get(0).getDistance() - DISTANCE_APPROACH_THRESHOLD);
 			}
 
-			
 			list_of_vectors.clear();
 
 			blockProperties = navigator.isWooden();
-					
-					
-					//if (blockProperties[0] == 1 || 
-				//			blockProperties[1] < 2 *  DISTANCE_APPROACH_THRESHOLD) { //if wooden block
-						
-			//IF its a wooden block
-					if(blockProperties[0]==1){
-						navigator.avoidObject(false);
-						//goToNextWayPoint();
-						return;
-						
-					} else {
-						
-						if(blockProperties[1]< DISTANCE_APPROACH_THRESHOLD + 10){
-							if(blue_counter < STACK_HEIGHT)	{
-								pickUpBlock();
-						}
-								if((blue_counter < STACK_HEIGHT)){
-									goToNextWayPoint();
-								} else {
-									return;								
-							}
-							
-							
-						} else { 
-							//Sound.beepSequenceUp();
-							navigator.goForward(0.3 * DISTANCE_APPROACH_THRESHOLD);
-						}
+
+			// if (blockProperties[0] == 1 ||
+			// blockProperties[1] < 2 * DISTANCE_APPROACH_THRESHOLD) { //if
+			// wooden block
+
+			// IF its a wooden block
+			if (blockProperties[0] == 1) {
+				navigator.avoidObject(false);
+				// goToNextWayPoint();
+				return;
+
+			} else {
+
+				if (blockProperties[1] < DISTANCE_APPROACH_THRESHOLD + 10) {
+					if (blue_counter < STACK_HEIGHT) {
+						pickUpBlock();
 					}
+					if ((blue_counter < STACK_HEIGHT)) {
+						goToNextWayPoint();
+					} else {
+						return;
+					}
+
+				} else {
+					// Sound.beepSequenceUp();
+					navigator.goForward(0.3 * DISTANCE_APPROACH_THRESHOLD);
+				}
+			}
 		} else {
 			goToNextWayPoint();
 
-			//navigator.turnTo(list_of_vectors.get(0).getAngle(), true);
-			//navigator.goForward(DISTANCE_SCAN_THRESHOLD - DISTANCE_APPROACH_THRESHOLD);
-			
-			
-			
-		//Sound.beepSequenceUp();
+			// navigator.turnTo(list_of_vectors.get(0).getAngle(), true);
+			// navigator.goForward(DISTANCE_SCAN_THRESHOLD -
+			// DISTANCE_APPROACH_THRESHOLD);
+
+			// Sound.beepSequenceUp();
 		}
 	}
-	
-	
-public static void pickUpBlock(){
-	
-	navigator.goForward(DISTANCE_APPROACH_THRESHOLD);
-	pullCageDown();
 
-	if(!(blue_counter == 0)){
-		clawMotor.setAcceleration(200);
-		clawMotor.rotate(OPEN_CLAW_2);
-		clawMotor.rotate(OPEN_CLAW_3);
+	public static void pickUpBlock() {
+
+		navigator.goForward(DISTANCE_APPROACH_THRESHOLD);
+		pullCageDown();
+
+		if (!(blue_counter == 0)) {
+			clawMotor.setAcceleration(200);
+			clawMotor.rotate(OPEN_CLAW_2);
+			clawMotor.rotate(OPEN_CLAW_3);
+		}
+		grabObject();
+		blue_counter++;
+
 	}
-	grabObject();
-	blue_counter++;
-	
-}
-	
-	
-	
+
 	private static void pullCageDown() {
 		pulleyMotor.setSpeed(PULLEY_SPEED);
-		pulleyMotor.rotate((int)(PULL_DOWN_FULL));
+		pulleyMotor.rotate((int) (PULL_DOWN_FULL));
 	}
 
 	private static void grabObject() {
-//		clawMotor.rotate(OPEN_CLAW_1);
+		// clawMotor.rotate(OPEN_CLAW_1);
 		clawMotor.setAcceleration(200);
 		pulleyMotor.rotate(PULL_DOWN_TO_BLOCK);
 		clawMotor.rotate(CLOSE_CLAW_2);

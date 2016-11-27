@@ -58,7 +58,7 @@ public class StartRobot {
 	 * Server IP's and team number, used for retrieval of parameters
 	 */
 	private static final String SERVER_IP = "192.168.2.3";
-	private static final int TEAM_NUMBER = 14;
+	private static final int TEAM_NUMBER = 14;	
 
 	/**
 	 * Hashmap holding all received data
@@ -69,6 +69,11 @@ public class StartRobot {
 	 * Define all parameters to be received from the WifiConnection class
 	 */
 	public static int LGZy, LGZx, CSC, BSC, CTN, BTN, URZx, LRZy, LRZx, URZy, UGZy, UGZx;
+	
+	/**
+	 * Define all parameters related to the forbidden zones and drop-off zones 
+	 */
+	public static int LFZy, LFZx, UFZy, UFZx, LDZy, LDZx, UDZy, UDZx;
 
 	/**
 	 * Receive and assign parameters from client. Start the robot
@@ -80,6 +85,7 @@ public class StartRobot {
 	 * Define program constants
 	 */
 	private static final double TILE = 30.48;
+
 	private static final int CLAW_ANGLE = 10;
 	private static final int FULL_CIRCLE = 360;
 
@@ -171,13 +177,30 @@ public class StartRobot {
 				}
 			}
 
-			
+			if(BTN == TEAM_NUMBER){
+				setLFZy(LRZy);
+				setLFZx(LRZx);
+				setUFZy(URZy);
+				setUFZx(URZx);
+				setLDZy(LGZy);
+				setLDZx(LGZx);
+				setUDZy(UGZy);
+				setUDZx(UGZx);
+			}else{
+				setLFZy(LGZy);
+				setLFZx(LGZx);
+				setUFZy(UGZy);
+				setUFZx(UGZx);
+				setLDZy(LRZy);
+				setLDZx(LRZx);
+				setUDZy(URZy);
+				setUDZx(URZx);
+			}
 
 			// // DO US LOCALIZATION
 			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
 			usl.doLocalization(navigator);
 
-			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
 
 			// DO LIGHT LOCALIZATION
 			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
@@ -604,6 +627,118 @@ public class StartRobot {
 	 */
 	public static void setUGZx(int uGZx) {
 		UGZx = (int) (uGZx * TILE);
+	}
+	
+	/**
+	 * @return the lFZy
+	 */
+	public static int getLFZy() {
+		return LFZy;
+	}
+
+	/**
+	 * @param lFZy the lFZy to set
+	 */
+	public static void setLFZy(int lFZy) {
+		LFZy = lFZy;
+	}
+
+	/**
+	 * @return the lFZx
+	 */
+	public static int getLFZx() {
+		return LFZx;
+	}
+
+	/**
+	 * @param lFZx the lFZx to set
+	 */
+	public static void setLFZx(int lFZx) {
+		LFZx = lFZx;
+	}
+
+	/**
+	 * @return the uFZy
+	 */
+	public static int getUFZy() {
+		return UFZy;
+	}
+
+	/**
+	 * @param uFZy the uFZy to set
+	 */
+	public static void setUFZy(int uFZy) {
+		UFZy = uFZy;
+	}
+
+	/**
+	 * @return the uFZx
+	 */
+	public static int getUFZx() {
+		return UFZx;
+	}
+
+	/**
+	 * @param uFZx the uFZx to set
+	 */
+	public static void setUFZx(int uFZx) {
+		UFZx = uFZx;
+	}
+
+	/**
+	 * @return the lDZy
+	 */
+	public static int getLDZy() {
+		return LDZy;
+	}
+
+	/**
+	 * @param lDZy the lDZy to set
+	 */
+	public static void setLDZy(int lDZy) {
+		LDZy = lDZy;
+	}
+
+	/**
+	 * @return the LDZx
+	 */
+	public static int getLDZx() {
+		return LDZx;
+	}
+
+	/**
+	 * @param LDZx the LDZx to set
+	 */
+	public static void setLDZx(int lDZx) {
+		LDZx = lDZx;
+	}
+
+	/**
+	 * @return the uDZy
+	 */
+	public static int getUDZy() {
+		return UDZy;
+	}
+
+	/**
+	 * @param uDZy the uDZy to set
+	 */
+	public static void setUDZy(int uDZy) {
+		UDZy = uDZy;
+	}
+
+	/**
+	 * @return the uDZx
+	 */
+	public static int getUDZx() {
+		return UDZx;
+	}
+
+	/**
+	 * @param uDZx the uDZx to set
+	 */
+	public static void setUDZx(int uDZx) {
+		UDZx = uDZx;
 	}
 
 }
