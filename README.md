@@ -14,7 +14,7 @@ EV3 Mindstorm robot built under the [Lejos] (http://www.lejos.org/) framework fo
 - Differentiation between wooden blocks and Styrofoam blocks
 - Can pickup up to four Styrofoam blocks to build a tower and drop it off at a designated zone.
 - Perform odometry correction
-- Avoidance of obstacles (wooden blocks) 
+- Avoidance of obstacles (wooden blocks as well as forbidden zones) 
 
 ## Robot design:
 
