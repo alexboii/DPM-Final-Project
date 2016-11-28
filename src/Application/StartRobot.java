@@ -212,175 +212,27 @@ public class StartRobot {
 
 		} else {
 
-			// pulleyMotor.rotate(90);
+			odometer.setPosition(new double[] { 0, 0, 90 }, new boolean[] { true, true, true });
+
+			
 			t.clear();
 			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow, lsPoller);
 
-			setLGZy(4);
-			setUGZy(5);
+			setLDZy(3);
+			setUDZy(4);
 
 			
 			
-			setLGZx(2);
-			setUGZx(3);
-
-			
-
-//			// // DO US LOCALIZATION
-//			USLocalizer usl = new USLocalizer(odometer, usPollerLow, type);
-//			usl.doLocalization(navigator);
-//
-//			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
-//
-//			// DO LIGHT LOCALIZATION
-//			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
-//			lsl.doLocalization(navigator);
+			setLDZx(2);
+			setUDZx(3);
 
 			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
 					pulleyMotor);
 			attempt.start();
 
-			// while(true){
-			// t.drawString("TACHO: " + pulleyMotor.getTachoCount(), 0, 3);
-			//
-			// }
 
-			// pulleyMotor.rotate(-3000);
-			// SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
-			// float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
-
-			//// // DO US LOCALIZATION
-			// USLocalizer usl = new USLocalizer(odometer, usValueLow,
-			//// usDataLow, type);
-			// usl.doLocalization(navigator);
-			//
-			// // SWITCH TO RED MODE FOR LIGHT LOCALIZATION
-			//
-			////
-			//// // DO LIGHT LOCALIZATION
-			// LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc,
-			//// colorDataLoc);
-			// lsl.doLocalization(navigator);
-
-			// navigator.travelTo(-60,60);
-
-			//
-			// clawMotor.rotate(100);
-			// pulleyMotor.rotate(700);
-			// clawMotor.rotate(-400);
-			// pulleyMotor.rotate(-800);
-
-			// clawMotor.rotate(-50);
-
-			// clawMotor.rotate(100);
-
-			// RobotMovement attempt = new RobotMovement(odometer, navigator,
-			// usPollerLow, usPollerHigh, clawMotor,
-			// pulleyMotor);
-			// attempt.start();
-
-			// odometer.setPosition(new double[] { 0, 0, 0 },
-			// new boolean[] { true, true, true });
-			//
-//			while (Button.waitForAnyPress() != Button.ID_ESCAPE) {
-//				buttonChoice = Button.waitForAnyPress();
-//
-//				if (buttonChoice == Button.ID_RIGHT) {
-//					closeClaw();
-//				}
-//
-//				if (buttonChoice == Button.ID_LEFT) {
-//					openClaw();
-//				}
-//
-//				if (buttonChoice == Button.ID_UP) {
-//					pulleyUp(1);
-//					// navigator.goForward(4);
-//				}
-//
-//				if (buttonChoice == Button.ID_DOWN) {
-//					pulleyDown(1);
-//					// navigator.goForward(-4);
-//
-//				}
-//
-//			}
-//
-//			double[] distances = new double[20];
-
-			// scan for objects
-			// with lower sensor
-
-			// save lower sensor for each theta
-
-			// go to closest object
-
-			// analyze object
-
-			// if blue block, grab
-
-			// take to -15,-15
-
-			// for(int i =0 ; i < 20; ++i){
-			// navigator.turnTo(i * (Math.PI / 40 ));
-			// distances[i]= usPollerLow.getDistance();
-			// }
-			//
-			//
-			// navigator.turnTo(findSmallestDistance(distances) * (Math.PI / 40
-			// ) );
-			//
-			// navigator.goForward(distances[findSmallestDistance(distances)] -
-			// 3);
-			//
-			// if( (usPollerLow.getDistance() + 20) <
-			// usPollerHigh.getDistance()){
-			//
-			// pickUpBlock();
-			// }
-			//
-			// navigator.travelTo(2 * TILE, 0);
-			//
-
-			// navigator.turnTo(Math.PI/2);
-
-			
-			
-			
 		}
-//		lightSensorBottom.setFloodlight(true);
-//		
-//		odometer.setPosition(new double[] { 0, 0, 90 }, new boolean[] { false, false, true });
-//		
-//	//	navigator.travelTo(-2.5 * TILE, 2.5 * TILE, true);
-//
-//		
-//		
-//		RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
-//						pulleyMotor);
-//				attempt.start();
-		
-		
-		
-		
-		
-		
-		
-	//	while (Button.waitForAnyPress() != Button.ID_ESCAPE){
-	//		
-	//		if(navigator.isWooden()){
-	//			Sound.beepSequence();
-	//		} else {
-	//			Sound.beep();
-	//			Sound.beep();
-	//		}
-					
-	//		while (Button.waitForAnyPress() != Button.ID_ENTER)
-	//			;
-	//	}
-	//	
-	//	System.exit(0);
-//
+
 	}
 
 	public static int findSmallestDistance(double[] distances) {
@@ -400,16 +252,7 @@ public class StartRobot {
 		return index;
 	}
 
-	public static void pickUpBlock() {
-		pulleyMotor.setSpeed(300);
-		openClaw();
-		pulleyDown(5);
-		closeClaw();
-		pulleyUp(5);
-		pulleyDown(1.5);
-		openClaw();
-		pulleyDown(1.5);
-	}
+
 
 	public static void openClaw() {
 		clawMotor.rotate(CLAW_ANGLE, false);

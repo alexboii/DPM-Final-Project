@@ -223,14 +223,14 @@ public class Navigation {
 		Vector vector = new Vector(30 * SAFETY_RATIO, odometer.getTheta(), odometer.getX(), odometer.getY());
 
 		double pointXY1[] = vector.getPointXY(vector.getDistance());
-		travelTo(pointXY1[0], pointXY1[1]);
+		travelTo(pointXY1[0], pointXY1[1], true);
 
 		turnTo(130, true);
 
 		vector = new Vector(20, odometer.getTheta(), odometer.getX(), odometer.getY());
 
 		double pointXY2[] = vector.getPointXY(vector.getDistance());
-		travelTo(pointXY2[0], pointXY2[1]);
+		travelTo(pointXY2[0], pointXY2[1], true);
 
 	}
 

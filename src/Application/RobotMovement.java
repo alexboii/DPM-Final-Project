@@ -77,12 +77,12 @@ public class RobotMovement extends Thread {
 	 */
 	public RobotMovement(Odometer odometer, Navigation navigator, USPoller usPollerLow, USPoller usPollerHigh,
 			EV3LargeRegulatedMotor clawMotor, EV3LargeRegulatedMotor pulleyMotor) {
-		this.navigator = navigator;
-		this.odometer = odometer;
+		RobotMovement.navigator = navigator;
+		RobotMovement.odometer = odometer;
 		this.usPollerLow = usPollerLow;
 		this.usPollerHigh = usPollerHigh;
-		this.clawMotor = clawMotor;
-		this.pulleyMotor = pulleyMotor;
+		RobotMovement.clawMotor = clawMotor;
+		RobotMovement.pulleyMotor = pulleyMotor;
 
 		clawMotor.setAcceleration(200);
 
@@ -112,18 +112,23 @@ public class RobotMovement extends Thread {
 
 		}
 
-		// navigator.travelTo(-100, 100, true);
 		// Sound.beepSequence();
 		goToDropOffZone();
 		pullCageDown();
 		clawMotor.rotate(OPEN_CLAW_1);
-		// clawMotor.rotate(OPEN_CLAW_1);
 
 	}
 
 	private void goToDropOffZone() {
-		navigator.travelTo(-((Math.abs(StartRobot.UDZx) + Math.abs(StartRobot.LDZx)) / 2),
-				(StartRobot.UDZy + StartRobot.LDZy) / 2, true);
+		double x, y;
+		
+		x =- TILE * average(StartRobot.UDZx, StartRobot.LDZx);
+		y = TILE * average(StartRobot.UDZy, StartRobot.LDZy);
+
+		
+		
+		
+		navigator.travelTo(x, y, true);
 
 	}
 
