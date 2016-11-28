@@ -119,6 +119,9 @@ public class StartRobot {
 		lsPoller.start();
 		usPollerHigh.start();
 		new Thread(usPollerLow).start();
+		
+		LCDInfo lcd = new LCDInfo(odometer); // t.clear();
+
 
 		int buttonChoice;
 
@@ -140,7 +143,6 @@ public class StartRobot {
 		if (buttonChoice == Button.ID_LEFT) {
 			// usPollerHigh.start();
 			t.clear();
-			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow, lsPoller); // t.clear();
 			WifiConnection conn = null;
 			try {
 				System.out.println("Connecting...");
@@ -207,7 +209,7 @@ public class StartRobot {
 			lsl.doLocalization(navigator);
 
 			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
-					pulleyMotor);
+					pulleyMotor, colorValueLoc, colorDataLoc);
 			attempt.start();
 
 		} else {
@@ -216,20 +218,28 @@ public class StartRobot {
 
 			
 			t.clear();
-			LCDInfo lcd = new LCDInfo(odometer, usPollerHigh, usPollerLow, lsPoller);
 
-			setLDZy(3);
-			setUDZy(4);
+			setLDZy(5);
+			setUDZy(6);
 
 			
 			
-			setLDZx(2);
-			setUDZx(3);
+			setLDZx(1);
+			setUDZx(2);
+			
+			
+			
+			setLFZy(LRZy);
+			setLFZx(LRZx);
+			setUFZy(URZy);
+			setUFZx(URZx);
 
 			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
-					pulleyMotor);
+					pulleyMotor, colorValueLoc, colorDataLoc);
 			attempt.start();
 
+			
+			//navigator.travelTo(5 * TILE, TILE , false);
 
 		}
 

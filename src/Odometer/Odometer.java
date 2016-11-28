@@ -1,5 +1,6 @@
 package Odometer;
 
+import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 /*
@@ -41,6 +42,8 @@ public class Odometer implements TimerListener {
 	private double leftRadius, rightRadius, width;
 	private double x, y, theta;
 	private boolean rotating = false;
+	public static boolean needCalibration = false;
+	public static int zone = 0, lastZone = 0;
 	private double[] oldDH, dDH;
 	
 	// constructor
@@ -52,7 +55,7 @@ public class Odometer implements TimerListener {
 		// default values, modify for your robot
 		this.rightRadius = 2.1;
 		this.leftRadius = 2.1;
-		this.width = 16;
+		this.width = 18.5;
 		
 		this.x = 0.0;
 		this.y = 0.0;
@@ -106,11 +109,44 @@ public class Odometer implements TimerListener {
 			x += dDH[0] * Math.cos(Math.toRadians(theta));
 			y += dDH[0] * Math.sin(Math.toRadians(theta));
 		}
-
 		oldDH[0] += dDH[0];
 		oldDH[1] += dDH[1];
+		
+		//// correction parameters
+		
+		zone = (int)(Math.abs(x)/(3 * 30.48));
+		zone+= 10* (int)(y/(3* 30.48));
+		
+		if(zone!=lastZone){
+			needCalibration = true;
+			Sound.beep();
+			Sound.beep();
+		}
+		
+		
+		
+		
+		lastZone = zone;
+		
+		
+		LCDInfo.setLabel1("z:");
+		LCDInfo.setValue1(zone);
+		
+		
+		/// end correction paramteres 
+		
+	}
+	
+	
+	public void setCalibration(boolean status){
+		needCalibration = status;
 	}
 
+	public boolean needsCalibration(){
+		return needCalibration;
+	}
+	
+	
 	// return X value
 	public double getX() {
 		synchronized (this) {

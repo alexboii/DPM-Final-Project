@@ -1,5 +1,7 @@
 package Application;
 
+import Odometer.LCDInfo;
+
 public class Vector {
 	
 	private double distance;
@@ -89,7 +91,15 @@ public class Vector {
 		
 		position[0]= Math.abs(this.initialX) + length *  Math.cos(Math.toRadians(this.angle));
 		position[1]= this.initialY + length * Math.sin(Math.toRadians(this.angle));
-
+		
+		
+		LCDInfo.setLabel1("xF:");
+		LCDInfo.setValue1((int)position[0]);
+		
+		
+		LCDInfo.setLabel2("yF:");
+		LCDInfo.setValue2((int)position[1]);
+		
 		return position;
 	}
 	

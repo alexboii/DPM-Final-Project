@@ -1,6 +1,4 @@
 package Odometer;
-import SensorData.LSPoller;
-import SensorData.USPoller;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.utility.Timer;
@@ -15,9 +13,7 @@ public class LCDInfo implements TimerListener{
 	public static final int LCD_REFRESH = 100;
 	private Odometer odo;
 	private Timer lcdTimer;
-	private USPoller highUs, lowUs;
 	private TextLCD LCD = LocalEV3.get().getTextLCD();
-	private LSPoller lsPoller;
 	private static String label1, label2, label3;
 	private  static int value1, value2, value3;
 
@@ -29,12 +25,10 @@ public class LCDInfo implements TimerListener{
 	 * Constructor
 	 * @param odo Odometer
 	 */
-	public LCDInfo(Odometer odo, USPoller highUs, USPoller lowUs, LSPoller lsPoller) {
+	public LCDInfo(Odometer odo) {
 		this.odo = odo;
 		this.lcdTimer = new Timer(LCD_REFRESH, this);
-		this.highUs = highUs;
-		this.lowUs = lowUs;
-		this.lsPoller = lsPoller;
+	
 		
 		label1 = " ";
 		label2 = " ";

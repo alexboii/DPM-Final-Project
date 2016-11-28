@@ -37,18 +37,19 @@ public class Navigation {
 
 	// Object avoidance constants
 	private static final double MIN_DISTANCE = 6;
-	private static final double SAFETY_RATIO = 1.7;
+	private static final double SAFETY_RATIO = 1;
 	private static final double SAFETY_ANGLE = 50;
 
 	// isWooden constants
 	private static final double DELTA_DISTANCE = 9;
 	private static final double SCAN_ANGLE = 20;
+	private static final int DETECTION_ANGLE = 0;
 
 	// temp variable, debug purposes
 	// public static double[] data = new double[4];
 
 	public static final int SLOW_ROTATE_SPEED = 50;
-	public static final int FORWARD_SPEED = 150;
+	public static final int FORWARD_SPEED = 200;
 	public static final int WAYPOINT_BLOCKED_BW = 3;
 
 	public static final int ROTATE_SPEED = 80;
@@ -128,7 +129,7 @@ public class Navigation {
 		double minAng;
 
 		minAng = getMinAng(x, y);
-		this.turnTo(minAng, false);
+		this.turnTo(minAng, true);
 
 		do {
 			this.setSpeeds(FAST, FAST);
@@ -136,7 +137,9 @@ public class Navigation {
 				Sound.beepSequenceUp();
 				return false;
 			}
-		} while ((Math.abs(x - odometer.getX()) > CM_ERR_2 || Math.abs(y - odometer.getY()) > CM_ERR_2));
+		} while ( Math.abs(Math.abs(x) - Math.abs(odometer.getX())) > CM_ERR 
+				
+				|| Math.abs(y - odometer.getY()) > CM_ERR);
 
 		this.setSpeeds(0, 0);
 		return true;
@@ -149,15 +152,15 @@ public class Navigation {
 	 */
 	public void travelTo(double x, double y, boolean avoid) {
 		double minAng;
-		double[] data = new double[4];
+		//double[] data = new double[4];
 		boolean object = false;
-		double[] blockProperties = new double[2];
+	//	double[] blockProperties = new double[2];
 		boolean nearForbiddenZone = false;
 
 		minAng = getMinAng(x, y);
-		this.turnTo(minAng, false);
+		this.turnTo(minAng, true);
 
-		while ((Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR) && (!object)) {
+		while ((Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR) ) {
 
 			this.setSpeeds(FAST, FAST);
 
@@ -165,15 +168,14 @@ public class Navigation {
 			if (us.getDistance() < MIN_DISTANCE && avoid) {
 				// avoid
 				avoidObject(true);
-
 				travelTo(x, y, true);
 
 			}
 
 			if (((odometer.getX() + 10) > StartRobot.LFZx || (odometer.getX() + 10) > StartRobot.UFZx)
 					&& ((odometer.getY() + 10) > StartRobot.LFZy || (odometer.getY() + 10) > StartRobot.UFZy)) {
-				nearForbiddenZone = true;
-				break;
+			//	nearForbiddenZone = true;
+			//	break;
 			}
 
 		}
@@ -197,11 +199,14 @@ public class Navigation {
 
 		}
 	}
+	
+	
 
 	public void avoidObject(boolean full) {
 		// double[] data = new double[2];
 		this.setSpeeds(0, 0);
-		double angle = odometer.getTheta();
+		double initialAngle = odometer.getTheta();
+		double angle;
 		this.setSpeeds(-150, 150);
 
 		while (true) {
@@ -214,23 +219,28 @@ public class Navigation {
 
 		Sound.beepSequenceUp();
 		if (full) {
-			turnTo(angle + SAFETY_ANGLE, true);
+			turnTo(angle + SAFETY_ANGLE, true);		
 
 		} else {
 			turnTo(angle + 0.6 * SAFETY_ANGLE, true);
 		}
 
-		Vector vector = new Vector(30 * SAFETY_RATIO, odometer.getTheta(), odometer.getX(), odometer.getY());
+		goForward(30);
+		//Vector vector = new Vector(30 * SAFETY_RATIO, odometer.getTheta(), Math.abs(odometer.getX()), odometer.getY());
 
-		double pointXY1[] = vector.getPointXY(vector.getDistance());
-		travelTo(pointXY1[0], pointXY1[1], true);
+		//double pointXY1[] = vector.getPointXY(vector.getDistance());
+		//travelTo(-Math.abs(pointXY1[0]), pointXY1[1], true);
+		
+		turnTo(initialAngle, true);
+		goForward(5);
+		
+		
+	//	turnTo(130, true);
 
-		turnTo(130, true);
+	//	vector = new Vector(20, odometer.getTheta(), Math.abs(odometer.getX()), odometer.getY());
 
-		vector = new Vector(20, odometer.getTheta(), odometer.getX(), odometer.getY());
-
-		double pointXY2[] = vector.getPointXY(vector.getDistance());
-		travelTo(pointXY2[0], pointXY2[1], true);
+	//	double pointXY2[] = vector.getPointXY(vector.getDistance());
+	//	travelTo(pointXY2[0], pointXY2[1], true);
 
 	}
 
@@ -273,26 +283,29 @@ public class Navigation {
 	// public double[] isWooden() {
 	public double[] isWooden() {
 		double minLow, minHigh, initialAngle;
+	//	Vector vector;
 		double[] results = new double[2];
 
 		minLow = us.getDistance();
 		minHigh = highUs.getDistance();
 		initialAngle = odometer.getTheta();
+		double bestAngle = initialAngle;
 
 		turnTo(initialAngle - SCAN_ANGLE, true);
 		setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
 
 		while (odometer.getTheta() < initialAngle + SCAN_ANGLE) {
-			if (us.getDistance() < minLow) {
-				minLow = us.getDistance();
+			if (us.getFilteredDistance() < minLow) {
+				minLow = us.getFilteredDistance();
+				bestAngle = odometer.getTheta();
 			}
 
-			if (highUs.getDistance() < minHigh) {
-				minHigh = highUs.getDistance();
+			if (highUs.getFilteredDistance() < minHigh) {
+				minHigh = highUs.getFilteredDistance();
 			}
 
 			try {
-				Thread.sleep(SCAN_TIME / 2);
+				Thread.sleep(SCAN_TIME / 2);	
 			} catch (InterruptedException e) {
 				// oh, boii, hope nothing happens here
 			}
@@ -307,7 +320,12 @@ public class Navigation {
 		}
 
 		if (results[0] == 0) {
-			turnTo(initialAngle, true);
+			
+			if(bestAngle < initialAngle){
+				turnTo(bestAngle - DETECTION_ANGLE , true);
+			} else {
+				turnTo(bestAngle + DETECTION_ANGLE , true);
+			}		
 		}
 
 		results[1] = minLow;
@@ -381,4 +399,8 @@ public class Navigation {
 	public void setRightMotor(EV3LargeRegulatedMotor rightMotor) {
 		this.rightMotor = rightMotor;
 	}
+	
+	
+	
+	
 }
