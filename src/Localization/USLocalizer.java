@@ -2,6 +2,7 @@ package Localization;
 
 import Navigation.Navigation;
 import Odometer.Odometer;
+import SensorData.USPoller;
 import lejos.robotics.SampleProvider;
 
 public class USLocalizer {
@@ -10,8 +11,8 @@ public class USLocalizer {
 	};
 
 	// CONSTANTS
-	private static final float ROTATION_SPEED = 140;
-	private static final double DISTANCE_FROM_WALL = 0.1;
+	private static final float ROTATION_SPEED = 200;
+	private static final double DISTANCE_FROM_WALL = 6;
 	private static final double CLIPPING_THRESHOLD = 0.5;
 	private static final float CLIPPING_DISTANCE = 0.60f;
 	private static final int BACK_ANGLE = 225;
@@ -26,11 +27,11 @@ public class USLocalizer {
 	private static SampleProvider usSensor;
 	private static float[] usData;
 	private LocalizationType locType;
+	private USPoller us; 
 
-	public USLocalizer(Odometer odo, SampleProvider usSensor, float[] usData, LocalizationType locType) {
+	public USLocalizer(Odometer odo, USPoller us, LocalizationType locType) {
 		this.odo = odo;
-		this.usSensor = usSensor;
-		this.usData = usData;
+		this.us = us;
 		this.locType = locType;
 	}
 
@@ -41,7 +42,7 @@ public class USLocalizer {
 		if (locType == LocalizationType.FALLING_EDGE) {
 
 			// ROTATE UNTIL WE ARE FACING NO WALL
-			while (getFilteredData() < DISTANCE_FROM_WALL) {
+			while (us.getDistance() < DISTANCE_FROM_WALL) {
 				navigator.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 			}
 
@@ -50,7 +51,7 @@ public class USLocalizer {
 //			sleepThread();
 
 			// ROTATE UNTIL FIRST WALL IS SEEN BY SENSOR
-			while (getFilteredData() > DISTANCE_FROM_WALL) {
+			while (us.getDistance() > DISTANCE_FROM_WALL) {
 				navigator.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 			}
 
@@ -61,14 +62,14 @@ public class USLocalizer {
 //			sleepThread();
 
 			// GO AWAY FROM WALL
-			while (getFilteredData() < DISTANCE_FROM_WALL) {
+			while (us.getDistance() < DISTANCE_FROM_WALL) {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 			}
 
 //			sleepThread();
 
 			// ROTATE UNTIL SECOND WALL IS SEEN
-			while (getFilteredData() > DISTANCE_FROM_WALL) {
+			while (us.getDistance() > DISTANCE_FROM_WALL) {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 			}
 

@@ -198,7 +198,7 @@ public class StartRobot {
 			}
 
 			// // DO US LOCALIZATION
-			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
+			USLocalizer usl = new USLocalizer(odometer, usPollerLow, type);
 			usl.doLocalization(navigator);
 
 
@@ -226,19 +226,19 @@ public class StartRobot {
 
 			
 
-			// // DO US LOCALIZATION
-//			USLocalizer usl = new USLocalizer(odometer, usValueLow, usDataLow, type);
+//			// // DO US LOCALIZATION
+//			USLocalizer usl = new USLocalizer(odometer, usPollerLow, type);
 //			usl.doLocalization(navigator);
-
-			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
-
-			// DO LIGHT LOCALIZATION
+//
+//			// SWITCH TO RED MODE FOR LIGHT LOCALIZATION
+//
+//			// DO LIGHT LOCALIZATION
 //			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
 //			lsl.doLocalization(navigator);
 
-		//	RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
-		//			pulleyMotor);
-		//	attempt.start();
+			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
+					pulleyMotor);
+			attempt.start();
 
 			// while(true){
 			// t.drawString("TACHO: " + pulleyMotor.getTachoCount(), 0, 3);
@@ -348,17 +348,17 @@ public class StartRobot {
 			
 			
 		}
-		lightSensorBottom.setFloodlight(true);
-		
-		odometer.setPosition(new double[] { 0, 0, 90 }, new boolean[] { false, false, true });
-		
-	//	navigator.travelTo(-2.5 * TILE, 2.5 * TILE, true);
-
-		
-		
-		RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
-						pulleyMotor);
-				attempt.start();
+//		lightSensorBottom.setFloodlight(true);
+//		
+//		odometer.setPosition(new double[] { 0, 0, 90 }, new boolean[] { false, false, true });
+//		
+//	//	navigator.travelTo(-2.5 * TILE, 2.5 * TILE, true);
+//
+//		
+//		
+//		RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
+//						pulleyMotor);
+//				attempt.start();
 		
 		
 		

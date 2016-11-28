@@ -13,8 +13,8 @@ public class LightLocalizer {
 
 	// CONSTANTS
 	private double SENSOR_TO_AXLE = 7.5;
-	private static final float ROTATION_SPEED = 130;
-	private static final float SECOND_ROTATION_SPEED = 130;
+	private static final float ROTATION_SPEED = 200;
+	private static final float SECOND_ROTATION_SPEED = 200;
 	private static final int INITIAL_ANGLE = 45;
 	private static final int ZERO = 0;
 	private static final int MAX_LINE_COUNT = 4;
@@ -103,7 +103,7 @@ public class LightLocalizer {
 		// ADJUST TO CORRECT Y+ AXIS
 //		navigator.turnTo(150, true); //Put up from 135 to 150
 		
-		navigator.turnTo(0, true);
+		navigator.turnTo(45, true);
 		// navigator.turnTo(180, true);
 		odo.setPosition(new double[] { deltaX, deltaY, 90 }, new boolean[] { false, false, true });
 
