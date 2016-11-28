@@ -14,6 +14,9 @@ import SensorData.USPoller;
 import Wifi.WifiConnection;
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
@@ -58,7 +61,7 @@ public class StartRobot {
 	 * Server IP's and team number, used for retrieval of parameters
 	 */
 	private static final String SERVER_IP = "192.168.2.3";
-	private static final int TEAM_NUMBER = 14;	
+	private static final double TEAM_NUMBER = 14;	
 
 	/**
 	 * Hashmap holding all received data
@@ -68,12 +71,12 @@ public class StartRobot {
 	/**
 	 * Define all parameters to be received from the WifiConnection class
 	 */
-	public static int LGZy, LGZx, CSC, BSC, CTN, BTN, URZx, LRZy, LRZx, URZy, UGZy, UGZx;
+	public static double LGZy, LGZx, CSC, BSC, CTN, BTN, URZx, LRZy, LRZx, URZy, UGZy, UGZx;
 	
 	/**
 	 * Define all parameters related to the forbidden zones and drop-off zones 
 	 */
-	public static int LFZy, LFZx, UFZy, UFZx, LDZy, LDZx, UDZy, UDZx;
+	public static double LFZy, LFZx, UFZy, UFZx, LDZy, LDZx, UDZy, UDZx;
 
 	/**
 	 * Receive and assign parameters from client. Start the robot
@@ -146,7 +149,7 @@ public class StartRobot {
 			WifiConnection conn = null;
 			try {
 				System.out.println("Connecting...");
-				conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, true);
+				conn = new WifiConnection(SERVER_IP, (int) TEAM_NUMBER, true);
 			} catch (IOException e) {
 				System.out.println("Connection failed");
 			}
@@ -201,16 +204,16 @@ public class StartRobot {
 
 			// // DO US LOCALIZATION
 			USLocalizer usl = new USLocalizer(odometer, usPollerLow, type);
-			usl.doLocalization(navigator);
+//			usl.doLocalization(navigator);
 
 
 			// DO LIGHT LOCALIZATION
 			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
-			lsl.doLocalization(navigator);
+//			lsl.doLocalization(navigator);
 
 			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
 					pulleyMotor, colorValueLoc, colorDataLoc);
-			attempt.start();
+//			attempt.start();
 
 		} else {
 
@@ -229,14 +232,29 @@ public class StartRobot {
 			
 			
 			
-			setLFZy(LRZy);
-			setLFZx(LRZx);
-			setUFZy(URZy);
-			setUFZx(URZx);
+			setLFZy(30.48);
+			setLFZx(-30.48);
+			setUFZy(61);
+			setUFZx(-61);
+			
+			navigator.travelTo(-90, 90, true);
+			
+			long currentTime = System.currentTimeMillis();
+			
+			System.out.println(currentTime);
+
+			
+			while(System.currentTimeMillis() < (currentTime + 270000)){
+				
+			}
+			
 
 			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
 					pulleyMotor, colorValueLoc, colorDataLoc);
-			attempt.start();
+
+			attempt.goToDropOffZone();
+			navigator.travelTo(0, 0, true);
+//			attempt.start();
 
 			
 			//navigator.travelTo(5 * TILE, TILE , false);
@@ -280,18 +298,18 @@ public class StartRobot {
 	// maximum height = 27 circles = 13.5 cm
 	// each block = 3cm => maxBlock = 13.5/3 = 4
 
-	public static void pulleyUp(double distance) {
-		pulleyMotor.rotate(-(int) (FULL_CIRCLE * distance), false);
-	}
-
-	public static void pulleyDown(double distance) {
-		pulleyMotor.rotate((int) (FULL_CIRCLE * distance), false);
-	}
+//	public static void pulleyUp(double distance) {
+//		pulleyMotor.rotate(-(int) (FULL_CIRCLE * distance), false);
+//	}
+//
+//	public static void pulleyDown(double distance) {
+//		pulleyMotor.rotate((int) (FULL_CIRCLE * distance), false);
+//	}
 
 	/**
 	 * @return y coordinate of upper right corner of Green Zone
 	 */
-	public int getLGZy() {
+	public double getLGZy() {
 		return LGZy;
 	}
 
@@ -301,14 +319,14 @@ public class StartRobot {
 	 * @param y
 	 *            coordinate of upper right corner of Green Zone
 	 */
-	public static void setLGZy(int lGZy) {
-		LGZy = (int)(lGZy * TILE);
+	public static void setLGZy(double lGZy) {
+		LGZy = (lGZy * TILE);
 	}
 
 	/**
 	 * @return x coordinate of upper right corner of Green Zone
 	 */
-	public int getLGZx() {
+	public double getLGZx() {
 		return LGZx;
 	}
 
@@ -318,14 +336,14 @@ public class StartRobot {
 	 * @param x
 	 *            coordinate of upper right corner of Green Zone
 	 */
-	public static void setLGZx(int lGZx) {
-		LGZx = -(int)(lGZx * TILE);
+	public static void setLGZx(double lGZx) {
+		LGZx = (lGZx * -TILE);
 	}
 
 	/**
 	 * @return Collecting start corner
 	 */
-	public int getCSC() {
+	public double getCSC() {
 		return CSC;
 	}
 
@@ -334,14 +352,14 @@ public class StartRobot {
 	 * 
 	 * @param cSC
 	 */
-	public static void setCSC(int cSC) {
+	public static void setCSC(double cSC) {
 		CSC = cSC;
 	}
 
 	/**
 	 * @return Builder start corner
 	 */
-	public int getBSC() {
+	public double getBSC() {
 		return BSC;
 	}
 
@@ -350,14 +368,14 @@ public class StartRobot {
 	 * 
 	 * @param bSC
 	 */
-	public static void setBSC(int bSC) {
+	public static void setBSC(double bSC) {
 		BSC = bSC;
 	}
 
 	/**
 	 * @return Collector team number
 	 */
-	public int getCTN() {
+	public double getCTN() {
 		return CTN;
 	}
 
@@ -366,14 +384,14 @@ public class StartRobot {
 	 * 
 	 * @param cTN
 	 */
-	public static void setCTN(int cTN) {
+	public static void setCTN(double cTN) {
 		CTN = cTN;
 	}
 
 	/**
 	 * @return Builder team number
 	 */
-	public int getBTN() {
+	public double getBTN() {
 		return BTN;
 	}
 
@@ -382,14 +400,14 @@ public class StartRobot {
 	 * 
 	 * @param bTN
 	 */
-	public static void setBTN(int bTN) {
+	public static void setBTN(double bTN) {
 		BTN = bTN;
 	}
 
 	/**
 	 * @return x coordinate of upper right corner of Red Zone
 	 */
-	public int getURZx() {
+	public double getURZx() {
 		return URZx;
 	}
 
@@ -398,14 +416,14 @@ public class StartRobot {
 	 * 
 	 * @param uRZx
 	 */
-	public static void setURZx(int uRZx) {
-		URZx = uRZx;
+	public static void setURZx(double uRZx) {
+		URZx = -TILE * uRZx;
 	}
 
 	/**
 	 * @return y coordinate of lower left corner of Red Zone
 	 */
-	public int getLRZy() {
+	public double getLRZy() {
 		return LRZy;
 	}
 
@@ -414,14 +432,14 @@ public class StartRobot {
 	 * 
 	 * @param lRZy
 	 */
-	public static void setLRZy(int lRZy) {
-		LRZy = lRZy;
+	public static void setLRZy(double lRZy) {
+		LRZy = TILE * lRZy;
 	}
 
 	/**
 	 * @return x coordinate of lower left corner of Red Zone
 	 */
-	public int getLRZx() {
+	public double getLRZx() {
 		return LRZx;
 	}
 
@@ -430,14 +448,14 @@ public class StartRobot {
 	 * 
 	 * @param lRZx
 	 */
-	public static void setLRZx(int lRZx) {
-		LRZx = lRZx;
+	public static void setLRZx(double lRZx) {
+		LRZx = lRZx * -TILE;
 	}
 
 	/**
 	 * @return y coordinate of upper right corner of Red Zone
 	 */
-	public int getURZy() {
+	public double getURZy() {
 		return URZy;
 	}
 
@@ -446,14 +464,14 @@ public class StartRobot {
 	 * 
 	 * @param uRZy
 	 */
-	public static void setURZy(int uRZy) {
-		URZy = uRZy;
+	public static void setURZy(double uRZy) {
+		URZy = uRZy * TILE;
 	}
 
 	/**
 	 * @return y coordinate of upper right corner of Green Zone
 	 */
-	public int getUGZy() {
+	public double getUGZy() {
 		return UGZy;
 	}
 
@@ -462,14 +480,14 @@ public class StartRobot {
 	 * 
 	 * @param uGZy
 	 */
-	public static void setUGZy(int uGZy) {
-		UGZy = (int) (uGZy * TILE);
+	public static void setUGZy(double uGZy) {
+		UGZy = uGZy * TILE;
 	}
 
 	/**
 	 * @return x coordinate of upper right corner of Green Zone
 	 */
-	public int getUGZx() {
+	public double getUGZx() {
 		return UGZx;
 	}
 
@@ -478,119 +496,119 @@ public class StartRobot {
 	 * 
 	 * @param uGZx
 	 */
-	public static void setUGZx(int uGZx) {
-		UGZx = (int) (uGZx * TILE);
+	public static void setUGZx(double uGZx) {
+		UGZx = (uGZx * -TILE);
 	}
 	
 	/**
 	 * @return the lFZy
 	 */
-	public static int getLFZy() {
+	public static double getLFZy() {
 		return LFZy;
 	}
 
 	/**
 	 * @param lFZy the lFZy to set
 	 */
-	public static void setLFZy(int lFZy) {
+	public static void setLFZy(double lFZy) {
 		LFZy = lFZy;
 	}
 
 	/**
 	 * @return the lFZx
 	 */
-	public static int getLFZx() {
+	public static double getLFZx() {
 		return LFZx;
 	}
 
 	/**
 	 * @param lFZx the lFZx to set
 	 */
-	public static void setLFZx(int lFZx) {
+	public static void setLFZx(double lFZx) {
 		LFZx = lFZx;
 	}
 
 	/**
 	 * @return the uFZy
 	 */
-	public static int getUFZy() {
+	public static double getUFZy() {
 		return UFZy;
 	}
 
 	/**
 	 * @param uFZy the uFZy to set
 	 */
-	public static void setUFZy(int uFZy) {
+	public static void setUFZy(double uFZy) {
 		UFZy = uFZy;
 	}
 
 	/**
 	 * @return the uFZx
 	 */
-	public static int getUFZx() {
+	public static double getUFZx() {
 		return UFZx;
 	}
 
 	/**
 	 * @param uFZx the uFZx to set
 	 */
-	public static void setUFZx(int uFZx) {
+	public static void setUFZx(double uFZx) {
 		UFZx = uFZx;
 	}
 
 	/**
 	 * @return the lDZy
 	 */
-	public static int getLDZy() {
+	public static double getLDZy() {
 		return LDZy;
 	}
 
 	/**
 	 * @param lDZy the lDZy to set
 	 */
-	public static void setLDZy(int lDZy) {
+	public static void setLDZy(double lDZy) {
 		LDZy = lDZy;
 	}
 
 	/**
 	 * @return the LDZx
 	 */
-	public static int getLDZx() {
+	public static double getLDZx() {
 		return LDZx;
 	}
 
 	/**
 	 * @param LDZx the LDZx to set
 	 */
-	public static void setLDZx(int lDZx) {
+	public static void setLDZx(double lDZx) {
 		LDZx = lDZx;
 	}
 
 	/**
 	 * @return the uDZy
 	 */
-	public static int getUDZy() {
+	public static double getUDZy() {
 		return UDZy;
 	}
 
 	/**
 	 * @param uDZy the uDZy to set
 	 */
-	public static void setUDZy(int uDZy) {
+	public static void setUDZy(double uDZy) {
 		UDZy = uDZy;
 	}
 
 	/**
 	 * @return the uDZx
 	 */
-	public static int getUDZx() {
+	public static double getUDZx() {
 		return UDZx;
 	}
 
 	/**
 	 * @param uDZx the uDZx to set
 	 */
-	public static void setUDZx(int uDZx) {
+	public static void setUDZx(double uDZx) {
 		UDZx = uDZx;
 	}
 

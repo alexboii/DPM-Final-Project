@@ -174,8 +174,8 @@ public class Navigation {
 
 			if (((odometer.getX() + 10) > StartRobot.LFZx || (odometer.getX() + 10) > StartRobot.UFZx)
 					&& ((odometer.getY() + 10) > StartRobot.LFZy || (odometer.getY() + 10) > StartRobot.UFZy)) {
-			//	nearForbiddenZone = true;
-			//	break;
+				nearForbiddenZone = true;
+				break;
 			}
 
 		}
@@ -183,19 +183,92 @@ public class Navigation {
 		this.setSpeeds(0, 0);
 
 		if (nearForbiddenZone) {
-			// IF IT IS THE Y COORDINATE THAT FALLS WITHIN THE RED ZONE, THEN WE KNOW THAT WE FIRST HAVE TO MOVE 
-			// AROUND THE FORBIDDEN ZONE BY THE X COORDINATE, AND THEN BY THE Y COORDINATE 
-			// THE OPPOSITE HOLDS FOR WHEN THE X FALLS WITHIN THE RED ZONE 
-			double checkYCoordinateWithinRedZone = (y) - (y - odometer.getY() + 13);
-			if (checkYCoordinateWithinRedZone > StartRobot.LFZy && checkYCoordinateWithinRedZone < StartRobot.UFZy) {
-				travelTo(x, odometer.getY());
-				travelTo(odometer.getX(), y);
-				travelTo(x, y);
-			}else{
-				travelTo(y, odometer.getX());
-				travelTo(odometer.getY(), y);
-				travelTo(x, y);
-			}
+		    double[][] points = new double[4][2];
+		    points[0][0] = StartRobot.LFZx;
+		    points[0][1] = StartRobot.LFZy;
+		    points[1][0] = StartRobot.UFZx;
+		    points[1][1] = StartRobot.LFZy;
+		    points[2][0] = StartRobot.LFZx;
+		    points[2][1] = StartRobot.UFZy;
+		    points[3][0] = StartRobot.UFZx;
+		    points[3][1] = StartRobot.UFZy;
+
+
+		    double distanceLowerCorner1 = distance(x, y, points[0][0], points[0][1]); // Initialize shortestDistance
+		    double distanceLowerCorner2 = distance(x, y, points[1][0], points[1][1]); 
+		    double distanceUpperCorner1 = distance(x, y, points[2][0], points[2][1]); 
+		    double distanceUpperCorner2 = distance(x, y, points[3][0], points[3][1]); 
+		    ArrayList<Double> distances = new ArrayList<Double>();
+		    distances.add(distanceLowerCorner1);
+		    distances.add(distanceLowerCorner2);
+		    distances.add(distanceUpperCorner1);
+		    distances.add(distanceUpperCorner2);
+		    
+		    Collections.sort(distances);
+
+		    if(distances.get(0) == distanceLowerCorner1){
+		    	
+		    	if(Math.abs(odometer.getX() - points[0][0]) < Math.abs(odometer.getY() - points[0][1])){
+		    		travelTo(points[0][0], odometer.getY(), true);
+		    		travelTo(odometer.getX(), points[0][1], true);
+		    		travelTo(x, y);
+		    	}else{
+		    		travelTo(odometer.getX(), points[0][1], true);
+		    		travelTo(points[0][0], odometer.getY(), true);
+		    		travelTo(x, y);
+		    	}
+		    	
+		    }
+
+		    if(distances.get(0) == distanceLowerCorner2){
+		    	if(Math.abs(odometer.getX() - points[1][0]) < Math.abs(odometer.getY() - points[1][1])){
+		    		travelTo(points[1][0], odometer.getY(), true);
+		    		travelTo(odometer.getX(), points[1][1], true);
+		    		travelTo(x, y);
+		    	}else{
+		    		travelTo(odometer.getX(), points[1][1], true);
+		    		travelTo(points[1][0], odometer.getY(), true);
+		    		travelTo(x, y);
+		    	}
+		    }
+
+		    if(distances.get(0) == distanceUpperCorner1){
+		    	if(Math.abs(odometer.getX() - points[2][0]) < Math.abs(odometer.getY() - points[2][1])){
+		    		travelTo(points[2][0], odometer.getY(), true);
+		    		travelTo(odometer.getX(), points[2][1], true);
+		    		travelTo(x, y);
+		    	}else{
+		    		travelTo(odometer.getX(), points[2][1], true);
+		    		travelTo(points[2][0], odometer.getY(), true);
+		    		travelTo(x, y);
+		    	}
+		    }
+
+		    if(distances.get(0) == distanceUpperCorner2){
+		    	if(Math.abs(odometer.getX() - points[3][0]) < Math.abs(odometer.getY() - points[3][1])){
+		    		travelTo(points[3][0], odometer.getY(), true);
+		    		travelTo(odometer.getX(), points[3][1], true);
+		    		travelTo(x, y);
+		    	}else{
+		    		travelTo(odometer.getX(), points[3][1], true);
+		    		travelTo(points[3][0], odometer.getY(), true);
+		    		travelTo(x, y);
+		    	}
+		    }
+
+
+//
+//		    
+//			double checkYCoordinateWithinRedZone = (y) - (y - odometer.getY() + 13);
+//			if (checkYCoordinateWithinRedZone > StartRobot.LFZy && checkYCoordinateWithinRedZone < StartRobot.UFZy) {
+//				travelTo(x, odometer.getY());
+//				travelTo(odometer.getX(), y);
+//				travelTo(x, y);
+//			}else{
+//				travelTo(y, odometer.getX());
+//				travelTo(odometer.getY(), y);
+//				travelTo(x, y);
+//			}
 
 		}
 	}
@@ -400,7 +473,12 @@ public class Navigation {
 		this.rightMotor = rightMotor;
 	}
 	
-	
+	  /** Compute the distance between two points (x1, y1) and (x2, y2)*/
+	  public static double distance(
+	      double x1, double y1, double x2, double y2) {
+	    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+	  }
+
 	
 	
 }

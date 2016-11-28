@@ -151,7 +151,7 @@ public class RobotMovement extends Thread {
 
 	}
 
-	private void goToDropOffZone() {
+	public void goToDropOffZone() {
 		double x, y;
 		
 		x =- TILE * average(StartRobot.UDZx, StartRobot.LDZx);
