@@ -7,6 +7,7 @@ import java.util.Comparator;
 import Application.RobotMovement;
 import Application.StartRobot;
 import Application.Vector;
+import Odometer.LCDInfo;
 /*
  * File: Navigation.java
  * Written by: Sean Lawlor
@@ -137,8 +138,8 @@ public class Navigation {
 				Sound.beepSequenceUp();
 				return false;
 			}
-		} while ( Math.abs(Math.abs(x) - Math.abs(odometer.getX())) > CM_ERR 
-				
+		} while (Math.abs(Math.abs(x) - Math.abs(odometer.getX())) > CM_ERR
+
 				|| Math.abs(y - odometer.getY()) > CM_ERR);
 
 		this.setSpeeds(0, 0);
@@ -152,15 +153,15 @@ public class Navigation {
 	 */
 	public void travelTo(double x, double y, boolean avoid) {
 		double minAng;
-		//double[] data = new double[4];
+		// double[] data = new double[4];
 		boolean object = false;
-	//	double[] blockProperties = new double[2];
+		// double[] blockProperties = new double[2];
 		boolean nearForbiddenZone = false;
 
 		minAng = getMinAng(x, y);
 		this.turnTo(minAng, true);
 
-		while ((Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR) ) {
+		while ((Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR)) {
 
 			this.setSpeeds(FAST, FAST);
 
@@ -172,8 +173,8 @@ public class Navigation {
 
 			}
 
-			if (((odometer.getX() + 10) > StartRobot.LFZx || (odometer.getX() + 10) > StartRobot.UFZx)
-					&& ((odometer.getY() + 10) > StartRobot.LFZy || (odometer.getY() + 10) > StartRobot.UFZy)) {
+			if (((odometer.getX() + 5) > StartRobot.LFZx || (odometer.getX() + 5) > StartRobot.UFZx)
+					&& ((odometer.getY() + 5) > StartRobot.LFZy || (odometer.getY() + 5) > StartRobot.UFZy)) {
 				nearForbiddenZone = true;
 				break;
 			}
@@ -183,97 +184,103 @@ public class Navigation {
 		this.setSpeeds(0, 0);
 
 		if (nearForbiddenZone) {
-		    double[][] points = new double[4][2];
-		    points[0][0] = StartRobot.LFZx;
-		    points[0][1] = StartRobot.LFZy;
-		    points[1][0] = StartRobot.UFZx;
-		    points[1][1] = StartRobot.LFZy;
-		    points[2][0] = StartRobot.LFZx;
-		    points[2][1] = StartRobot.UFZy;
-		    points[3][0] = StartRobot.UFZx;
-		    points[3][1] = StartRobot.UFZy;
+			this.goForward(-10);
+			double[][] points = new double[4][2];
+			points[0][0] = StartRobot.LFZx;
+			points[0][1] = StartRobot.LFZy;
+			points[1][0] = StartRobot.UFZx;
+			points[1][1] = StartRobot.LFZy;
+			points[2][0] = StartRobot.LFZx;
+			points[2][1] = StartRobot.UFZy;
+			points[3][0] = StartRobot.UFZx;
+			points[3][1] = StartRobot.UFZy;
 
+			double distanceLowerCorner1 = distance(x, y, points[0][0], points[0][1]); // Initialize
+																						// shortestDistance
+			double distanceLowerCorner2 = distance(x, y, points[1][0], points[1][1]);
+			double distanceUpperCorner1 = distance(x, y, points[2][0], points[2][1]);
+			double distanceUpperCorner2 = distance(x, y, points[3][0], points[3][1]);
+			ArrayList<Double> distances = new ArrayList<Double>();
+			distances.add(distanceLowerCorner1);
+			distances.add(distanceLowerCorner2);
+			distances.add(distanceUpperCorner1);
+			distances.add(distanceUpperCorner2);
 
-		    double distanceLowerCorner1 = distance(x, y, points[0][0], points[0][1]); // Initialize shortestDistance
-		    double distanceLowerCorner2 = distance(x, y, points[1][0], points[1][1]); 
-		    double distanceUpperCorner1 = distance(x, y, points[2][0], points[2][1]); 
-		    double distanceUpperCorner2 = distance(x, y, points[3][0], points[3][1]); 
-		    ArrayList<Double> distances = new ArrayList<Double>();
-		    distances.add(distanceLowerCorner1);
-		    distances.add(distanceLowerCorner2);
-		    distances.add(distanceUpperCorner1);
-		    distances.add(distanceUpperCorner2);
-		    
-		    Collections.sort(distances);
+			Collections.sort(distances);
+			System.out.println(distances.get(0));
+			if (distances.get(0) == distanceLowerCorner1) {
+//				System.out.println("I am here 1");
+				if (Math.abs(odometer.getX() - points[0][0]) < Math.abs(odometer.getY() - points[0][1])) {
+					travelTo(points[0][0] , odometer.getY(), true);
+					travelTo(odometer.getX(), points[0][1], true);
+					travelTo(x, y);
+				} else {
+					travelTo(odometer.getX(), points[0][1]);
+					travelTo(points[0][0], odometer.getY(), true);
+					travelTo(x, y);
+				}
 
-		    if(distances.get(0) == distanceLowerCorner1){
-		    	
-		    	if(Math.abs(odometer.getX() - points[0][0]) < Math.abs(odometer.getY() - points[0][1])){
-		    		travelTo(points[0][0], odometer.getY(), true);
-		    		travelTo(odometer.getX(), points[0][1], true);
-		    		travelTo(x, y);
-		    	}else{
-		    		travelTo(odometer.getX(), points[0][1], true);
-		    		travelTo(points[0][0], odometer.getY(), true);
-		    		travelTo(x, y);
-		    	}
-		    	
-		    }
+			}
 
-		    if(distances.get(0) == distanceLowerCorner2){
-		    	if(Math.abs(odometer.getX() - points[1][0]) < Math.abs(odometer.getY() - points[1][1])){
-		    		travelTo(points[1][0], odometer.getY(), true);
-		    		travelTo(odometer.getX(), points[1][1], true);
-		    		travelTo(x, y);
-		    	}else{
-		    		travelTo(odometer.getX(), points[1][1], true);
-		    		travelTo(points[1][0], odometer.getY(), true);
-		    		travelTo(x, y);
-		    	}
-		    }
+			if (distances.get(0) == distanceLowerCorner2) {
+//				System.out.println("I am here 2");
 
-		    if(distances.get(0) == distanceUpperCorner1){
-		    	if(Math.abs(odometer.getX() - points[2][0]) < Math.abs(odometer.getY() - points[2][1])){
-		    		travelTo(points[2][0], odometer.getY(), true);
-		    		travelTo(odometer.getX(), points[2][1], true);
-		    		travelTo(x, y);
-		    	}else{
-		    		travelTo(odometer.getX(), points[2][1], true);
-		    		travelTo(points[2][0], odometer.getY(), true);
-		    		travelTo(x, y);
-		    	}
-		    }
+				if (Math.abs(odometer.getX() - points[1][0]) < Math.abs(odometer.getY() - points[1][1])) {
+					travelTo(points[1][0], odometer.getY(), true);
+					travelTo(odometer.getX(), points[1][1], true);
+					travelTo(x, y);
+				} else {
+					travelTo(odometer.getX(), points[1][1], true);
+					travelTo(points[1][0], odometer.getY(), true);
+					travelTo(x, y);
+				}
+			}
 
-		    if(distances.get(0) == distanceUpperCorner2){
-		    	if(Math.abs(odometer.getX() - points[3][0]) < Math.abs(odometer.getY() - points[3][1])){
-		    		travelTo(points[3][0], odometer.getY(), true);
-		    		travelTo(odometer.getX(), points[3][1], true);
-		    		travelTo(x, y);
-		    	}else{
-		    		travelTo(odometer.getX(), points[3][1], true);
-		    		travelTo(points[3][0], odometer.getY(), true);
-		    		travelTo(x, y);
-		    	}
-		    }
+			if (distances.get(0) == distanceUpperCorner1) {
+//				System.out.println("I am here 3");
 
+				if (Math.abs(odometer.getX() - points[2][0]) < Math.abs(odometer.getY() - points[2][1])) {
+					travelTo(points[2][0], odometer.getY(), true);
+					travelTo(odometer.getX(), points[2][1], true);
+					travelTo(x, y);
+				} else {
+					travelTo(odometer.getX(), points[2][1], true);
+					travelTo(points[2][0], odometer.getY(), true);
+					travelTo(x, y);
+				}
+			}
 
-//
-//		    
-//			double checkYCoordinateWithinRedZone = (y) - (y - odometer.getY() + 13);
-//			if (checkYCoordinateWithinRedZone > StartRobot.LFZy && checkYCoordinateWithinRedZone < StartRobot.UFZy) {
-//				travelTo(x, odometer.getY());
-//				travelTo(odometer.getX(), y);
-//				travelTo(x, y);
-//			}else{
-//				travelTo(y, odometer.getX());
-//				travelTo(odometer.getY(), y);
-//				travelTo(x, y);
-//			}
+			if (distances.get(0) == distanceUpperCorner2) {
+//				System.out.println("I am here 4");
+
+				if (Math.abs(odometer.getX() - points[3][0]) < Math.abs(odometer.getY() - points[3][1])) {
+					travelTo(points[3][0] - 10, odometer.getY(), true);
+					travelTo(odometer.getX(), points[3][1] + 10, true);
+					travelTo(x, y);
+				} else {
+					travelTo(odometer.getX(), points[3][1] + 10 , true);
+					travelTo(points[3][0] - 10 , odometer.getY(), true);
+					travelTo(x, y);
+				}
+			}
+
+			//
+			//
+			// double checkYCoordinateWithinRedZone = (y) - (y - odometer.getY()
+			// + 13);
+			// if (checkYCoordinateWithinRedZone > StartRobot.LFZy &&
+			// checkYCoordinateWithinRedZone < StartRobot.UFZy) {
+			// travelTo(x, odometer.getY());
+			// travelTo(odometer.getX(), y);
+			// travelTo(x, y);
+			// }else{
+			// travelTo(y, odometer.getX());
+			// travelTo(odometer.getY(), y);
+			// travelTo(x, y);
+			// }
 
 		}
 	}
-	
-	
 
 	public void avoidObject(boolean full) {
 		// double[] data = new double[2];
@@ -292,28 +299,29 @@ public class Navigation {
 
 		Sound.beepSequenceUp();
 		if (full) {
-			turnTo(angle + SAFETY_ANGLE, true);		
+			turnTo(angle + SAFETY_ANGLE, true);
 
 		} else {
 			turnTo(angle + 0.6 * SAFETY_ANGLE, true);
 		}
 
 		goForward(30);
-		//Vector vector = new Vector(30 * SAFETY_RATIO, odometer.getTheta(), Math.abs(odometer.getX()), odometer.getY());
+		// Vector vector = new Vector(30 * SAFETY_RATIO, odometer.getTheta(),
+		// Math.abs(odometer.getX()), odometer.getY());
 
-		//double pointXY1[] = vector.getPointXY(vector.getDistance());
-		//travelTo(-Math.abs(pointXY1[0]), pointXY1[1], true);
-		
+		// double pointXY1[] = vector.getPointXY(vector.getDistance());
+		// travelTo(-Math.abs(pointXY1[0]), pointXY1[1], true);
+
 		turnTo(initialAngle, true);
 		goForward(5);
-		
-		
-	//	turnTo(130, true);
 
-	//	vector = new Vector(20, odometer.getTheta(), Math.abs(odometer.getX()), odometer.getY());
+		// turnTo(130, true);
 
-	//	double pointXY2[] = vector.getPointXY(vector.getDistance());
-	//	travelTo(pointXY2[0], pointXY2[1], true);
+		// vector = new Vector(20, odometer.getTheta(),
+		// Math.abs(odometer.getX()), odometer.getY());
+
+		// double pointXY2[] = vector.getPointXY(vector.getDistance());
+		// travelTo(pointXY2[0], pointXY2[1], true);
 
 	}
 
@@ -356,7 +364,7 @@ public class Navigation {
 	// public double[] isWooden() {
 	public double[] isWooden() {
 		double minLow, minHigh, initialAngle;
-	//	Vector vector;
+		// Vector vector;
 		double[] results = new double[2];
 
 		minLow = us.getDistance();
@@ -378,7 +386,7 @@ public class Navigation {
 			}
 
 			try {
-				Thread.sleep(SCAN_TIME / 2);	
+				Thread.sleep(SCAN_TIME / 2);
 			} catch (InterruptedException e) {
 				// oh, boii, hope nothing happens here
 			}
@@ -393,12 +401,12 @@ public class Navigation {
 		}
 
 		if (results[0] == 0) {
-			
-			if(bestAngle < initialAngle){
-				turnTo(bestAngle - DETECTION_ANGLE , true);
+
+			if (bestAngle < initialAngle) {
+				turnTo(bestAngle - DETECTION_ANGLE, true);
 			} else {
-				turnTo(bestAngle + DETECTION_ANGLE , true);
-			}		
+				turnTo(bestAngle + DETECTION_ANGLE, true);
+			}
 		}
 
 		results[1] = minLow;
@@ -472,13 +480,10 @@ public class Navigation {
 	public void setRightMotor(EV3LargeRegulatedMotor rightMotor) {
 		this.rightMotor = rightMotor;
 	}
-	
-	  /** Compute the distance between two points (x1, y1) and (x2, y2)*/
-	  public static double distance(
-	      double x1, double y1, double x2, double y2) {
-	    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-	  }
 
-	
-	
+	/** Compute the distance between two points (x1, y1) and (x2, y2) */
+	public static double distance(double x1, double y1, double x2, double y2) {
+		return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+	}
+
 }
