@@ -68,7 +68,6 @@ public class LightLocalizer {
 				// RECORD THE ANGLE EACH TIME A BLACK LINE IS SPOTTED
 				theta[lineCounter] = odo.getTheta();
 				lineCounter++;
-				Sound.beep();
 			}
 		}
 
@@ -103,7 +102,7 @@ public class LightLocalizer {
 		// ADJUST TO CORRECT Y+ AXIS
 //		navigator.turnTo(150, true); //Put up from 135 to 150
 		
-		navigator.turnTo(45, true);
+		navigator.turnTo(0, true);
 		// navigator.turnTo(180, true);
 		odo.setPosition(new double[] { deltaX, deltaY, 90 }, new boolean[] { false, false, true });
 

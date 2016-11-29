@@ -173,8 +173,8 @@ public class Navigation {
 
 			}
 
-			if (((odometer.getX() + 5) > StartRobot.LFZx || (odometer.getX() + 5) > StartRobot.UFZx)
-					&& ((odometer.getY() + 5) > StartRobot.LFZy || (odometer.getY() + 5) > StartRobot.UFZy)) {
+			if (((odometer.getX() + 10) > StartRobot.LFZx || (odometer.getX() + 10) > StartRobot.UFZx)
+					&& ((odometer.getY() + 10) > StartRobot.LFZy || (odometer.getY() + 10) > StartRobot.UFZy)) {
 				nearForbiddenZone = true;
 				break;
 			}
@@ -209,58 +209,58 @@ public class Navigation {
 			Collections.sort(distances);
 			System.out.println(distances.get(0));
 			if (distances.get(0) == distanceLowerCorner1) {
-//				System.out.println("I am here 1");
+				// System.out.println("I am here 1");
 				if (Math.abs(odometer.getX() - points[0][0]) < Math.abs(odometer.getY() - points[0][1])) {
-					travelTo(points[0][0] , odometer.getY(), true);
-					travelTo(odometer.getX(), points[0][1], true);
-					travelTo(x, y);
+					travelTo(points[0][0] - 15, odometer.getY(), true, 1);
+					travelTo(odometer.getX(), points[0][1] + 15, true, 1);
+					travelTo(x, y, true, 1);
 				} else {
-					travelTo(odometer.getX(), points[0][1]);
-					travelTo(points[0][0], odometer.getY(), true);
-					travelTo(x, y);
+					travelTo(odometer.getX(), points[0][1] + 15, true, 1);
+					travelTo(points[0][0] - 15, odometer.getY(), true, 1);
+					travelTo(x, y, true, 1);
 				}
 
 			}
 
 			if (distances.get(0) == distanceLowerCorner2) {
-//				System.out.println("I am here 2");
+				// System.out.println("I am here 2");
 
 				if (Math.abs(odometer.getX() - points[1][0]) < Math.abs(odometer.getY() - points[1][1])) {
-					travelTo(points[1][0], odometer.getY(), true);
-					travelTo(odometer.getX(), points[1][1], true);
-					travelTo(x, y);
+					travelTo(points[1][0] - 15, odometer.getY(), true, 1);
+					travelTo(odometer.getX(), points[1][1] + 15, true, 1);
+					travelTo(x, y, true, 1);
 				} else {
-					travelTo(odometer.getX(), points[1][1], true);
-					travelTo(points[1][0], odometer.getY(), true);
-					travelTo(x, y);
+					travelTo(odometer.getX(), points[1][1] + 15, true, 1);
+					travelTo(points[1][0] - 15, odometer.getY(), true, 1);
+					travelTo(x, y, true, 1);
 				}
 			}
 
 			if (distances.get(0) == distanceUpperCorner1) {
-//				System.out.println("I am here 3");
+				// System.out.println("I am here 3");
 
 				if (Math.abs(odometer.getX() - points[2][0]) < Math.abs(odometer.getY() - points[2][1])) {
-					travelTo(points[2][0], odometer.getY(), true);
-					travelTo(odometer.getX(), points[2][1], true);
-					travelTo(x, y);
+					travelTo(points[2][0] - 15, odometer.getY(), true, 1);
+					travelTo(odometer.getX(), points[2][1] + 15, true, 1);
+					travelTo(x, y, true, 1);
 				} else {
-					travelTo(odometer.getX(), points[2][1], true);
-					travelTo(points[2][0], odometer.getY(), true);
-					travelTo(x, y);
+					travelTo(odometer.getX(), points[2][1] + 15, true, 1);
+					travelTo(points[2][0] - 15, odometer.getY(), true, 1);
+					travelTo(x, y, true, 1);
 				}
 			}
 
 			if (distances.get(0) == distanceUpperCorner2) {
-//				System.out.println("I am here 4");
+				// System.out.println("I am here 4");
 
 				if (Math.abs(odometer.getX() - points[3][0]) < Math.abs(odometer.getY() - points[3][1])) {
-					travelTo(points[3][0] - 10, odometer.getY(), true);
-					travelTo(odometer.getX(), points[3][1] + 10, true);
-					travelTo(x, y);
+					travelTo(points[3][0] - 15, odometer.getY(), true, 1);
+					travelTo(odometer.getX(), points[3][1] + 15, true, 1);
+					travelTo(x, y, true, 1);
 				} else {
-					travelTo(odometer.getX(), points[3][1] + 10 , true);
-					travelTo(points[3][0] - 10 , odometer.getY(), true);
-					travelTo(x, y);
+					travelTo(odometer.getX(), points[3][1] + 15, true, 1);
+					travelTo(points[3][0] - 15, odometer.getY(), true, 1);
+					travelTo(x, y, true, 1);
 				}
 			}
 
@@ -280,6 +280,33 @@ public class Navigation {
 			// }
 
 		}
+	}
+
+	public void travelTo(double x, double y, boolean avoid, double trying) {
+		double minAng;
+		// double[] data = new double[4];
+		boolean object = false;
+		// double[] blockProperties = new double[2];
+		boolean nearForbiddenZone = false;
+
+		minAng = getMinAng(x, y);
+		this.turnTo(minAng, true);
+
+		while ((Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR)) {
+
+			this.setSpeeds(FAST, FAST);
+
+			// if object too close, object avoidance
+			if (us.getDistance() < MIN_DISTANCE && avoid) {
+				// avoid
+				avoidObject(true);
+				travelTo(x, y, true);
+
+			}
+
+		}
+
+		this.setSpeeds(0, 0);
 	}
 
 	public void avoidObject(boolean full) {
@@ -313,7 +340,7 @@ public class Navigation {
 		// travelTo(-Math.abs(pointXY1[0]), pointXY1[1], true);
 
 		turnTo(initialAngle, true);
-		goForward(5);
+		goForward(15);
 
 		// turnTo(130, true);
 

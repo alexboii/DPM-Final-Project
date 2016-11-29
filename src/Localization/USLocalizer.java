@@ -42,16 +42,15 @@ public class USLocalizer {
 		if (locType == LocalizationType.FALLING_EDGE) {
 
 			// ROTATE UNTIL WE ARE FACING NO WALL
-			while (us.getDistance() < DISTANCE_FROM_WALL) {
+			while (us.getDistance() < 40) {
 				navigator.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 			}
 
-			// WE SLEEP THE THREAD BETWEEN EACH STEP TO IMPROVE ACCURACY AND
-			// REDUCE SLIPPING
+
 //			sleepThread();
 
 			// ROTATE UNTIL FIRST WALL IS SEEN BY SENSOR
-			while (us.getDistance() > DISTANCE_FROM_WALL) {
+			while (us.getDistance() > 15) {
 				navigator.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 			}
 
@@ -62,14 +61,14 @@ public class USLocalizer {
 //			sleepThread();
 
 			// GO AWAY FROM WALL
-			while (us.getDistance() < DISTANCE_FROM_WALL) {
+			while (us.getDistance() < 15) {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 			}
 
 //			sleepThread();
 
 			// ROTATE UNTIL SECOND WALL IS SEEN
-			while (us.getDistance() > DISTANCE_FROM_WALL) {
+			while (us.getDistance() > 15) {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 			}
 
@@ -159,7 +158,7 @@ public class USLocalizer {
 	// SLEEP THE THREAD FOR 1 SECOND
 	public static void sleepThread() {
 		try {
-			Thread.sleep(SLEEP_TIME);
+			Thread.sleep(200);
 		} catch (InterruptedException e) {
 		}
 	}
