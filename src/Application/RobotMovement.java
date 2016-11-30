@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-
 import Navigation.Navigation;
 import Odometer.Odometer;
 import Odometer.LCDInfo;
@@ -30,26 +29,23 @@ public class RobotMovement extends Thread {
 	static Navigation navigator;
 	USPoller usPollerLow;
 	USPoller usPollerHigh;
-	
+
 	private SampleProvider colorSensor;
 	private float[] colorData;
-	
 
 	private static int numberOfScans = 0;
-	
+
 	private static double lastMinLow = 255;
-	
+
 	ArrayList<Vector> visited_waypoints = new ArrayList<Vector>();
-	//public static Vector lastWayPoint;
+	// public static Vector lastWayPoint;
 	public static int wayPointCounter = 0;
 
 	public static int STACK_HEIGHT = 2;
-	
 
 	private static final double LIGHT_SENSOR_OFFSET = 11;
 	private static final int LIGHT_THRESHOLD = 35;
 
-	
 	protected boolean blue_found = false;
 	public static final int ROTATE_SPEED = 76;
 
@@ -68,7 +64,7 @@ public class RobotMovement extends Thread {
 	private static final int CLOSE_CLAW_2 = -(OPEN_CLAW_1 + OPEN_CLAW_2 + OPEN_CLAW_3);
 	private static final int PULL_UP_FROM_BLOCK = -1900;
 	private static final int DISTANCE_SCAN_THRESHOLD = (int) TILE;
-	public static final int SECOND_DISTANCE_SCAN = (int)(1.5 * TILE);
+	public static final int SECOND_DISTANCE_SCAN = (int) (1.5 * TILE);
 
 	private static final int DISTANCE_APPROACH_THRESHOLD = 5;
 	private static final int ADDITION_SLEEP_TIME = 15;
@@ -93,7 +89,8 @@ public class RobotMovement extends Thread {
 	 *            Ultrasonic Sensor Motor
 	 */
 	public RobotMovement(Odometer odometer, Navigation navigator, USPoller usPollerLow, USPoller usPollerHigh,
-			EV3LargeRegulatedMotor clawMotor, EV3LargeRegulatedMotor pulleyMotor, SampleProvider colorSensor, float[] colorData) {
+			EV3LargeRegulatedMotor clawMotor, EV3LargeRegulatedMotor pulleyMotor, SampleProvider colorSensor,
+			float[] colorData) {
 		RobotMovement.navigator = navigator;
 		RobotMovement.odometer = odometer;
 		this.usPollerLow = usPollerLow;
@@ -102,7 +99,7 @@ public class RobotMovement extends Thread {
 		RobotMovement.pulleyMotor = pulleyMotor;
 		this.colorSensor = colorSensor;
 		this.colorData = colorData;
-		
+
 		clawMotor.setAcceleration(200);
 
 	}
@@ -111,7 +108,7 @@ public class RobotMovement extends Thread {
 	 * {@inheritDoc}
 	 */
 	public void run() {
-		//boolean isWooden;
+		// boolean isWooden;
 
 		// pullCageDown();
 		clawMotor.rotate(OPEN_CLAW_1);
@@ -119,25 +116,23 @@ public class RobotMovement extends Thread {
 		navigator.turnTo(180, true);
 		navigator.goForward(TILE);
 		navigator.turnTo(90, true);
-		
-		
+
 		while (blue_counter < STACK_HEIGHT) {
 			// Sound.beep();
-			//lastWayPoint = new Vector(usPollerLow.getDistance(), odometer.getTheta(), odometer.getX(), odometer.getY());
+			// lastWayPoint = new Vector(usPollerLow.getDistance(),
+			// odometer.getTheta(), odometer.getX(), odometer.getY());
 
-			if(odometer.needsCalibration()){
+			if (odometer.needsCalibration()) {
 				calibrateOdometer();
 				Sound.beepSequenceUp();
 				odometer.setCalibration(false);
 			}
-			
-			
-			
+
 			findObject(TURN_ANGLE_1, ANGLE_LIMIT);
 
-		//	 if(blue_counter < STACK_HEIGHT){
-		//		 goToNextWayPoint();
-		//	 }
+			// if(blue_counter < STACK_HEIGHT){
+			// goToNextWayPoint();
+			// }
 			// navigator.travelTo(lastWayPoint.getInitialX() - TILE,
 			// lastWayPoint.getInitialY(), true);
 			// Sound.beep();
@@ -153,16 +148,16 @@ public class RobotMovement extends Thread {
 
 	public void goToDropOffZone() {
 		double x, y;
-		
-		x =- TILE * average(StartRobot.UDZx, StartRobot.LDZx);
+
+		x = -TILE * average(StartRobot.UDZx, StartRobot.LDZx);
 		y = TILE * average(StartRobot.UDZy, StartRobot.LDZy);
 
-		navigator.travelTo(x, y,false	);
+		navigator.travelTo(x, y, false);
 
 	}
 
 	public static double average(double a, double b) {
-		return Math.abs(  ((Math.abs(a) + Math.abs(b)) / 2));
+		return Math.abs(((Math.abs(a) + Math.abs(b)) / 2));
 	}
 
 	public static double getXWP(double distance, double angle) {
@@ -287,45 +282,40 @@ public class RobotMovement extends Thread {
 			// IF its a wooden block
 			if (blockProperties[0] == 1) {
 				navigator.avoidObject(false);
-				//goToNextWayPoint();
+				// goToNextWayPoint();
 				return;
 
 			} else {
 
 				if (blockProperties[1] < DISTANCE_APPROACH_THRESHOLD + 10) {
 					if (blue_counter < STACK_HEIGHT) {
-						
-						
-						navigator.goForward(DISTANCE_APPROACH_THRESHOLD+1);
-							pickUpBlock();
-						
+
+						navigator.goForward(DISTANCE_APPROACH_THRESHOLD + 1);
+						pickUpBlock();
+
 						return;
 
-					} 
-				} else { //if detected as block but nothing in front
+					}
+				} else { // if detected as block but nothing in front
 					// Sound.beepSequenceUp();
 					navigator.goForward(0.3 * DISTANCE_APPROACH_THRESHOLD);
 				}
 			}
-		} else { //objects not close enough
-			if(list_of_vectors.get(0).getDistance() < 1.5 * TILE){
+		} else { // objects not close enough
+			if (list_of_vectors.get(0).getDistance() < 1.5 * TILE) {
 				navigator.turnTo(list_of_vectors.get(0).getAngle(), true);
 				navigator.goForward(TILE * 0.8);
 				return;
 			}
-			
+
 		}
-		
-		
-		if(blue_counter < STACK_HEIGHT){
+
+		if (blue_counter < STACK_HEIGHT) {
 			Sound.beep();
 			Sound.beep();
 			goToNextWayPoint();
 		}
-		
-		
-		
-		
+
 	}
 
 	public static void pickUpBlock() {
@@ -355,80 +345,59 @@ public class RobotMovement extends Thread {
 		pulleyMotor.rotate(PULL_UP_FROM_BLOCK);
 	}
 
-	
-	//////////ODOMETRY CORRECTION ATTEMPT 
-	
-	
-	public void calibrateOdometer(){
+	////////// ODOMETRY CORRECTION ATTEMPT
+
+	public void calibrateOdometer() {
 		double new_x, new_y;
-		
+
 		navigator.turnTo(90, true);
 		navigator.setSpeeds(Navigation.FORWARD_SPEED, Navigation.FORWARD_SPEED);
-		
-		while(getLightValue()>LIGHT_THRESHOLD){
+
+		while (getLightValue() > LIGHT_THRESHOLD) {
 			;
 		}
 		Sound.beep();
 
-		
 		navigator.setSpeeds(0, 0);
-		
+
 		navigator.turnTo(180, true);
-		
+
 		navigator.setSpeeds(Navigation.FORWARD_SPEED, Navigation.FORWARD_SPEED);
-		
-		while(getLightValue()>LIGHT_THRESHOLD){
+
+		while (getLightValue() > LIGHT_THRESHOLD) {
 			;
 		}
 		Sound.beep();
 
-		
 		navigator.setSpeeds(0, 0);
 
 		navigator.goForward(LIGHT_SENSOR_OFFSET);
-		
+
 		navigator.turnTo(90, true);
-		
+
 		navigator.goForward(LIGHT_SENSOR_OFFSET);
-		
-		
+
 		new_x = -getLineValue(Math.abs(odometer.getX()));
 		new_y = getLineValue(odometer.getY());
-		
+
 		odometer.setPosition(new double[] { new_x, new_y, odometer.getTheta() }, new boolean[] { true, true, false });
 
-		
-		
 	}
-	
-	
-	public double getLineValue(double CurrentOdometerValue){
-		return ((int)((CurrentOdometerValue / TILE) +0.5)) * TILE;
+
+	public double getLineValue(double CurrentOdometerValue) {
+		return ((int) ((CurrentOdometerValue / TILE) + 0.5)) * TILE;
 	}
-	
-	
-	
+
 	// GET VALUE FROM SENSOR, TAKEN FROM LAB2
 	float getLightValue() {
 		colorData = new float[colorSensor.sampleSize()];
 		colorSensor.fetchSample(colorData, 0);
 		float lightIntensity = colorData[0] * 100;
-		
+
 		LCDInfo.setLabel3("LS:");
-		LCDInfo.setValue3((int)(lightIntensity));
-		
+		LCDInfo.setValue3((int) (lightIntensity));
+
 		return lightIntensity;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 }

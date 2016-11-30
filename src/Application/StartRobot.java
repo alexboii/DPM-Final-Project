@@ -8,15 +8,11 @@ import Localization.USLocalizer;
 import Navigation.Navigation;
 import Odometer.LCDInfo;
 import Odometer.Odometer;
-import Odometer.OdometerCorrection;
 import SensorData.LSPoller;
 import SensorData.USPoller;
 import Wifi.WifiConnection;
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
@@ -28,10 +24,31 @@ import lejos.robotics.SampleProvider;
 /**
  * This is the class which contains the main() method, therefore it is from here
  * that we are going to execute all subsequent classes and methods needed to run
- * our robot.
+ * our robot. At first, the robot instantiates all platforms and hardware parts
+ * of our robot, i.e. the two ultrasonic sensors with their respective pollers,
+ * the motors for the wheels, the claw and the pulley, and finally the light
+ * sensor. The display of the screen is also initialized from this class.
+ * Threads are started for the pollers of both ultrasonic sensors and for the
+ * light sensors. The robot then waits for the user to either press the left
+ * button or the right button. The left button is clicked whenever we enter
+ * competition mode, that is, we tell the robot to await for the retrieval of
+ * parameters from the competition's server. Afterwards, the robot calls the
+ * setters for the parameters that we have just retrieved, and assigns these
+ * parameters based on the respective role of the robot, i.e. green zone is the
+ * drop-off zone and red zone is the forbidden zone for the tower builder, and
+ * vice versa for the garbage collector. After this, the robot starts the
+ * ultrasonic localization. Once that is performed, the robot starts the light
+ * localization. Finally, the most important thread of the class is executed,
+ * which is the RobotMovement's thread which is the controller of the robot's
+ * actions. Through all of this, the robot begins to record the EV3's internal
+ * time in milliseconds and awaits until 4:30 minutes pass, after which it
+ * simply travels to the drop-off zone no matter in which situation the robot
+ * is, and finally goes back to its starting corner.
  * 
- * @author Alex
- * @author Seb
+ * The option to select a right button was implemented to facilitate all testing
+ * and experiments that did not require any Wifi transmission.
+ * 
+ * @author Alexander Bratyshkin and Sebastian Andarde
  *
  */
 public class StartRobot {
@@ -52,16 +69,12 @@ public class StartRobot {
 	private static final SensorModes usSensorHigh = new EV3UltrasonicSensor(LocalEV3.get().getPort("S1"));
 	private static final SensorModes usSensorLow = new EV3UltrasonicSensor(LocalEV3.get().getPort("S2"));
 	private static final EV3ColorSensor lightSensorBottom = new EV3ColorSensor(LocalEV3.get().getPort("S4"));
-	//                                                               private static final EV3ColorSensor lightSensorBack = new EV3ColorSensor(LocalEV3.get().getPort("S3"));
-
-	// private static final EV3ColorSensor lightSensorClaw = new
-	// EV3ColorSensor(LocalEV3.get().getPort("S3"));
 
 	/**
 	 * Server IP's and team number, used for retrieval of parameters
 	 */
 	private static final String SERVER_IP = "192.168.2.3";
-	private static final double TEAM_NUMBER = 14;	
+	private static final double TEAM_NUMBER = 14;
 
 	/**
 	 * Hashmap holding all received data
@@ -72,9 +85,9 @@ public class StartRobot {
 	 * Define all parameters to be received from the WifiConnection class
 	 */
 	public static double LGZy, LGZx, CSC, BSC, CTN, BTN, URZx, LRZy, LRZx, URZy, UGZy, UGZx;
-	
+
 	/**
-	 * Define all parameters related to the forbidden zones and drop-off zones 
+	 * Define all parameters related to the forbidden zones and drop-off zones
 	 */
 	public static double LFZy, LFZx, UFZy, UFZx, LDZy, LDZx, UDZy, UDZx;
 
@@ -90,51 +103,56 @@ public class StartRobot {
 	private static final double TILE = 30.48;
 
 	private static final int CLAW_ANGLE = 10;
-	private static final int FULL_CIRCLE = 360;
 
 	public static void main(String[] args) {
 
-		// INITIALIZE HIGH SENSOR
+		// INSTANTIATE HIGH US SENSOR
 		SampleProvider usValueHigh = usSensorHigh.getMode("Distance");
 		float[] usDataHigh = new float[usValueHigh.sampleSize()];
 
+		// INSTANTIATE LOW US SENSOR
 		SampleProvider usValueLow = usSensorLow.getMode("Distance");
 		float[] usDataLow = new float[usValueLow.sampleSize()];
 
+		// INSTANTIATE SCREEN DISPLAY
 		final TextLCD t = LocalEV3.get().getTextLCD();
 
+		// INSTANTIATE US LOCALIZATION
 		USLocalizer.LocalizationType type = USLocalizer.LocalizationType.FALLING_EDGE;
 
+		// INSTANTIATE ODOMETER
 		Odometer odometer = new Odometer(leftMotor, rightMotor, 50, true);
-		//OdometerCorrection odoCor = new OdometerCorrection(odometer);
-		
+
+		// INSTANTIATE COLOUR SENSOR
 		SampleProvider colorValueLoc = lightSensorBottom.getMode("Red");
 		float[] colorDataLoc = new float[colorValueLoc.sampleSize()];
 
 		USPoller usPollerHigh = new USPoller(usValueHigh, usDataHigh);
 		USPoller usPollerLow = new USPoller(usValueLow, usDataLow);
 
-		
-
+		// INSTANTIATE NAVIGATOR
 		Navigation navigator = new Navigation(odometer, usPollerLow, usPollerHigh);
-		 LSPoller lsPoller = new LSPoller(colorValueLoc, colorDataLoc);
-		
+
+		// INSTANTIATE LIGHT SENSOR POLLER
+		LSPoller lsPoller = new LSPoller(colorValueLoc, colorDataLoc);
+
+		// START ALL POLLERS, KEPT BOTH US POLLERS ON DIFFERENT THREADS JUST TO
+		// MAKE SURE
 		lsPoller.start();
 		usPollerHigh.start();
 		new Thread(usPollerLow).start();
-		
-		LCDInfo lcd = new LCDInfo(odometer); // t.clear();
 
+		LCDInfo lcd = new LCDInfo(odometer); // t.clear();
 
 		int buttonChoice;
 
 		do {
-			// clear the display
+			// CLEAR THE DISPLAY
 			t.clear();
 
-			// ask the user whether the motors should drive in a square or float
-			t.drawString("< Stack    | THE  >", 0, 0);
-			t.drawString("  Builder  | BOX    ", 0, 1);
+			// ASK THE USER WHAT OPTION HE WANTS
+			t.drawString("<   		 | Testing >", 0, 0);
+			t.drawString("Competition  |   ", 0, 1);
 			t.drawString(" 		     |  ", 0, 2);
 			t.drawString("      	 | 		 ", 0, 3);
 			t.drawString("           |       ", 0, 4);
@@ -166,12 +184,12 @@ public class StartRobot {
 				} else {
 					System.out.println("Transmission read:\n" + text.toString());
 
-					setLGZy(text.get("LGZy"));
-					setLGZx(text.get("LGZx"));
 					setCSC(text.get("CSC"));
 					setBSC(text.get("BSC"));
 					setCTN(text.get("CTN"));
 					setBTN(text.get("BTN"));
+					setLGZy(text.get("LGZy"));
+					setLGZx(text.get("LGZx"));
 					setURZx(text.get("URZx"));
 					setLRZy(text.get("LRZy"));
 					setLRZx(text.get("LRZx"));
@@ -182,7 +200,7 @@ public class StartRobot {
 				}
 			}
 
-			if(BTN == TEAM_NUMBER){
+			if (BTN == TEAM_NUMBER) {
 				setLFZy(LRZy);
 				setLFZx(LRZx);
 				setUFZy(URZy);
@@ -191,7 +209,7 @@ public class StartRobot {
 				setLDZx(LGZx);
 				setUDZy(UGZy);
 				setUDZx(UGZx);
-			}else{
+			} else {
 				setLFZy(LGZy);
 				setLFZx(LGZx);
 				setUFZy(UGZy);
@@ -202,109 +220,41 @@ public class StartRobot {
 				setUDZx(URZx);
 			}
 
+
+			long currentTime = System.currentTimeMillis();
+
 			// // DO US LOCALIZATION
 			USLocalizer usl = new USLocalizer(odometer, usPollerLow, type);
-//			usl.doLocalization(navigator);
-
+			usl.doLocalization(navigator);
 
 			// DO LIGHT LOCALIZATION
 			LightLocalizer lsl = new LightLocalizer(odometer, colorValueLoc, colorDataLoc);
-//			lsl.doLocalization(navigator);
+			lsl.doLocalization(navigator);
+
+			// BEEP TO LET EVERYONE KNOW IT HAS FINISHED LOCALIZING
+			Sound.beepSequence();
 
 			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
 					pulleyMotor, colorValueLoc, colorDataLoc);
-//			attempt.start();
+			attempt.start();
+
+			// RUN TIMER FOR 4:30 MINS
+			while (System.currentTimeMillis() < (currentTime + 270000)) {
+
+			}
+
+			// ABANDON WHATEVER YOU ARE DOING,
+			attempt.goToDropOffZone();
+			navigator.travelTo(0, 0, true);
 
 		} else {
 
-			odometer.setPosition(new double[] { 0, 0, 90 }, new boolean[] { true, true, true });
-
-			
-			t.clear();
-
-			setLDZy(5);
-			setUDZy(6);
-
-			
-			
-			setLDZx(1);
-			setUDZx(2);
-			
-			
-			
-			setLFZy(30.48);
-			setLFZx(-30.48);
-			setUFZy(61);
-			setUFZx(-61);
-			
-			navigator.travelTo(-90, 90, true);
-			
-			long currentTime = System.currentTimeMillis();
-			
-			System.out.println(currentTime);
-
-			
-			while(System.currentTimeMillis() < (currentTime + 270000)){
-				
-			}
-			
-
-			RobotMovement attempt = new RobotMovement(odometer, navigator, usPollerLow, usPollerHigh, clawMotor,
-					pulleyMotor, colorValueLoc, colorDataLoc);
-
-			attempt.goToDropOffZone();
-			navigator.travelTo(0, 0, true);
-//			attempt.start();
-
-			
-			//navigator.travelTo(5 * TILE, TILE , false);
+			// TESTING ZONE
 
 		}
 
 	}
 
-	public static int findSmallestDistance(double[] distances) {
-		int index;
-		double min;
-
-		index = 0;
-		min = distances[0];
-
-		for (int i = 0; i < distances.length; ++i) {
-			if (distances[i] < min) {
-				min = distances[i];
-				index = i;
-			}
-		}
-
-		return index;
-	}
-
-
-
-	public static void openClaw() {
-		clawMotor.rotate(CLAW_ANGLE, false);
-	}
-
-	public static void closeClaw() {
-		clawMotor.rotate(-CLAW_ANGLE, false);
-	}
-
-	// TODO
-	// the info below is outdated since we improved the crane design, gotta
-	// re-take these measurements
-
-	// 360 = 5 circles = 2.5cm aprox
-	// maximum height = 27 circles = 13.5 cm
-	// each block = 3cm => maxBlock = 13.5/3 = 4
-
-//	public static void pulleyUp(double distance) {
-//		pulleyMotor.rotate(-(int) (FULL_CIRCLE * distance), false);
-//	}
-//
-//	public static void pulleyDown(double distance) {
-//		pulleyMotor.rotate((int) (FULL_CIRCLE * distance), false);
-//	}
 
 	/**
 	 * @return y coordinate of upper right corner of Green Zone
@@ -499,114 +449,132 @@ public class StartRobot {
 	public static void setUGZx(double uGZx) {
 		UGZx = (uGZx * -TILE);
 	}
-	
+
 	/**
-	 * @return the lFZy
+	 * @return the y coordinate of the lower forbidden zone
 	 */
 	public static double getLFZy() {
 		return LFZy;
 	}
 
 	/**
-	 * @param lFZy the lFZy to set
+	 * Set  the y coordinate of the lower forbidden zone
+	 * @param lFZy
+	 *            the lFZy to set
 	 */
 	public static void setLFZy(double lFZy) {
 		LFZy = lFZy;
 	}
 
 	/**
-	 * @return the lFZx
+	 * 
+	 * @return the x coordinate of the lower forbidden zone
 	 */
 	public static double getLFZx() {
 		return LFZx;
 	}
 
 	/**
-	 * @param lFZx the lFZx to set
+	 * Set the x coordinate of the lower forbidden zone
+	 * @param lFZx
+	 *            the lFZx to set
 	 */
 	public static void setLFZx(double lFZx) {
 		LFZx = lFZx;
 	}
 
 	/**
-	 * @return the uFZy
+	 * @return The y coordinate of the upper forbidden zone
 	 */
 	public static double getUFZy() {
 		return UFZy;
 	}
 
 	/**
-	 * @param uFZy the uFZy to set
+	 * Set the y coordinate of the upper forbidden zone
+	 * @param uFZy
+	 *            
 	 */
 	public static void setUFZy(double uFZy) {
 		UFZy = uFZy;
 	}
 
 	/**
-	 * @return the uFZx
+	 * @return the x coordinate of the upper forbidden zone
 	 */
 	public static double getUFZx() {
 		return UFZx;
 	}
 
 	/**
-	 * @param uFZx the uFZx to set
+	 * Set the x coordinate of the upper forbidden zone
+	 * @param uFZx
+	 *            the uFZx to set
 	 */
 	public static void setUFZx(double uFZx) {
 		UFZx = uFZx;
 	}
 
 	/**
-	 * @return the lDZy
+	 * @return the Y coordinate of the lower drop-off zone 
+
 	 */
 	public static double getLDZy() {
 		return LDZy;
 	}
 
 	/**
-	 * @param lDZy the lDZy to set
+	 * Set the Y coordinate of the lower drop-off zone
+	 * @param lDZy
+	 *            the lDZy to set
 	 */
 	public static void setLDZy(double lDZy) {
 		LDZy = lDZy;
 	}
 
 	/**
-	 * @return the LDZx
+	 * @return the X coordinate of the lower drop-off zone 
 	 */
 	public static double getLDZx() {
 		return LDZx;
 	}
 
 	/**
-	 * @param LDZx the LDZx to set
+	 *  Set the X coordinate of the lower drop-off zone 
+	 * @param LDZx
+	 *            the LDZx to set
 	 */
 	public static void setLDZx(double lDZx) {
 		LDZx = lDZx;
 	}
 
 	/**
-	 * @return the uDZy
+	 * @return the Y coordinate of the upper drop-off zone 
 	 */
 	public static double getUDZy() {
 		return UDZy;
 	}
 
 	/**
-	 * @param uDZy the uDZy to set
+	 * Set the Y coordinate of the upper drop-off zone 
+	 * @param uDZy
+	 *            the uDZy to set
 	 */
 	public static void setUDZy(double uDZy) {
 		UDZy = uDZy;
 	}
 
 	/**
-	 * @return the uDZx
+	 * @return the X coordinate of the upper drop-off zone 
 	 */
 	public static double getUDZx() {
 		return UDZx;
 	}
 
 	/**
-	 * @param uDZx the uDZx to set
+	 * Set the X coordinate of the upper drop-off zone 
+	 * @param uDZx
+	 *            the uDZx to set
 	 */
 	public static void setUDZx(double uDZx) {
 		UDZx = uDZx;
