@@ -4,14 +4,14 @@ import Navigation.Navigation;
 import Odometer.Odometer;
 import SensorData.USPoller;
 import lejos.robotics.SampleProvider;
-
-/**
- * This class contains all the necessary methods to perform ultrasonic localization by recording the angles
- * of the odometer at which the lower ultrasonic registered a reading smaller than DISTANCE_FROM_WALL.
- *  It calibrates the theta value of the odometer.
- * 
- * @author Alexander Bratyshkin
- */
+	
+	/**
+	 * This class contains all the necessary methods to perform ultrasonic localization by recording the angles
+	 * of the odometer at which the lower ultrasonic registered a reading smaller than DISTANCE_FROM_WALL.
+	 *  It calibrates the theta value of the odometer.
+	 * 
+	 * @author Alexander Bratyshkin
+	 */
 public class USLocalizer {
 	public enum LocalizationType {
 		FALLING_EDGE, RISING_EDGE
@@ -19,7 +19,7 @@ public class USLocalizer {
 
 	// CONSTANTS
 	private static final float ROTATION_SPEED = 200;
-	private static final double DISTANCE_FROM_WALL = 6;
+	private static final double DISTANCE_FROM_WALL = 20;
 	private static final double CLIPPING_THRESHOLD = 0.5;
 	private static final float CLIPPING_DISTANCE = 0.60f;
 	private static final int BACK_ANGLE = 225;
@@ -28,6 +28,8 @@ public class USLocalizer {
 	private static final double ZERO_X = 0.0;
 	private static final double ZERO_Y = 0.0;
 	private static final int HALF = 2;
+	private static final int SLEEP_TIME = 200;
+
 	
 	private Odometer odo;
 	private static SampleProvider usSensor;
@@ -61,12 +63,12 @@ public class USLocalizer {
 		if (locType == LocalizationType.FALLING_EDGE) {
 
 			// ROTATE UNTIL WE ARE FACING NO WALL
-			while (us.getDistance() < 40) {
+			while (us.getDistance() < DISTANCE_FROM_WALL) {
 				navigator.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 			}
 
 			// ROTATE UNTIL FIRST WALL IS SEEN BY SENSOR
-			while (us.getDistance() > 15) {
+			while (us.getDistance() > DISTANCE_FROM_WALL) {
 				navigator.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 			}
 
@@ -75,12 +77,12 @@ public class USLocalizer {
 			angleA = odo.getTheta();
 
 			// GO AWAY FROM WALL
-			while (us.getDistance() < 15) {
+			while (us.getDistance() < DISTANCE_FROM_WALL) {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 			}
 
 			// ROTATE UNTIL SECOND WALL IS SEEN
-			while (us.getDistance() > 15) {
+			while (us.getDistance() > DISTANCE_FROM_WALL) {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 			}
 
@@ -133,8 +135,6 @@ public class USLocalizer {
 			navigator.setSpeeds(ZERO, ZERO);
 			angleB = odo.getTheta();
 
-//			sleepThread();
-
 			// ADJUST THE DELTA THETA BASED ON THE RELATIVE POSITION BETWEEN
 			// ANGLE A AND B (CLOCKWISE)
 			deltaTheta = ((angleA < angleB) ? (FRONT_ANGLE - (angleA + angleB) / HALF)
@@ -173,7 +173,7 @@ public class USLocalizer {
 	 */
 	public static void sleepThread() {
 		try {
-			Thread.sleep(200);
+			Thread.sleep(SLEEP_TIME);
 		} catch (InterruptedException e) {
 		}
 	}
