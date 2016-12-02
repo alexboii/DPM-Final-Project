@@ -5,6 +5,15 @@ import Odometer.Odometer;
 import SensorData.USPoller;
 import lejos.robotics.SampleProvider;
 
+/**
+ * This class contains all the necessary methods to perform ultrasonic localization by recording the angles
+ * of the odometer at which the lower ultrasonic registered a reading smaller than DISTANCE_FROM_WALL. It calibrates the 
+ * 
+ * 
+ * @author Alexander Bratyshkin
+ * @author Sebastian Andrade
+ *
+ */
 public class USLocalizer {
 	public enum LocalizationType {
 		FALLING_EDGE, RISING_EDGE
@@ -29,14 +38,27 @@ public class USLocalizer {
 	private LocalizationType locType;
 	private USPoller us; 
 
+	
+	/**
+	 * @param odo system odometer
+	 * @param us Lower ultrasonic sensor
+	 * @param locType type of localization to be performed
+	 */
 	public USLocalizer(Odometer odo, USPoller us, LocalizationType locType) {
 		this.odo = odo;
 		this.us = us;
 		this.locType = locType;
 	}
 
+	
+	
+	/**
+	 * This method localizes the robot with respect to the right angle of a corner of the board. In order to do this,
+	 * the robot rotates on its axis constantly recording the distance read by the 
+	 * 
+	 * @param navigator System navigator
+	 */
 	public void doLocalization(Navigation navigator) {
-		double[] pos = new double[3];
 		double angleA, angleB, deltaTheta;
 
 		if (locType == LocalizationType.FALLING_EDGE) {
@@ -45,9 +67,6 @@ public class USLocalizer {
 			while (us.getDistance() < 40) {
 				navigator.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 			}
-
-
-//			sleepThread();
 
 			// ROTATE UNTIL FIRST WALL IS SEEN BY SENSOR
 			while (us.getDistance() > 15) {
@@ -58,14 +77,10 @@ public class USLocalizer {
 			navigator.setSpeeds(ZERO, ZERO);
 			angleA = odo.getTheta();
 
-//			sleepThread();
-
 			// GO AWAY FROM WALL
 			while (us.getDistance() < 15) {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 			}
-
-//			sleepThread();
 
 			// ROTATE UNTIL SECOND WALL IS SEEN
 			while (us.getDistance() > 15) {
@@ -75,8 +90,6 @@ public class USLocalizer {
 			// STOP AND RECORD ANGLE OF LEFT WALL
 			navigator.setSpeeds(ZERO, ZERO);
 			angleB = odo.getTheta();
-
-//			sleepThread();
 
 			// ADJUST THE DELTA THETA BASED ON THE RELATIVE POSITION BETWEEN
 			// ANGLE A AND B
@@ -143,7 +156,11 @@ public class USLocalizer {
 		navigator.turnTo(ZERO, true);
 	}
 
-	// CLIPPER FOR GETTING THE DATA OF THE US SENSOR
+	/**
+	 * Clipper for getting the data of the ultrasonic sensor
+	 * 
+	 * @return filtered distance 
+	 */
 	public static float getFilteredData() {
 		usSensor.fetchSample(usData, ZERO);
 		float distance = usData[0];
@@ -155,7 +172,9 @@ public class USLocalizer {
 		return distance;
 	}
 
-	// SLEEP THE THREAD FOR 1 SECOND
+	/**
+	 * Sleeps the thread
+	 */
 	public static void sleepThread() {
 		try {
 			Thread.sleep(200);

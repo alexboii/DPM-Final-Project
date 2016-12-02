@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence-diagram version="1.1.12" icons="true">  
+  <object id="1" language="java" name="Application.StartRobot" project="DPM-TEAM-14-FINAL-PROJECT" 
+    file="/DPM-TEAM-14-FINAL-PROJECT/src/Application/StartRobot.java" binary="false" label="startRobot" type="class" 
+    autoSize="true">    
+    <position height="-1" width="-1" x="769" y="0"/>    
+    <execution id="2">      
+      <position height="54" width="85" x="5" y="88"/>    
+    </execution>    
+    <execution id="5">      
+      <position height="54" width="85" x="5" y="172"/>    
+    </execution>    
+    <execution id="8">      
+      <position height="54" width="85" x="5" y="250"/>    
+    </execution>    
+    <execution id="11">      
+      <position height="54" width="85" x="5" y="337"/>    
+    </execution>    
+    <execution id="14">      
+      <position height="54" width="85" x="5" y="435"/>    
+    </execution>  
+  </object>  
+  <object id="17" language="java" name="SensorData.LSPoller" project="DPM-TEAM-14-FINAL-PROJECT" 
+    file="/DPM-TEAM-14-FINAL-PROJECT/src/SensorData/LSPoller.java" binary="false" label="lsPoller" type="class" 
+    autoSize="true">    
+    <position height="-1" width="-1" x="438" y="0"/>    
+    <execution id="4">      
+      <position height="18" width="71" x="215" y="106"/>    
+    </execution>  
+  </object>  
+  <object id="18" language="java" name="SensorData.USPoller" project="DPM-TEAM-14-FINAL-PROJECT" 
+    file="/DPM-TEAM-14-FINAL-PROJECT/src/SensorData/USPoller.java" binary="false" label="usPoller" type="class" 
+    autoSize="true">    
+    <position height="-1" width="-1" x="426" y="0"/>    
+    <execution id="7">      
+      <position height="18" width="73" x="290" y="190"/>    
+    </execution>  
+  </object>  
+  <object id="19" language="java" name="Localization.USLocalizer" project="DPM-TEAM-14-FINAL-PROJECT" 
+    file="/DPM-TEAM-14-FINAL-PROJECT/src/Localization/USLocalizer.java" binary="false" label="usLocalizer" type="class" 
+    autoSize="true">    
+    <position height="-1" width="-1" x="568" y="0"/>    
+    <execution id="10">      
+      <position height="18" width="92" x="246" y="268"/>    
+    </execution>  
+  </object>  
+  <object id="20" language="java" name="Localization.LightLocalizer" project="DPM-TEAM-14-FINAL-PROJECT" 
+    file="/DPM-TEAM-14-FINAL-PROJECT/src/Localization/LightLocalizer.java" binary="false" label="lightLocalizer" 
+    type="class" autoSize="true">    
+    <position height="-1" width="-1" x="534" y="0"/>    
+    <execution id="13">      
+      <position height="18" width="103" x="342" y="355"/>    
+    </execution>  
+  </object>  
+  <object id="21" language="java" name="Application.RobotMovement" project="DPM-TEAM-14-FINAL-PROJECT" 
+    file="/DPM-TEAM-14-FINAL-PROJECT/src/Application/RobotMovement.java" binary="false" label="robotMovement" 
+    type="class" autoSize="true">    
+    <position height="-1" width="-1" x="794" y="0"/>    
+    <execution id="16">      
+      <position height="18" width="117" x="449" y="453"/>    
+    </execution>    
+    <execution id="22">      
+      <position height="72" width="117" x="449" y="501"/>    
+    </execution>    
+    <execution id="24">      
+      <position height="18" width="117" x="449" y="537"/>    
+    </execution>  
+  </object>  
+  <message id="3" operation="start():void" asynchronous="false">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="4"/>  
+  </message>  
+  <message id="6" operation="start():void" asynchronous="false">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="7"/>  
+  </message>  
+  <message id="9" operation="doLocalization(Navigation.Navigation):void" asynchronous="false">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="10"/>  
+  </message>  
+  <message id="12" operation="doLocalization(Navigation.Navigation):void" asynchronous="false">    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="13"/>  
+  </message>  
+  <message id="15" operation="start():void" asynchronous="false">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="16"/>  
+  </message>  
+  <message id="23" operation="findObject(double,double):void" asynchronous="false">    
+    <end type="SOURCE" refId="22"/>    
+    <end type="TARGET" refId="24"/>  
+  </message>
+</sequence-diagram>

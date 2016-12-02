@@ -1,9 +1,8 @@
 package Odometer;
 
-import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
-/*
+/**
  * File: Odometer.java
  * Written by: Sean Lawlor
  * ECSE 211 - Design Principles and Methods, Head TA
@@ -20,7 +19,7 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
  * 							|
  * 							|
  * 							|
- * 180Deg:neg x-axis------------------0Deg:pos x-axis
+ * 180Deg:pos x-axis------------------0Deg:neg x-axis
  * 							|
  * 							|
  * 							|
@@ -46,13 +45,17 @@ public class Odometer implements TimerListener {
 	public static int zone = 0, lastZone = 0;
 	private double[] oldDH, dDH;
 	
-	// constructor
+	/**
+	 * @param leftMotor of the system
+	 * @param rightMotor of the system
+	 * @param INTERVAL custom value for the sleeping time
+	 * @param autostart true = it starts automatically
+	 */
 	public Odometer (EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, int INTERVAL, boolean autostart) {
 		
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
 		
-		// default values, modify for your robot
 		this.rightRadius = 2.1;
 		this.leftRadius = 2.1;
 		this.width = 18.5;
@@ -71,18 +74,28 @@ public class Odometer implements TimerListener {
 			this.timer = null;
 	}
 	
-	// functions to start/stop the timerlistener
+	/**
+	 * Stops the timeListener
+	 */
 	public void stop() {
 		if (this.timer != null)
 			this.timer.stop();
 	}
+	
+	
+	/**
+	 * Starts the TimeListener
+	 */
 	public void start() {
 		if (this.timer != null)
 			this.timer.start();
 	}
 	
-	/*
-	 * Calculates displacement and heading as title suggests
+
+	/**
+	 * Calculates the displacement and the heading to go to a specific XY point on the board
+	 * 
+	 * @param data Array of doubles containing the desire XY position
 	 */
 	private void getDisplacementAndHeading(double[] data) {
 		int leftTacho, rightTacho;
@@ -93,8 +106,10 @@ public class Odometer implements TimerListener {
 		data[1] = (rightTacho * rightRadius - leftTacho * leftRadius) / width;
 	}
 	
-	/*
+
+	/**
 	 * Recompute the odometer values using the displacement and heading changes
+	 * 
 	 */
 	public void timedOut() {
 		this.getDisplacementAndHeading(dDH);
@@ -119,49 +134,48 @@ public class Odometer implements TimerListener {
 		
 		if(zone!=lastZone){
 			needCalibration = true;
-			Sound.beep();
-			Sound.beep();
 		}
-		
-		
-		
-		
 		lastZone = zone;
-		
-		
-		LCDInfo.setLabel1("z:");
-		LCDInfo.setValue1(zone);
-		
-		
-		/// end correction paramteres 
-		
 	}
 	
 	
+	/**
+	 * @param status true = odometer needs calibration
+	 */
 	public void setCalibration(boolean status){
 		needCalibration = status;
 	}
 
+	
+	/**
+	 * @return need of calibration of the odometer
+	 */
 	public boolean needsCalibration(){
 		return needCalibration;
 	}
 	
 	
-	// return X value
+	/**
+	 * @return x value of the odometer
+	 */
 	public double getX() {
 		synchronized (this) {
 			return x;
 		}
 	}
 
-	// return Y value
+	/**
+	 * @return y value 
+	 */
 	public double getY() {
 		synchronized (this) {
 			return y;
 		}
 	}
 
-	// return theta value
+	/**
+	 * @return theta 
+	 */
 	public double getTheta() {
 		synchronized (this) {
 			return theta;
@@ -169,18 +183,27 @@ public class Odometer implements TimerListener {
 	}
 
 	
+	/**
+	 * @param theta corrected
+	 */
 	public void setTheta(double theta){
 		synchronized(this){
 			this.theta = theta;
 		}
 	}
 	
+	/**
+	 * @param y corrected
+	 */
 	public void setY(double y){
 		synchronized(this){
 			this.y = y;
 		}
 	}
 	
+	/**
+	 * @param x corrected
+	 */
 	public void setX(double x){
 		synchronized(this){
 			this.x = x;
@@ -188,6 +211,17 @@ public class Odometer implements TimerListener {
 	}
 	
 	// set x,y,theta
+	/**
+	 * @param position array of doubles containing 
+	 * position[0] = x value
+	 * position[1] = y value
+	 * position[2] = theta value
+	 * 
+	 * @param update array of booleans specifying which values of the odometer are to be updated
+	 * update[0] = update X
+	 * update[1] = update Y
+	 * update[2] = update theta 
+	 */
 	public void setPosition(double[] position, boolean[] update) {
 		synchronized (this) {
 			if (update[0])
@@ -199,8 +233,10 @@ public class Odometer implements TimerListener {
 		}
 	}
 
-	// return x,y,theta
-	public void getPosition(double[] position) {
+	/**
+	 * @param position array of doubles with the three values of the odometer
+	 */
+	public void setPosition(double[] position) {
 		synchronized (this) {
 			position[0] = x;
 			position[1] = y;
@@ -208,6 +244,10 @@ public class Odometer implements TimerListener {
 		}
 	}
 
+	
+	/**
+	 * @return array of doubles containing the three values of the odometer
+	 */
 	public double[] getPosition() {
 		synchronized (this) {
 			return new double[] { x, y, theta };
@@ -215,17 +255,33 @@ public class Odometer implements TimerListener {
 	}
 	
 	// accessors to motors
+	/**
+	 * @return an array of EV3LargeRegulatedMotors containing both the motors in charge of the wheels of the robot
+	 */
 	public EV3LargeRegulatedMotor [] getMotors() {
 		return new EV3LargeRegulatedMotor[] {this.leftMotor, this.rightMotor};
 	}
+	
+	
+	/**
+	 * @return leftMotor
+	 */
 	public EV3LargeRegulatedMotor getLeftMotor() {
 		return this.leftMotor;
 	}
+	
+	/**
+	 * @return rightMotor
+	 */
 	public EV3LargeRegulatedMotor getRightMotor() {
 		return this.rightMotor;
 	}
-
-	// static 'helper' methods
+	
+	
+	/**
+	 * @param angle to fix
+	 * @return angle wrapped around 360
+	 */
 	public static double fixDegAngle(double angle) {
 		if (angle < 0.0)
 			angle = 360.0 + (angle % 360.0);
@@ -233,15 +289,26 @@ public class Odometer implements TimerListener {
 		return angle % 360.0;
 	}
 
+	/**
+	 * @param rot true if robot is currently rotating
+	 */
 	public void setRotating(boolean rot){
 		rotating = rot;
 	}
 	
+	/**
+	 * @return true if robot is rotating
+	 */
 	public boolean isRotating(){
 		return rotating;
 	}
 	
 	
+	/**
+	 * @param a first angle
+	 * @param b second angle
+	 * @return the minimum angle the robot needs to rotate to reach the desired heading
+	 */
 	public static double minimumAngleFromTo(double a, double b) {
 		double d = fixDegAngle(b - a);
 

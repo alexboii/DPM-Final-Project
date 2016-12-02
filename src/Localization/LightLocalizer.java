@@ -38,6 +38,13 @@ public class LightLocalizer {
 		this.colorData = colorData;
 	}
 
+	
+	
+	/**
+	 * Calibrate the X and Y values of the odometer based on the board grid lines.
+	 * 
+	 * @param navigator that controls the robot movement
+	 */
 	public void doLocalization(Navigation navigator) {
 
 		// TURN TO 45 DEGREES AS REQUESTED IN THE INSTRUCTIONS
@@ -70,7 +77,7 @@ public class LightLocalizer {
 		navigator.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 
 		while (lineCounter < MAX_LINE_COUNT) {
-			odo.getPosition(getPosition);
+			odo.setPosition(getPosition);
 			if (lineCrossed(wooden_value)) {
 				// RECORD THE ANGLE EACH TIME A BLACK LINE IS SPOTTED
 				theta[lineCounter] = odo.getTheta();
@@ -110,7 +117,9 @@ public class LightLocalizer {
 
 	}
 
-	// GET VALUE FROM SENSOR, TAKEN FROM LAB2
+	/**
+	 * @return lightIntensity from the light sensor
+	 */
 	float setupLightSensor() {
 		colorData = new float[colorSensor.sampleSize()];
 		colorSensor.fetchSample(colorData, ZERO);
@@ -119,7 +128,12 @@ public class LightLocalizer {
 		return lightIntensity;
 	}
 
-	// RETURN TRUE IF THE SENSOR HAS DETECTED A LINE
+	/**
+	 * Checks whether the robot crossed a line based on the information form the light sensor.
+	 * 
+	 * @param old_value last value read from the light sensor
+	 * @return true if the robot crossed a line
+	 */
 	private boolean lineCrossed(double old_value) {
 		double lightValue = setupLightSensor();
 		boolean newLineDetected = (old_value) - lightValue >= LIGHT_THRESHOLD;

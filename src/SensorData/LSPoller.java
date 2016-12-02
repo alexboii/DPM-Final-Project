@@ -1,7 +1,4 @@
 package SensorData;
-import Navigation.Navigation;
-import Odometer.OdometerCorrection;
-import lejos.hardware.Sound;
 import lejos.robotics.SampleProvider;
 
 /**
@@ -11,13 +8,10 @@ import lejos.robotics.SampleProvider;
  */
 public class LSPoller extends Thread {
 	// variables
-	private boolean blue = false;
 	private Object lock;
 	private SampleProvider colorSensor;
 	private float[] Val;
 	private double intensity;
-	private final double TRESHOLD = 30;
-	private OdometerCorrection odoCor;
 	
 	/**
 	 * Constructor
@@ -38,20 +32,7 @@ public class LSPoller extends Thread {
 
 		while (true) {
 			synchronized (lock) {
-
 				colorSensor.fetchSample(Val, 0);
-
-				intensity = Val[0] * 100;
-				
-				
-				if(intensity < TRESHOLD){
-					crossedLine();
-				}
-				
-				
-				// IF OBJECT IS BLUE, THEN SET VARIABLE TO TRUE
-
-				
 				waitMs(20);
 			}
 		}
@@ -74,12 +55,6 @@ public class LSPoller extends Thread {
 		return (int) ( 100* this.Val[0]);
 	}
 	
-	
-public void crossedLine(){
-	//Sound.beep();
-	//odoCor.CorrectorFormula();
-}
-	
-	
+
 	
 }

@@ -1,7 +1,19 @@
+
 package Application;
 
 import Odometer.LCDInfo;
 
+
+
+/**
+ * 
+ * Class that represents Vectors in the XY plane. 
+ * 
+ * 
+ * @author Sebastian Andrade
+ * @author Alexander Bratyshkin
+ *
+ */
 public class Vector {
 	
 	private double distance;

@@ -1,12 +1,13 @@
 package Odometer;
 
-import lejos.hardware.Sound;
 
 /**
  * This class will correct any inaccuracy in the odometer caused by factors such
  * as wheel slippage and others, with the help of a light sensor. This method
  * attempts to correct the odometer values based on the occurrence of lines on
  * the board.
+ * 
+ * THIS CLASS DOES NOT WORK
  * 
  * @author Sebastian
  *
@@ -82,9 +83,6 @@ public class OdometerCorrection {
 	
 	
 	public void CorrectorFormula(){
-		
-		
-		
 		if(!this.odometer.isRotating() && 
 				(this.odometer.getLeftMotor().isMoving() || this.odometer.getRightMotor().isMoving() )){
 			
