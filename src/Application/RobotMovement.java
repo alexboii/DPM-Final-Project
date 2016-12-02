@@ -13,14 +13,27 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
 
 /**
- * This class essentially coordinates all of the robot�s operations. It
- * executes our search algorithm to find an object in its path, from which we
- * then snap into the Navigation class once the maximum amount of blue blocks
- * has been picked up to travel to the designated zone and then restart the
- * algorithm again. The differentiation between the type of blocks will also be
- * done in this class, as well as the control of the pulley motor and the claw.
+ * This class essentially coordinates all of the robot's operations. It
+ * executes our search algorithm to find an object in the vecinity. If the object is
+ * a wooden block, it avoids it, goes to the next waypoint and keeps looking for objects.
  * 
- * @author Alex
+ * If the found object is a blue block, it activates the claw mechanism to catch it. If it is not
+ * the first blue block the robot encounters, previously picked up blocks are placed on top of the 
+ * new block. If the maximum amount of blue blocks is  not reached, it goes to the next way point
+ * and scans again. Otherwise, robot goes to drop off zone, drops the blocks, and goes back to its 
+ *  position.
+ * 
+ * 
+ * @author Alexander Bratyshkin
+ * @author Sebastian Andrade
+ *
+ */
+/**
+ * @author root
+ *
+ */
+/**
+ * @author root
  *
  */
 public class RobotMovement extends Thread {
@@ -30,21 +43,10 @@ public class RobotMovement extends Thread {
 	USPoller usPollerLow;
 	USPoller usPollerHigh;
 
-	private SampleProvider colorSensor;
-	private float[] colorData;
-
-	private static int numberOfScans = 0;
-
-	private static double lastMinLow = 255;
-
 	ArrayList<Vector> visited_waypoints = new ArrayList<Vector>();
-	// public static Vector lastWayPoint;
 	public static int wayPointCounter = 0;
 
 	public static int STACK_HEIGHT = 2;
-
-	private static final double LIGHT_SENSOR_OFFSET = 11;
-	private static final int LIGHT_THRESHOLD = 35;
 
 	protected boolean blue_found = false;
 	public static final int ROTATE_SPEED = 76;
@@ -56,7 +58,6 @@ public class RobotMovement extends Thread {
 
 	private static final int PULLEY_SPEED = -500;
 	private static final int PULL_DOWN_FULL = 1200;
-	private static final int CLOSE_CLAW_1 = -40;
 	private static final int OPEN_CLAW_1 = 100;
 	private static final int OPEN_CLAW_2 = 30;
 	private static final int OPEN_CLAW_3 = 80;
@@ -97,8 +98,6 @@ public class RobotMovement extends Thread {
 		this.usPollerHigh = usPollerHigh;
 		RobotMovement.clawMotor = clawMotor;
 		RobotMovement.pulleyMotor = pulleyMotor;
-		this.colorSensor = colorSensor;
-		this.colorData = colorData;
 
 		clawMotor.setAcceleration(200);
 
@@ -106,46 +105,32 @@ public class RobotMovement extends Thread {
 
 	/**
 	 * {@inheritDoc}
-	 */
-	public void run() {
-		// boolean isWooden;
-
-		// pullCageDown();
+	 */ public void run() { 
 		clawMotor.rotate(OPEN_CLAW_1);
 
+		//Move away from wall before first scan
 		navigator.turnTo(180, true);
 		navigator.goForward(TILE);
 		navigator.turnTo(90, true);
 
+		
+		//look for objects until max capacity is reached
 		while (blue_counter < STACK_HEIGHT) {
-			// Sound.beep();
-			// lastWayPoint = new Vector(usPollerLow.getDistance(),
-			// odometer.getTheta(), odometer.getX(), odometer.getY());
-
-			if (odometer.needsCalibration()) {
-				calibrateOdometer();
-				Sound.beepSequenceUp();
-				odometer.setCalibration(false);
-			}
-
+			
+			//Look for objects in the range of (TURN_ANGLE_1 to ANGLE_LIMIT) 
 			findObject(TURN_ANGLE_1, ANGLE_LIMIT);
-
-			// if(blue_counter < STACK_HEIGHT){
-			// goToNextWayPoint();
-			// }
-			// navigator.travelTo(lastWayPoint.getInitialX() - TILE,
-			// lastWayPoint.getInitialY(), true);
-			// Sound.beep();
-
 		}
 
-		// Sound.beepSequence();
+		//Goes to drop off zone & drops the blocks
 		goToDropOffZone();
 		pullCageDown();
 		clawMotor.rotate(OPEN_CLAW_1);
 
 	}
 
+	/**
+	 * Calculates the middle of the the designated drop off zone & goes to that point.
+	 */
 	public void goToDropOffZone() {
 		double x, y;
 
@@ -156,24 +141,44 @@ public class RobotMovement extends Thread {
 
 	}
 
+	/**
+	 * @param double a
+	 * @param double b
+	 * @return average of both input arguments
+	 */
 	public static double average(double a, double b) {
 		return Math.abs(((Math.abs(a) + Math.abs(b)) / 2));
 	}
 
+	/**
+	 * Calculates X coordinates of a point based on distance from robot and angle
+	 * @param distance to desired point
+	 * @param angle: heading where the point is located relative to the robot
+	 * @return absolute X value of desired point
+	 */
 	public static double getXWP(double distance, double angle) {
 		double x = Math.abs(odometer.getX()) + distance * Math.cos(Math.toRadians(180 - angle));
-		// LCDInfo.setLabel1("XW");
-		// LCDInfo.setValue1((int)(x));
 		return x;
 	}
 
+	/**
+	 * Calculates Y coordinates of a point based on distance from robot and angle
+	 * @param distance to desired point
+	 * @param angle: heading where the point is located relative to the robot
+	 * @return absolute Y value of desired point
+	 */
 	public static double getYWP(double distance, double angle) {
 		double y = Math.abs(odometer.getY()) + distance * Math.cos(Math.toRadians(angle - 90));
-		// LCDInfo.setLabel2("YW");
-		// LCDInfo.setValue2((int)(y));
 		return y;
 	}
+	
+	
+	
 
+	/**
+	 * Robot goes to next way point. The next way point is located along the line between the robot's current
+	 * position and the drop off zone.
+	 */
 	public static void goToNextWayPoint() {
 
 		double data[] = new double[2];
@@ -181,21 +186,27 @@ public class RobotMovement extends Thread {
 		double finalX, finalY;
 		double distance;
 		double angle;
-		double length;
+		
 		// calculate middle of green zone
 		finalX = TILE * average(StartRobot.UDZx, StartRobot.LDZx);
 		finalY = TILE * average(StartRobot.UDZy, StartRobot.LDZy);
 
-		// calculate distance from current position to middle of green zone
-		length = Math.hypot(finalX - Math.abs(odometer.getX()), finalY - odometer.getY());
-
+		//Get Angle of next waypoint
 		angle = navigator.getMinAng(-finalX, finalY);
 
+		//Distance from current position to next waypoint
 		distance = TILE + 2 - DISTANCE_APPROACH_THRESHOLD;
 
+		
+		//Get XY points of next way point
 		x = getXWP(distance, angle);
 		y = getYWP(distance, angle);
 
+		//Tries to go to the next way point
+		//If it encounters an object on the way  & it's a wooden block, 
+		// it avoids it and goes to a new way point
+		//If object is a blue block, it picks it up &
+		//the new way point is the current position
 		if (!navigator.travelTo(-x, y)) {
 
 			data = navigator.isWooden();
@@ -213,34 +224,45 @@ public class RobotMovement extends Thread {
 			y = getYWP(distance, angle);
 			navigator.travelTo(-x, y);
 		}
-
-		/*
-		 * if( wayPointCounter < -Navigation.MAX_X_BOARD - 1 ){
-		 * //Sound.beepSequence(); x = lastWayPoint.getInitialX() - TILE; y =
-		 * lastWayPoint.getInitialY(); } else { //Sound.beepSequenceUp(); x =
-		 * lastWayPoint.getInitialX(); y = lastWayPoint.getInitialY() + TILE; }
-		 * // Sound.beep(); ++wayPointCounter; navigator.travelTo(x,y, true); //
-		 * Sound.beep();
-		 */
 	}
 
+	
+	/**
+	 * The robot rotates in its axis starting at  theta=initialAngle and finishing at theta = finalAngle
+	 * While scaning, every ADDITION_SLEEP_TIME miliseconds, a Vector object is created with the lower US sensor reading
+	 * as length of the vector and the odometer's theta as the angle. When scan is done, the Vector with the 
+	 * smallest length is selected. Robot turns to that Vector's angle and moves forward by a distance equal to 
+	 * (Vector's length - SCAN_DISTANCE_THRESHOLD). 
+	 * Once in front of the object, the robot scans it. If it's a blue block, it picks it up and either keeps 
+	 * scanning or goes to the drop off zone. If object is a wooden block, the robot avoids it and goes to
+	 * a new way point. 
+	 * @param initialAngle Starting angle for scan
+	 * @param finalAngle	Ending angle for scan
+	 */
 	public void findObject(double initialAngle, double finalAngle) {
-		++numberOfScans;
 		ArrayList<Vector> list_of_vectors = new ArrayList<Vector>();
 
 		double[] blockProperties = new double[2];
 
+		//Turn to initial angle to start scan
 		navigator.turnTo(initialAngle, true);
+		
+		//Rotate on its axis
 		navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
 
+		
+		//Keep rotating till reach finalAngle
 		while (odometer.getTheta() < finalAngle) {
 			navigator.setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
 
+			//Create all the Vector objects to be analyzed
 			Vector vector = new Vector(usPollerLow.getDistance(), odometer.getTheta(), odometer.getX(),
 					odometer.getY());
 
+			//Add Vector object to the list
 			list_of_vectors.add(vector);
 
+			//Wait to avoid creating too many Vector Objects
 			try {
 				Thread.sleep(ADDITION_SLEEP_TIME);
 			} catch (InterruptedException e) {
@@ -255,71 +277,73 @@ public class RobotMovement extends Thread {
 			}
 		});
 
-		// waits for some reason
-		/*
-		 * try { Thread.sleep(1000); } catch (InterruptedException e) { }
-		 */
+		
 
 		// if closest object is not too far away, analyze it
 		if ((list_of_vectors.get(0).getDistance()) < DISTANCE_SCAN_THRESHOLD) {
 
+			//Turn to the object's heading
 			navigator.turnTo(list_of_vectors.get(0).getAngle(), true);
 
+			
+			//If lower ultrasonic sensor detects the object, approach it based on that reading
 			if (usPollerLow.getDistance() < DISTANCE_SCAN_THRESHOLD) {
 				navigator.goForward((usPollerLow.getDistance()) - DISTANCE_APPROACH_THRESHOLD);
 			} else {
+				//Otherwise, approach object based on Vector object
 				navigator.goForward(list_of_vectors.get(0).getDistance() - DISTANCE_APPROACH_THRESHOLD);
 			}
 
 			list_of_vectors.clear();
 
+			//Identify object as wooden block or blue block
 			blockProperties = navigator.isWooden();
 
-			// if (blockProperties[0] == 1 ||
-			// blockProperties[1] < 2 * DISTANCE_APPROACH_THRESHOLD) { //if
-			// wooden block
 
-			// IF its a wooden block
+			// IF its a wooden block, avoid it
 			if (blockProperties[0] == 1) {
 				navigator.avoidObject(false);
-				// goToNextWayPoint();
+				goToNextWayPoint();
 				return;
 
-			} else {
+			} else { //Its blue block
 
+				//If supposed blue block is close & still looking for blue objects
 				if (blockProperties[1] < DISTANCE_APPROACH_THRESHOLD + 10) {
 					if (blue_counter < STACK_HEIGHT) {
 
+						//Aproach object
 						navigator.goForward(DISTANCE_APPROACH_THRESHOLD + 1);
+						
+						//Pick up block
 						pickUpBlock();
 
 						return;
 
 					}
 				} else { // if detected as block but nothing in front
-					// Sound.beepSequenceUp();
 					navigator.goForward(0.3 * DISTANCE_APPROACH_THRESHOLD);
 				}
 			}
-		} else { // objects not close enough
+		} else { // objects not close enough but in sight, the robot approaches it & scans again
 			if (list_of_vectors.get(0).getDistance() < 1.5 * TILE) {
 				navigator.turnTo(list_of_vectors.get(0).getAngle(), true);
 				navigator.goForward(TILE * 0.8);
 				return;
 			}
-
 		}
 
+		//If still looking for blocks, go to next way point
 		if (blue_counter < STACK_HEIGHT) {
-			Sound.beep();
-			Sound.beep();
 			goToNextWayPoint();
 		}
-
 	}
 
+	/**
+	 * This method picks up a block. If it's not the first block, previously picked up blocks
+	 * are placed on top of the new block.	
+	 */
 	public static void pickUpBlock() {
-
 		pullCageDown();
 
 		if (!(blue_counter == 0)) {
@@ -329,75 +353,25 @@ public class RobotMovement extends Thread {
 		}
 		grabObject();
 		blue_counter++;
-
 	}
 
+	/**
+	 * Pulls down the claw to pick up blocks
+	 */
 	private static void pullCageDown() {
 		pulleyMotor.setSpeed(PULLEY_SPEED);
 		pulleyMotor.rotate((int) (PULL_DOWN_FULL));
 	}
-
+	
+	/**
+	 * It lowers the open claw to the the lowest point, closes it & raises the
+	 * claw to its maximum height.
+	 */
 	private static void grabObject() {
-		// clawMotor.rotate(OPEN_CLAW_1);
 		clawMotor.setAcceleration(200);
 		pulleyMotor.rotate(PULL_DOWN_TO_BLOCK);
 		clawMotor.rotate(CLOSE_CLAW_2);
 		pulleyMotor.rotate(PULL_UP_FROM_BLOCK);
-	}
-
-	////////// ODOMETRY CORRECTION ATTEMPT
-
-	public void calibrateOdometer() {
-		double new_x, new_y;
-
-		navigator.turnTo(90, true);
-		navigator.setSpeeds(Navigation.FORWARD_SPEED, Navigation.FORWARD_SPEED);
-
-		while (getLightValue() > LIGHT_THRESHOLD) {
-			;
-		}
-		Sound.beep();
-
-		navigator.setSpeeds(0, 0);
-
-		navigator.turnTo(180, true);
-
-		navigator.setSpeeds(Navigation.FORWARD_SPEED, Navigation.FORWARD_SPEED);
-
-		while (getLightValue() > LIGHT_THRESHOLD) {
-			;
-		}
-		Sound.beep();
-
-		navigator.setSpeeds(0, 0);
-
-		navigator.goForward(LIGHT_SENSOR_OFFSET);
-
-		navigator.turnTo(90, true);
-
-		navigator.goForward(LIGHT_SENSOR_OFFSET);
-
-		new_x = -getLineValue(Math.abs(odometer.getX()));
-		new_y = getLineValue(odometer.getY());
-
-		odometer.setPosition(new double[] { new_x, new_y, odometer.getTheta() }, new boolean[] { true, true, false });
-
-	}
-
-	public double getLineValue(double CurrentOdometerValue) {
-		return ((int) ((CurrentOdometerValue / TILE) + 0.5)) * TILE;
-	}
-
-	// GET VALUE FROM SENSOR, TAKEN FROM LAB2
-	float getLightValue() {
-		colorData = new float[colorSensor.sampleSize()];
-		colorSensor.fetchSample(colorData, 0);
-		float lightIntensity = colorData[0] * 100;
-
-		LCDInfo.setLabel3("LS:");
-		LCDInfo.setValue3((int) (lightIntensity));
-
-		return lightIntensity;
 	}
 
 }

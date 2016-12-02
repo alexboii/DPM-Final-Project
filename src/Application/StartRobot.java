@@ -102,8 +102,7 @@ public class StartRobot {
 	 */
 	private static final double TILE = 30.48;
 
-	private static final int CLAW_ANGLE = 10;
-
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 
 		// INSTANTIATE HIGH US SENSOR
