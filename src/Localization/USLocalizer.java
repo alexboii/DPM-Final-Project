@@ -7,12 +7,10 @@ import lejos.robotics.SampleProvider;
 
 /**
  * This class contains all the necessary methods to perform ultrasonic localization by recording the angles
- * of the odometer at which the lower ultrasonic registered a reading smaller than DISTANCE_FROM_WALL. It calibrates the 
- * 
+ * of the odometer at which the lower ultrasonic registered a reading smaller than DISTANCE_FROM_WALL.
+ *  It calibrates the theta value of the odometer.
  * 
  * @author Alexander Bratyshkin
- * @author Sebastian Andrade
- *
  */
 public class USLocalizer {
 	public enum LocalizationType {
@@ -30,7 +28,6 @@ public class USLocalizer {
 	private static final double ZERO_X = 0.0;
 	private static final double ZERO_Y = 0.0;
 	private static final int HALF = 2;
-	private static final int SLEEP_TIME = 1000;
 	
 	private Odometer odo;
 	private static SampleProvider usSensor;
@@ -126,7 +123,6 @@ public class USLocalizer {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 			}
 
-//			sleepThread();
 
 			// ROTATE UNTIL THE ROBOT SEES NO WALL
 			while (getFilteredData() < DISTANCE_FROM_WALL) {

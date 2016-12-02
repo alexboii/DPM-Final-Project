@@ -2,13 +2,14 @@ package Localization;
 
 import Navigation.Navigation;
 import Odometer.Odometer;
-import lejos.hardware.Sound;
 import lejos.robotics.SampleProvider;
 
 public class LightLocalizer {
 	/**
 	 * Create local odometer, sample provider and colorData for the reading of
 	 * the ultrasonic sensor. Set line detected boolean to false
+	 * 
+	 * @author Sebastian Andrade
 	 */
 	private Odometer odo;
 	private SampleProvider colorSensor;
@@ -32,6 +33,11 @@ public class LightLocalizer {
 	private static final int ZERO_X = 0;
 	private static final int ZERO_Y = 0;
 
+	/**
+	 * @param odo System odometer
+	 * @param colorSensor SampleProvider linked to a color sensor
+	 * @param colorData		an array of float in which the sample provider uses as buffer
+	 */
 	public LightLocalizer(Odometer odo, SampleProvider colorSensor, float[] colorData) {
 		this.odo = odo;
 		this.colorSensor = colorSensor;
