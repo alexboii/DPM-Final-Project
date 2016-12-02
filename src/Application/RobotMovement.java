@@ -24,18 +24,10 @@ import lejos.robotics.SampleProvider;
  *  position.
  * 
  * 
- * @author Alexander Bratyshkin
- * @author Sebastian Andrade
+ * @author Alexander Bratyshkin and Sebastian Andrade
  *
  */
-/**
- * @author root
- *
- */
-/**
- * @author root
- *
- */
+
 public class RobotMovement extends Thread {
 
 	static Odometer odometer;
@@ -44,18 +36,15 @@ public class RobotMovement extends Thread {
 	USPoller usPollerHigh;
 
 	ArrayList<Vector> visited_waypoints = new ArrayList<Vector>();
-	public static int wayPointCounter = 0;
-
-	public static int STACK_HEIGHT = 2;
-
 	protected boolean blue_found = false;
+	
+	// CLASS CONSTANTS
+	public static int wayPointCounter = 0;
+	public static int STACK_HEIGHT = 2;
 	public static final int ROTATE_SPEED = 76;
-
 	private static final double TILE = 30.48;
-
 	private static final int TURN_ANGLE_1 = 45;
 	private static final int ANGLE_LIMIT = 180;
-
 	private static final int PULLEY_SPEED = -500;
 	private static final int PULL_DOWN_FULL = 1200;
 	private static final int OPEN_CLAW_1 = 100;
@@ -66,7 +55,6 @@ public class RobotMovement extends Thread {
 	private static final int PULL_UP_FROM_BLOCK = -1900;
 	private static final int DISTANCE_SCAN_THRESHOLD = (int) TILE;
 	public static final int SECOND_DISTANCE_SCAN = (int) (1.5 * TILE);
-
 	private static final int DISTANCE_APPROACH_THRESHOLD = 5;
 	private static final int ADDITION_SLEEP_TIME = 15;
 

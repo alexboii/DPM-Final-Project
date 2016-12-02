@@ -1,43 +1,22 @@
-/**
- * This class is in charge of all of the robots movements. It retrieves the position 
- * information from the odometer and the lower ultrasonic sensor to calculate its movements.
- *  Its main three methods allow the robot to turn to a specific heading, travel to specific 
- *  XY positions on the board &  identify wooden blocks and blue blocks based on height. 
- * 
- * @author Sebastian Andrade
- * 
- * @author Alexander Bratyshkin
- *
- */
-
-
-
 package Navigation;
 
 import java.util.ArrayList;
 import java.util.Collections;
-
 import Application.StartRobot;
-/*
- * File: Navigation.java
- * Written by: Sean Lawlor
- * ECSE 211 - Design Principles and Methods, Head TA
- * Fall 2011
- * Ported to EV3 by: Francois Ouellet Delorme
- * Fall 2015
- * 
- * Movement control class (turnTo, travelTo, flt, localize)
- */
 import Odometer.Odometer;
 import SensorData.USPoller;
-import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
-
-
-
-
-
+/**
+ * This class is in charge of all of the robots movements. It retrieves the
+ * position information from the odometer and the lower ultrasonic sensor to
+ * calculate its movements. Its main three methods allow the robot to turn to a
+ * specific heading, travel to specific XY positions on the board & identify
+ * wooden blocks and blue blocks based on height.
+ * 
+ * @author Sean Lawlor, Sebastian Andrade, Alexander Bratyshkin
+ *
+ */
 public class Navigation {
 	final static int FAST = 200, SLOW = 180, ACCELERATION = 4000;
 	final static double DEG_ERR = 3.0, CM_ERR = 2, CM_ERR_2 = 1;
@@ -61,7 +40,6 @@ public class Navigation {
 	private static final double SCAN_ANGLE = 20;
 	private static final int DETECTION_ANGLE = 0;
 
-
 	public static final int SLOW_ROTATE_SPEED = 50;
 	public static final int FORWARD_SPEED = 200;
 	public static final int WAYPOINT_BLOCKED_BW = 3;
@@ -72,14 +50,16 @@ public class Navigation {
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private USPoller us, highUs;
 
-	
-	
 	/**
-	 * Creates a new Navigation object to control all the movements of the robot. 
+	 * Creates a new Navigation object to control all the movements of the
+	 * robot.
 	 * 
-	 * @param odo System odometer
-	 * @param us Lower Ultrasonic Poller
-	 * @param highUs Higher Ultrasonic Poller
+	 * @param odo
+	 *            System odometer
+	 * @param us
+	 *            Lower Ultrasonic Poller
+	 * @param highUs
+	 *            Higher Ultrasonic Poller
 	 */
 	public Navigation(Odometer odo, USPoller us, USPoller highUs) {
 		this.odometer = odo;
@@ -94,14 +74,15 @@ public class Navigation {
 		this.rightMotor.setAcceleration(ACCELERATION);
 	}
 
-
 	/**
-	 * This method sets up the speeds of the two wheels independently. 
-	 * If any of the speeds is negative, the speed will be set as positive 
-	 * and the corresponding motor will move backwards. 
+	 * This method sets up the speeds of the two wheels independently. If any of
+	 * the speeds is negative, the speed will be set as positive and the
+	 * corresponding motor will move backwards.
 	 * 
-	 * @param lSpd Speed of left wheel
-	 * @param rSpd Speed of right wheel
+	 * @param lSpd
+	 *            Speed of left wheel
+	 * @param rSpd
+	 *            Speed of right wheel
 	 */
 	public void setSpeeds(float lSpd, float rSpd) {
 		this.leftMotor.setSpeed(lSpd);
@@ -118,7 +99,9 @@ public class Navigation {
 
 	/**
 	 * Sleeps the thread for time miliseconds.
-	 * @param time in miliseconds
+	 * 
+	 * @param time
+	 *            in miliseconds
 	 */
 	public void waitMs(long time) {
 		try {
@@ -129,10 +112,9 @@ public class Navigation {
 		}
 	}
 
-	
 	/**
 	 * Stops the motors & floats them. This allow the motors to rotate freely
-	 * while the robot is still running. 
+	 * while the robot is still running.
 	 */
 	public void setFloat() {
 		this.leftMotor.stop();
@@ -141,48 +123,46 @@ public class Navigation {
 		this.rightMotor.flt(true);
 	}
 
-
 	/**
 	 * TravelTo function which takes as arguments the x and y position in cm
 	 * Will travel to designated position, while constantly updating it's
 	 * heading This version of the method exits with boolean false if see an
 	 * obstacle.
 	 * 
-	 * @param x desired X
-	 * @param y desired Y
+	 * @param x
+	 *            desired X
+	 * @param y
+	 *            desired Y
 	 * @return true if it reached the desired XY position, false otherwise.
 	 */
 	public boolean travelTo(double x, double y) {
 		double minAng;
 
-		
-		//Calculate heading of desired XY point
+		// Calculate heading of desired XY point
 		minAng = getMinAng(x, y);
-		
-		//Go to calculated heading
+
+		// Go to calculated heading
 		this.turnTo(minAng, true);
 
 		do {
-			//Set speeds to go forward fast
+			// Set speeds to go forward fast
 			this.setSpeeds(FAST, FAST);
-			
-			//if lower ultrasonic poller sees an object within MIN_DISTANCE, returns false
+
+			// if lower ultrasonic poller sees an object within MIN_DISTANCE,
+			// returns false
 			if (us.getDistance() < MIN_DISTANCE) {
 				return false;
 			}
-			//While far away of desired XY, keep going forward.
+			// While far away of desired XY, keep going forward.
 		} while (Math.abs(Math.abs(x) - Math.abs(odometer.getX())) > CM_ERR
 
 				|| Math.abs(y - odometer.getY()) > CM_ERR);
 
-		//Stop the robot when destination is reached.
+		// Stop the robot when destination is reached.
 		this.setSpeeds(0, 0);
 		return true;
 	}
 
-	/*
-
-	 */
 	/**
 	 * 
 	 * TravelTo function which takes as arguments the x and y position in cm
@@ -190,12 +170,15 @@ public class Navigation {
 	 * heading. When avoid = true, it will avoid objects based on the lower
 	 * ultrasonic poller readings.
 	 * 
-	 * @param x desired X
-	 * @param y desired Y
-	 * @param avoid activate objectAvoidance 
+	 * @param x
+	 *            desired X
+	 * @param y
+	 *            desired Y
+	 * @param avoid
+	 *            activate objectAvoidance
 	 */
 	public void travelTo(double x, double y, boolean avoid) {
-		
+
 		double minAng;
 		// double[] data = new double[4];
 		boolean object = false;
@@ -213,12 +196,12 @@ public class Navigation {
 			if (us.getDistance() < MIN_DISTANCE && avoid) {
 				// avoid object
 				avoidObject(true);
-				//keep traveling to original destination
+				// keep traveling to original destination
 				travelTo(x, y, true);
 
 			}
 
-			//Detect if it's close zone to avoid
+			// Detect if it's close zone to avoid
 			if (((odometer.getX() + 10) > StartRobot.LFZx || (odometer.getX() + 10) > StartRobot.UFZx)
 					&& ((odometer.getY() + 10) > StartRobot.LFZy || (odometer.getY() + 10) > StartRobot.UFZy)) {
 				nearForbiddenZone = true;
@@ -229,14 +212,14 @@ public class Navigation {
 
 		this.setSpeeds(0, 0);
 
-		
-		//Zone avoidance
+		// Zone avoidance
 		if (nearForbiddenZone) {
-			
-			//Go backwards to guarantee a minimum distance from the forbiden zone
+
+			// Go backwards to guarantee a minimum distance from the forbiden
+			// zone
 			this.goForward(-10);
-			
-			//Load an array with all the coordinates of the forbiden zone
+
+			// Load an array with all the coordinates of the forbiden zone
 			double[][] points = new double[4][2];
 			points[0][0] = StartRobot.LFZx;
 			points[0][1] = StartRobot.LFZy;
@@ -247,93 +230,92 @@ public class Navigation {
 			points[3][0] = StartRobot.UFZx;
 			points[3][1] = StartRobot.UFZy;
 
-			//Calculates coordinates of lower corner of forbiden zone 
-			double distanceLowerCorner1 = distance(x, y, points[0][0], points[0][1]); // Initialize																			// shortestDistance
+			// Calculates coordinates of lower corner of forbiden zone
+			double distanceLowerCorner1 = distance(x, y, points[0][0], points[0][1]); // Initialize
+																						// //
+																						// shortestDistance
 			double distanceLowerCorner2 = distance(x, y, points[1][0], points[1][1]);
-			
-			//Calculates coordinates of Upper corner of forbiden zone 
+
+			// Calculates coordinates of Upper corner of forbiden zone
 			double distanceUpperCorner1 = distance(x, y, points[2][0], points[2][1]);
 			double distanceUpperCorner2 = distance(x, y, points[3][0], points[3][1]);
-			
+
 			ArrayList<Double> distances = new ArrayList<Double>();
 			distances.add(distanceLowerCorner1);
 			distances.add(distanceLowerCorner2);
 			distances.add(distanceUpperCorner1);
 			distances.add(distanceUpperCorner2);
 
-			//Getting the shortest distance
+			// Getting the shortest distance
 			Collections.sort(distances);
-			
-			//If first lowerCorner is the closest one
+
+			// If first lowerCorner is the closest one
 			if (distances.get(0) == distanceLowerCorner1) {
-				
-				
-				//If forbidden zone is closer to X axis
+
+				// If forbidden zone is closer to X axis
 				if (Math.abs(odometer.getX() - points[0][0]) < Math.abs(odometer.getY() - points[0][1])) {
-					//Move along the Y axis
-					travelTo(points[0][0] - 15, odometer.getY(), true, 1);
-					
-					//Move along X axis
-					travelTo(odometer.getX(), points[0][1] + 15, true, 1);
-					
-					//Go to final position
-					travelTo(x, y, true, 1);
-				
+					// Move along the Y axis
+					travelTo(points[0][0] - 15, odometer.getY(), true);
+
+					// Move along X axis
+					travelTo(odometer.getX(), points[0][1] + 15, true);
+
+					// Go to final position
+					travelTo(x, y, true);
+
 				} else {
-					//If forbidden zone is closer to Y axis
-					
-					//Move along the X axis
-					travelTo(odometer.getX(), points[0][1] + 15, true, 1);
-					
-					//Move along the Y axis
-					travelTo(points[0][0] - 15, odometer.getY(), true, 1);
-					
-					//Go to final position
-					travelTo(x, y, true, 1);
+					// If forbidden zone is closer to Y axis
+
+					// Move along the X axis
+					travelTo(odometer.getX(), points[0][1] + 15, true);
+
+					// Move along the Y axis
+					travelTo(points[0][0] - 15, odometer.getY(), true);
+
+					// Go to final position
+					travelTo(x, y, true);
 				}
 
 			}
 
-			//if second lower corner is closer
+			// if second lower corner is closer
 			if (distances.get(0) == distanceLowerCorner2) {
 
-				//If forbidden zone is closer to X axis
+				// If forbidden zone is closer to X axis
 				if (Math.abs(odometer.getX() - points[1][0]) < Math.abs(odometer.getY() - points[1][1])) {
-					
-					//Move along the Y axis
-					travelTo(points[1][0] - 15, odometer.getY(), true, 1);
-			
-					//Move along the X axis
-					travelTo(odometer.getX(), points[1][1] + 15, true, 1);
-					
-					//Go to final position
-					travelTo(x, y, true, 1);
+
+					// Move along the Y axis
+					travelTo(points[1][0] - 15, odometer.getY(), true);
+
+					// Move along the X axis
+					travelTo(odometer.getX(), points[1][1] + 15, true);
+
+					// Go to final position
+					travelTo(x, y, true);
 				} else {
-					
-					//Move along the X axis
-					travelTo(odometer.getX(), points[1][1] + 15, true, 1);
-					
-					//Move along the Y axis
-					travelTo(points[1][0] - 15, odometer.getY(), true, 1);
-					
-					//Go to final position
-					travelTo(x, y, true, 1);
+
+					// Move along the X axis
+					travelTo(odometer.getX(), points[1][1] + 15, true);
+
+					// Move along the Y axis
+					travelTo(points[1][0] - 15, odometer.getY(), true);
+
+					// Go to final position
+					travelTo(x, y, true);
 				}
 			}
 
-			
-			//If first upper Corner is the closest one
+			// If first upper Corner is the closest one
 			if (distances.get(0) == distanceUpperCorner1) {
 
-				
 				if (Math.abs(odometer.getX() - points[2][0]) < Math.abs(odometer.getY() - points[2][1])) {
-					travelTo(points[2][0] - 15, odometer.getY(), true, 1);
-					travelTo(odometer.getX(), points[2][1] + 15, true, 1);
-					travelTo(x, y, true, 1);
+					travelTo(points[2][0] - 15, odometer.getY(), true);
+					travelTo(odometer.getX(), points[2][1] + 15, true);
+					travelTo(x, y, true);
 				} else {
-					travelTo(odometer.getX(), points[2][1] + 15, true, 1);
-					travelTo(points[2][0] - 15, odometer.getY(), true, 1);
-					travelTo(x, y, true, 1);
+					travelTo(odometer.getX(), points[2][1] + 15, true);
+					travelTo(points[2][0] - 15, odometer.getY(), true);
+					travelTo(x, y, true);
 				}
 			}
 
@@ -341,67 +323,42 @@ public class Navigation {
 				// System.out.println("I am here 4");
 
 				if (Math.abs(odometer.getX() - points[3][0]) < Math.abs(odometer.getY() - points[3][1])) {
-					travelTo(points[3][0] - 15, odometer.getY(), true, 1);
-					travelTo(odometer.getX(), points[3][1] + 15, true, 1);
-					travelTo(x, y, true, 1);
+					travelTo(points[3][0] - 15, odometer.getY(), true);
+					travelTo(odometer.getX(), points[3][1] + 15, true);
+					travelTo(x, y, true);
 				} else {
-					travelTo(odometer.getX(), points[3][1] + 15, true, 1);
-					travelTo(points[3][0] - 15, odometer.getY(), true, 1);
-					travelTo(x, y, true, 1);
+					travelTo(odometer.getX(), points[3][1] + 15, true);
+					travelTo(points[3][0] - 15, odometer.getY(), true);
+					travelTo(x, y, true);
 				}
 			}
 
 		}
 	}
 
-	public void travelTo(double x, double y, boolean avoid, double trying) {
-		double minAng;
-
-		minAng = getMinAng(x, y);
-		this.turnTo(minAng, true);
-
-		while ((Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR)) {
-
-			this.setSpeeds(FAST, FAST);
-
-			// if object too close, object avoidance
-			if (us.getDistance() < MIN_DISTANCE && avoid) {
-				// avoid object
-				avoidObject(true);
-				
-				//Recursive call of same method with same coordinates
-				travelTo(x, y, true, 1);
-
-			}
-
-		}
-		//Stop robot when destination is reached
-		this.setSpeeds(0, 0);
-	}
-
-	
 	/**
 	 * When a wooden block is detected, the robot scans the edge of the block
 	 * with the lower ultrasonic sensor. Once the edge is detected, the robot
-	 * turns by SAFETY_ANGLE from that position, goes forward a given 10cm
-	 * (20cm if full = true), turns to its original heading and moves 
+	 * turns by SAFETY_ANGLE from that position, goes forward a given 10cm (20cm
+	 * if full = true), turns to its original heading and moves
 	 * 
-	 * @param full:  when true, turns away from the object with a bigger angle
+	 * @param full:
+	 *            when true, turns away from the object with a bigger angle
 	 */
 	public void avoidObject(boolean full) {
-		
-		//Stop robot
+
+		// Stop robot
 		this.setSpeeds(0, 0);
-		
-		//Record initial angle
+
+		// Record initial angle
 		double initialAngle = odometer.getTheta();
 		double angle;
-		
-		//Rotate on its axis
+
+		// Rotate on its axis
 		this.setSpeeds(-150, 150);
 
 		while (true) {
-			//Keep rotating until 
+			// Keep rotating until
 			if (us.getDistance() > EDGE_DISTANCE) {
 				angle = odometer.getTheta();
 				break;
@@ -410,21 +367,19 @@ public class Navigation {
 		this.setSpeeds(0, 0);
 
 		if (full) {
-			//Turn away from the object by a SAFETY_ANGLE
+			// Turn away from the object by a SAFETY_ANGLE
 			turnTo(angle + SAFETY_ANGLE, true);
 
 		} else {
-			
-			//Turn away from the object by a 60% of SAFETY_ANGLE
+
+			// Turn away from the object by a 60% of SAFETY_ANGLE
 			turnTo(angle + 0.6 * SAFETY_ANGLE, true);
 		}
 
 		goForward(30);
 
-
 		turnTo(initialAngle, true);
 		goForward(15);
-
 
 	}
 
@@ -436,26 +391,27 @@ public class Navigation {
 		return minAng;
 	}
 
-
 	/**
-	 * 	
+	 * 
 	 * TurnTo function which takes an angle and boolean as arguments The boolean
 	 * controls whether or not to stop the motors when the turn is completed
-	 
-	 * @param angle turn to this heading
-	 * @param stop  if true, stop when reaching angle. If false, keep rotating.
+	 * 
+	 * @param angle
+	 *            turn to this heading
+	 * @param stop
+	 *            if true, stop when reaching angle. If false, keep rotating.
 	 */
 	public void turnTo(double angle, boolean stop) {
 
-		//Calculate difference between desired angle & current angle
+		// Calculate difference between desired angle & current angle
 		double error = angle - this.odometer.getTheta();
 
 		//
 		while (Math.abs(error) > DEG_ERR) {
-			//Recalculate error every time loop runs
+			// Recalculate error every time loop runs
 			error = angle - this.odometer.getTheta();
 
-			//Choose smallest turn based on the value of the error
+			// Choose smallest turn based on the value of the error
 			if (error < -180.0) {
 				this.setSpeeds(-SLOW, SLOW);
 			} else if (error < 0.0) {
@@ -466,75 +422,75 @@ public class Navigation {
 				this.setSpeeds(-SLOW, SLOW);
 			}
 		}
-		
-		//If stop = true, stop when angle is reached.
+
+		// If stop = true, stop when angle is reached.
 		if (stop) {
 			this.setSpeeds(0, 0);
 		}
 	}
 
-	
 	/**
-	 * This method identifies the block and measures the distance between the object and
-	 * the robot. To do this, the robot rotates (SCAN_ANGLE * 2) degrees recording distances
-	 * with both ultrasonic sensors. This allows to detect the height of the object. 
+	 * This method identifies the block and measures the distance between the
+	 * object and the robot. To do this, the robot rotates (SCAN_ANGLE * 2)
+	 * degrees recording distances with both ultrasonic sensors. This allows to
+	 * detect the height of the object.
 	 * 
-	 * @return results    An array of doubles where the first element identifies the block type
-	 * results[0] = 1 => Wooden block
-	 * results[0] = 0 => Blue block
+	 * @return results An array of doubles where the first element identifies
+	 *         the block type results[0] = 1 => Wooden block results[0] = 0 =>
+	 *         Blue block
 	 * 
-	 * The second element is the closest distance measured by the lower ultrasonic poller
-	 * results[1] = minLow 
+	 *         The second element is the closest distance measured by the lower
+	 *         ultrasonic poller results[1] = minLow
 	 */
 	public double[] isWooden() {
 		double minLow, minHigh, initialAngle;
 		double[] results = new double[2];
 
-		//Save both sensors initial distances
+		// Save both sensors initial distances
 		minLow = us.getDistance();
 		minHigh = highUs.getDistance();
 		initialAngle = odometer.getTheta();
 		double bestAngle = initialAngle;
-		
-		//Turn to starting angle
+
+		// Turn to starting angle
 		turnTo(initialAngle - SCAN_ANGLE, true);
-		
-		//Starts rotating
+
+		// Starts rotating
 		setSpeeds(-ROTATE_SPEED, ROTATE_SPEED);
 
-		//Scan until ending angle is reached
+		// Scan until ending angle is reached
 		while (odometer.getTheta() < initialAngle + SCAN_ANGLE) {
-			//Rercord the smallest distance recorded by lower sensor & at which heading it occurs
+			// Rercord the smallest distance recorded by lower sensor & at which
+			// heading it occurs
 			if (us.getFilteredDistance() < minLow) {
 				minLow = us.getFilteredDistance();
 				bestAngle = odometer.getTheta();
 			}
 
-			//Records the smallest distance from the higher ultrasonic sensor
+			// Records the smallest distance from the higher ultrasonic sensor
 			if (highUs.getFilteredDistance() < minHigh) {
 				minHigh = highUs.getFilteredDistance();
 			}
-			
-			
-			//Sleeps the thread
+
+			// Sleeps the thread
 			try {
 				Thread.sleep(SCAN_TIME / 2);
 			} catch (InterruptedException e) {
 			}
 		}
 
-		//Stop the robot
+		// Stop the robot
 		stop();
 
-		//Identify object
+		// Identify object
 		if (minHigh < minLow + DELTA_DISTANCE) {
 			results[0] = 1; // wooden
 		} else {
 			results[0] = 0; // blue block
 		}
 
-		//If blue block, rotate to the angle at which
-		//the smallest distance was recorded
+		// If blue block, rotate to the angle at which
+		// the smallest distance was recorded
 		if (results[0] == 0) {
 			if (bestAngle < initialAngle) {
 				turnTo(bestAngle - DETECTION_ANGLE, true);
@@ -547,16 +503,15 @@ public class Navigation {
 		return results;
 	}
 
-
-
 	/**
-	 * Moves forward the given distance. This method rotates the motors by the calculated angle 
-	 * and does not return until the rotations or over.
+	 * Moves forward the given distance. This method rotates the motors by the
+	 * calculated angle and does not return until the rotations or over.
 	 * 
-	 * @param distance to move forward by
+	 * @param distance
+	 *            to move forward by
 	 */
 	public void goForward(double distance) {
-		//Start the robot to move forward
+		// Start the robot to move forward
 		this.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
 
 		leftMotor.rotate((int) ((180.0 * distance) / (Math.PI * 2.1)), true);
@@ -564,14 +519,13 @@ public class Navigation {
 	}
 
 	/**
-	 * Stops both wheels. 
+	 * Stops both wheels.
 	 */
 	public void stop() {
 		leftMotor.stop();
 		rightMotor.stop();
 	}
 
-	
 	/**
 	 * @return leftMotor
 	 */
@@ -580,7 +534,8 @@ public class Navigation {
 	}
 
 	/**
-	 * @param leftMotor set leftMotor
+	 * @param leftMotor
+	 *            set leftMotor
 	 */
 	public void setLeftMotor(EV3LargeRegulatedMotor leftMotor) {
 		this.leftMotor = leftMotor;
@@ -594,7 +549,8 @@ public class Navigation {
 	}
 
 	/**
-	 * @param rightMotor set rightMotor
+	 * @param rightMotor
+	 *            set rightMotor
 	 */
 	public void setRightMotor(EV3LargeRegulatedMotor rightMotor) {
 		this.rightMotor = rightMotor;
