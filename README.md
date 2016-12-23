@@ -18,6 +18,10 @@ EV3 Mindstorm robot built under the [Lejos] (http://www.lejos.org/) framework fo
 
 ## Robot design:
 
+#### Full: 
+
+![full](https://i.imgur.com/nD5jTJH.png)
+
 #### Claw:
 ![claw](https://i.imgur.com/Awjcd3H.jpg)
 
