@@ -1,6 +1,6 @@
 # Tower of Haboii 
 
-## Authors:
+## Software Authors:
 [**Alexander Bratyshkin**](http://github.com/alexboii) - Project Software Manager
 
 [**Sebastian Andrade**](http://github.com/pepoandra) - Project Software Engineer
@@ -26,3 +26,10 @@ EV3 Mindstorm robot built under the [Lejos] (http://www.lejos.org/) framework fo
 
 #### Main body:
 ![main body](https://i.imgur.com/AFlBSXU.jpg)
+
+## Video demonstration: 
+
+Although this video does not exactly show the robot at its full potential, here's a very entertaining video in which the adversary team attempted to sabotage our run. The result: the most epic robot battle in the history of the ECSE 211 course.
+
+[Robot Battle](https://www.youtube.com/watch?v=mQGQ_WZc36U)
+
