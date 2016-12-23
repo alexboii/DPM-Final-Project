@@ -31,5 +31,8 @@ EV3 Mindstorm robot built under the [Lejos] (http://www.lejos.org/) framework fo
 
 Although this video does not exactly show the robot at its full potential, here's a very entertaining video in which the adversary team attempted to sabotage our run. The result: the most epic robot battle in the history of the ECSE 211 course.
 
-[Robot Battle](https://www.youtube.com/watch?v=mQGQ_WZc36U)
+<iframe width="420" height="315"
+src="https://www.youtube.com/watch?v=mQGQ_WZc36U">
+</iframe>
+
 
