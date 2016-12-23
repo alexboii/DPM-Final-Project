@@ -20,13 +20,12 @@ EV3 Mindstorm robot built under the [Lejos] (http://www.lejos.org/) framework fo
 
 #### Full: 
 
-<div align="center">
 <img src="https://i.imgur.com/nD5jTJH.png"/>
-</div>
 
 ##
+
 <div align="center">
-<table style="width:100%">
+<table align="center" style="margin-left:10px;">
   <tr>
     <th>Claw</th>
     <th>Tower</th> 
