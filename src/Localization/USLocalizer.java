@@ -4,14 +4,15 @@ import Navigation.Navigation;
 import Odometer.Odometer;
 import SensorData.USPoller;
 import lejos.robotics.SampleProvider;
-	
-	/**
-	 * This class contains all the necessary methods to perform ultrasonic localization by recording the angles
-	 * of the odometer at which the lower ultrasonic registered a reading smaller than DISTANCE_FROM_WALL.
-	 *  It calibrates the theta value of the odometer.
-	 * 
-	 * @author Alexander Bratyshkin
-	 */
+
+/**
+ * This class contains all the necessary methods to perform ultrasonic
+ * localization by recording the angles of the odometer at which the lower
+ * ultrasonic registered a reading smaller than DISTANCE_FROM_WALL. It
+ * calibrates the theta value of the odometer.
+ * 
+ * @author Alexander Bratyshkin
+ */
 public class USLocalizer {
 	public enum LocalizationType {
 		FALLING_EDGE, RISING_EDGE
@@ -30,18 +31,19 @@ public class USLocalizer {
 	private static final int HALF = 2;
 	private static final int SLEEP_TIME = 200;
 
-	
 	private Odometer odo;
 	private static SampleProvider usSensor;
 	private static float[] usData;
 	private LocalizationType locType;
-	private USPoller us; 
+	private USPoller us;
 
-	
 	/**
-	 * @param odo system odometer
-	 * @param us Lower ultrasonic sensor
-	 * @param locType type of localization to be performed
+	 * @param odo
+	 *            system odometer
+	 * @param us
+	 *            Lower ultrasonic sensor
+	 * @param locType
+	 *            type of localization to be performed
 	 */
 	public USLocalizer(Odometer odo, USPoller us, LocalizationType locType) {
 		this.odo = odo;
@@ -49,13 +51,13 @@ public class USLocalizer {
 		this.locType = locType;
 	}
 
-	
-	
 	/**
-	 * This method localizes the robot with respect to the right angle of a corner of the board. In order to do this,
-	 * the robot rotates on its axis constantly recording the distance read by the 
+	 * This method localizes the robot with respect to the right angle of a
+	 * corner of the board. In order to do this, the robot rotates on its axis
+	 * constantly recording the distance read by the
 	 * 
-	 * @param navigator System navigator
+	 * @param navigator
+	 *            System navigator
 	 */
 	public void doLocalization(Navigation navigator) {
 		double angleA, angleB, deltaTheta;
@@ -125,7 +127,6 @@ public class USLocalizer {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 			}
 
-
 			// ROTATE UNTIL THE ROBOT SEES NO WALL
 			while (getFilteredData() < DISTANCE_FROM_WALL) {
 				navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
@@ -155,7 +156,7 @@ public class USLocalizer {
 	/**
 	 * Clipper for getting the data of the ultrasonic sensor
 	 * 
-	 * @return filtered distance 
+	 * @return filtered distance
 	 */
 	public static float getFilteredData() {
 		usSensor.fetchSample(usData, ZERO);

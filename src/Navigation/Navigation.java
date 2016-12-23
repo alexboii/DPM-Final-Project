@@ -22,10 +22,10 @@ public class Navigation {
 	final static double DEG_ERR = 3.0, CM_ERR = 2, CM_ERR_2 = 1;
 
 	// Board constants
-	public static final int MAX_X_BOARD = -3;
-	public static final int MIN_X_BOARD = 1;
-	public static final int MAX_Y_BOARD = 3;
-	public static final int MIN_Y_BOARD = 1;
+	private static final int MAX_X_BOARD = -3;
+	private static final int MIN_X_BOARD = 1;
+	private static final int MAX_Y_BOARD = 3;
+	private static final int MIN_Y_BOARD = 1;
 
 	// ScanObject constants
 	private static final int SCAN_TIME = 10;
@@ -40,11 +40,15 @@ public class Navigation {
 	private static final double SCAN_ANGLE = 20;
 	private static final int DETECTION_ANGLE = 0;
 
-	public static final int SLOW_ROTATE_SPEED = 50;
-	public static final int FORWARD_SPEED = 200;
-	public static final int WAYPOINT_BLOCKED_BW = 3;
+	private static final int SLOW_ROTATE_SPEED = 50;
+	private static final int FORWARD_SPEED = 200;
+	private static final int WAYPOINT_BLOCKED_BW = 3;
 
-	public static final int ROTATE_SPEED = 80;
+	private static final int ROTATE_SPEED = 80;
+
+	// Zone avoidance constants
+	private static final int SAFE_DISTANCE = 15;
+	private static final int ERROR_ZONE = 5;
 
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
@@ -202,8 +206,9 @@ public class Navigation {
 			}
 
 			// Detect if it's close zone to avoid
-			if (((odometer.getX() + 10) > StartRobot.LFZx || (odometer.getX() + 10) > StartRobot.UFZx)
-					&& ((odometer.getY() + 10) > StartRobot.LFZy || (odometer.getY() + 10) > StartRobot.UFZy)) {
+			if (((odometer.getX() + ERROR_ZONE) > StartRobot.LFZx || (odometer.getX() + ERROR_ZONE) > StartRobot.UFZx)
+					&& ((odometer.getY() + ERROR_ZONE) > StartRobot.LFZy
+							|| (odometer.getY() + ERROR_ZONE) > StartRobot.UFZy)) {
 				nearForbiddenZone = true;
 				break;
 			}
@@ -215,11 +220,11 @@ public class Navigation {
 		// Zone avoidance
 		if (nearForbiddenZone) {
 
-			// Go backwards to guarantee a minimum distance from the forbiden
+			// Go backwards to guarantee a minimum distance from the forbidden
 			// zone
-			this.goForward(-10);
+			this.goForward(-ERROR_ZONE);
 
-			// Load an array with all the coordinates of the forbiden zone
+			// Load an array with all the coordinates of the forbidden zone
 			double[][] points = new double[4][2];
 			points[0][0] = StartRobot.LFZx;
 			points[0][1] = StartRobot.LFZy;
@@ -230,13 +235,13 @@ public class Navigation {
 			points[3][0] = StartRobot.UFZx;
 			points[3][1] = StartRobot.UFZy;
 
-			// Calculates coordinates of lower corner of forbiden zone
+			// Calculates coordinates of lower corner of forbidden zone
 			double distanceLowerCorner1 = distance(x, y, points[0][0], points[0][1]); // Initialize
 																						// //
 																						// shortestDistance
 			double distanceLowerCorner2 = distance(x, y, points[1][0], points[1][1]);
 
-			// Calculates coordinates of Upper corner of forbiden zone
+			// Calculates coordinates of Upper corner of forbidden zone
 			double distanceUpperCorner1 = distance(x, y, points[2][0], points[2][1]);
 			double distanceUpperCorner2 = distance(x, y, points[3][0], points[3][1]);
 
@@ -255,10 +260,10 @@ public class Navigation {
 				// If forbidden zone is closer to X axis
 				if (Math.abs(odometer.getX() - points[0][0]) < Math.abs(odometer.getY() - points[0][1])) {
 					// Move along the Y axis
-					travelTo(points[0][0] - 15, odometer.getY(), true);
+					travelTo(points[0][0] - SAFE_DISTANCE, odometer.getY(), true);
 
 					// Move along X axis
-					travelTo(odometer.getX(), points[0][1] + 15, true);
+					travelTo(odometer.getX(), points[0][1] + SAFE_DISTANCE, true);
 
 					// Go to final position
 					travelTo(x, y, true);
@@ -267,10 +272,10 @@ public class Navigation {
 					// If forbidden zone is closer to Y axis
 
 					// Move along the X axis
-					travelTo(odometer.getX(), points[0][1] + 15, true);
+					travelTo(odometer.getX(), points[0][1] + SAFE_DISTANCE, true);
 
 					// Move along the Y axis
-					travelTo(points[0][0] - 15, odometer.getY(), true);
+					travelTo(points[0][0] - SAFE_DISTANCE, odometer.getY(), true);
 
 					// Go to final position
 					travelTo(x, y, true);
@@ -285,20 +290,20 @@ public class Navigation {
 				if (Math.abs(odometer.getX() - points[1][0]) < Math.abs(odometer.getY() - points[1][1])) {
 
 					// Move along the Y axis
-					travelTo(points[1][0] - 15, odometer.getY(), true);
+					travelTo(points[1][0] - SAFE_DISTANCE, odometer.getY(), true);
 
 					// Move along the X axis
-					travelTo(odometer.getX(), points[1][1] + 15, true);
+					travelTo(odometer.getX(), points[1][1] + SAFE_DISTANCE, true);
 
 					// Go to final position
 					travelTo(x, y, true);
 				} else {
 
 					// Move along the X axis
-					travelTo(odometer.getX(), points[1][1] + 15, true);
+					travelTo(odometer.getX(), points[1][1] + SAFE_DISTANCE, true);
 
 					// Move along the Y axis
-					travelTo(points[1][0] - 15, odometer.getY(), true);
+					travelTo(points[1][0] - SAFE_DISTANCE, odometer.getY(), true);
 
 					// Go to final position
 					travelTo(x, y, true);
@@ -309,12 +314,12 @@ public class Navigation {
 			if (distances.get(0) == distanceUpperCorner1) {
 
 				if (Math.abs(odometer.getX() - points[2][0]) < Math.abs(odometer.getY() - points[2][1])) {
-					travelTo(points[2][0] - 15, odometer.getY(), true);
-					travelTo(odometer.getX(), points[2][1] + 15, true);
+					travelTo(points[2][0] - SAFE_DISTANCE, odometer.getY(), true);
+					travelTo(odometer.getX(), points[2][1] + SAFE_DISTANCE, true);
 					travelTo(x, y, true);
 				} else {
-					travelTo(odometer.getX(), points[2][1] + 15, true);
-					travelTo(points[2][0] - 15, odometer.getY(), true);
+					travelTo(odometer.getX(), points[2][1] + SAFE_DISTANCE, true);
+					travelTo(points[2][0] - SAFE_DISTANCE, odometer.getY(), true);
 					travelTo(x, y, true);
 				}
 			}
@@ -323,12 +328,12 @@ public class Navigation {
 				// System.out.println("I am here 4");
 
 				if (Math.abs(odometer.getX() - points[3][0]) < Math.abs(odometer.getY() - points[3][1])) {
-					travelTo(points[3][0] - 15, odometer.getY(), true);
-					travelTo(odometer.getX(), points[3][1] + 15, true);
+					travelTo(points[3][0] - SAFE_DISTANCE, odometer.getY(), true);
+					travelTo(odometer.getX(), points[3][1] + SAFE_DISTANCE, true);
 					travelTo(x, y, true);
 				} else {
-					travelTo(odometer.getX(), points[3][1] + 15, true);
-					travelTo(points[3][0] - 15, odometer.getY(), true);
+					travelTo(odometer.getX(), points[3][1] + SAFE_DISTANCE, true);
+					travelTo(points[3][0] - SAFE_DISTANCE, odometer.getY(), true);
 					travelTo(x, y, true);
 				}
 			}
@@ -355,7 +360,7 @@ public class Navigation {
 		double angle;
 
 		// Rotate on its axis
-		this.setSpeeds(-150, 150);
+		this.setSpeeds(-SLOW, SLOW);
 
 		while (true) {
 			// Keep rotating until

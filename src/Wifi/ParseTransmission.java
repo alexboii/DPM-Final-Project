@@ -6,20 +6,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 
-
 /**
  * 
  * Static parsers for parsing data off the communication channel
  * 
  * The order of data is defined in the Server's Transmission class
  * 
- * @author Sean Lawlor
- * 
- *        Modified by F.P. Ferrie February 28, 2014 Changed parameters for W2014
- *        competition
- * 
- *        Modified by Francois OD November 11, 2015 Ported to EV3 and wifi (from
- *        NXT and bluetooth) Changed parameters for F2015 competition
+ * @author Sean Lawlor, Modified by P. Ferrie 
  *
  */
 public class ParseTransmission {
@@ -28,7 +21,9 @@ public class ParseTransmission {
 	// input stream
 	/**
 	 * Parses the data received from the Client
-	 * @param dis Data from Client
+	 * 
+	 * @param dis
+	 *            Data from Client
 	 * @return Data from Client
 	 */
 	@SuppressWarnings("unchecked")
@@ -45,7 +40,9 @@ public class ParseTransmission {
 
 	/**
 	 * Ignores DataInputStream
-	 * @param dis Data from Client
+	 * 
+	 * @param dis
+	 *            Data from Client
 	 * @throws IOException
 	 */
 	public static void ignore(DataInputStream dis) throws IOException {

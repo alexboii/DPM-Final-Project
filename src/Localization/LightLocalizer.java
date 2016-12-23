@@ -4,13 +4,14 @@ import Navigation.Navigation;
 import Odometer.Odometer;
 import lejos.robotics.SampleProvider;
 
+/**
+ * Create local odometer, sample provider and colorData for the reading of
+ * the ultrasonic sensor. Set line detected boolean to false
+ * 
+ * @author Alexander Bratyshkin
+ */
 public class LightLocalizer {
-	/**
-	 * Create local odometer, sample provider and colorData for the reading of
-	 * the ultrasonic sensor. Set line detected boolean to false
-	 * 
-	 * @author Sebastian Andrade
-	 */
+
 	private Odometer odo;
 	private SampleProvider colorSensor;
 	private float[] colorData;
@@ -34,9 +35,12 @@ public class LightLocalizer {
 	private static final int ZERO_Y = 0;
 
 	/**
-	 * @param odo System odometer
-	 * @param colorSensor SampleProvider linked to a color sensor
-	 * @param colorData		an array of float in which the sample provider uses as buffer
+	 * @param odo
+	 *            System odometer
+	 * @param colorSensor
+	 *            SampleProvider linked to a color sensor
+	 * @param colorData
+	 *            an array of float in which the sample provider uses as buffer
 	 */
 	public LightLocalizer(Odometer odo, SampleProvider colorSensor, float[] colorData) {
 		this.odo = odo;
@@ -44,12 +48,12 @@ public class LightLocalizer {
 		this.colorData = colorData;
 	}
 
-	
-	
 	/**
-	 * Calibrate the X and Y values of the odometer based on the board grid lines.
+	 * Calibrate the X and Y values of the odometer based on the board grid
+	 * lines.
 	 * 
-	 * @param navigator that controls the robot movement
+	 * @param navigator
+	 *            that controls the robot movement
 	 */
 	public void doLocalization(Navigation navigator) {
 
@@ -135,9 +139,11 @@ public class LightLocalizer {
 	}
 
 	/**
-	 * Checks whether the robot crossed a line based on the information form the light sensor.
+	 * Checks whether the robot crossed a line based on the information form the
+	 * light sensor.
 	 * 
-	 * @param old_value last value read from the light sensor
+	 * @param old_value
+	 *            last value read from the light sensor
 	 * @return true if the robot crossed a line
 	 */
 	private boolean lineCrossed(double old_value) {

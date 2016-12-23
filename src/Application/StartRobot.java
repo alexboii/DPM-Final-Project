@@ -219,7 +219,6 @@ public class StartRobot {
 				setUDZx(URZx);
 			}
 
-
 			long currentTime = System.currentTimeMillis();
 
 			// // DO US LOCALIZATION
@@ -253,7 +252,6 @@ public class StartRobot {
 		}
 
 	}
-
 
 	/**
 	 * @return y coordinate of upper right corner of Green Zone
@@ -457,7 +455,8 @@ public class StartRobot {
 	}
 
 	/**
-	 * Set  the y coordinate of the lower forbidden zone
+	 * Set the y coordinate of the lower forbidden zone
+	 * 
 	 * @param lFZy
 	 *            the lFZy to set
 	 */
@@ -475,6 +474,7 @@ public class StartRobot {
 
 	/**
 	 * Set the x coordinate of the lower forbidden zone
+	 * 
 	 * @param lFZx
 	 *            the lFZx to set
 	 */
@@ -491,8 +491,9 @@ public class StartRobot {
 
 	/**
 	 * Set the y coordinate of the upper forbidden zone
+	 * 
 	 * @param uFZy
-	 *            
+	 * 
 	 */
 	public static void setUFZy(double uFZy) {
 		UFZy = uFZy;
@@ -507,6 +508,7 @@ public class StartRobot {
 
 	/**
 	 * Set the x coordinate of the upper forbidden zone
+	 * 
 	 * @param uFZx
 	 *            the uFZx to set
 	 */
@@ -515,8 +517,8 @@ public class StartRobot {
 	}
 
 	/**
-	 * @return the Y coordinate of the lower drop-off zone 
-
+	 * @return the Y coordinate of the lower drop-off zone
+	 * 
 	 */
 	public static double getLDZy() {
 		return LDZy;
@@ -524,6 +526,7 @@ public class StartRobot {
 
 	/**
 	 * Set the Y coordinate of the lower drop-off zone
+	 * 
 	 * @param lDZy
 	 *            the lDZy to set
 	 */
@@ -532,14 +535,15 @@ public class StartRobot {
 	}
 
 	/**
-	 * @return the X coordinate of the lower drop-off zone 
+	 * @return the X coordinate of the lower drop-off zone
 	 */
 	public static double getLDZx() {
 		return LDZx;
 	}
 
 	/**
-	 *  Set the X coordinate of the lower drop-off zone 
+	 * Set the X coordinate of the lower drop-off zone
+	 * 
 	 * @param LDZx
 	 *            the LDZx to set
 	 */
@@ -548,14 +552,15 @@ public class StartRobot {
 	}
 
 	/**
-	 * @return the Y coordinate of the upper drop-off zone 
+	 * @return the Y coordinate of the upper drop-off zone
 	 */
 	public static double getUDZy() {
 		return UDZy;
 	}
 
 	/**
-	 * Set the Y coordinate of the upper drop-off zone 
+	 * Set the Y coordinate of the upper drop-off zone
+	 * 
 	 * @param uDZy
 	 *            the uDZy to set
 	 */
@@ -564,14 +569,15 @@ public class StartRobot {
 	}
 
 	/**
-	 * @return the X coordinate of the upper drop-off zone 
+	 * @return the X coordinate of the upper drop-off zone
 	 */
 	public static double getUDZx() {
 		return UDZx;
 	}
 
 	/**
-	 * Set the X coordinate of the upper drop-off zone 
+	 * Set the X coordinate of the upper drop-off zone
+	 * 
 	 * @param uDZx
 	 *            the uDZx to set
 	 */

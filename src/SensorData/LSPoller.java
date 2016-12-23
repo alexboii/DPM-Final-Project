@@ -1,9 +1,11 @@
 package SensorData;
+
 import lejos.robotics.SampleProvider;
 
 /**
  * This class polls data from the light sensor.
- * @author Alex
+ * 
+ * @author Alexander Bratyshkin
  *
  */
 public class LSPoller extends Thread {
@@ -12,22 +14,25 @@ public class LSPoller extends Thread {
 	private SampleProvider colorSensor;
 	private float[] Val;
 	private double intensity;
-	
+
 	/**
 	 * Constructor
-	 * @param colorSensor Colour Sensor
-	 * @param Val RBG values
+	 * 
+	 * @param colorSensor
+	 *            Colour Sensor
+	 * @param Val
+	 *            RBG values
 	 */
 	public LSPoller(SampleProvider colorSensor, float[] Val) {
 		this.colorSensor = colorSensor;
 		this.Val = Val;
 		this.lock = new Object();
-		
+
 	}
 
 	/**
-	  * {@inheritDoc}
-	  */
+	 * {@inheritDoc}
+	 */
 	public void run() {
 
 		while (true) {
@@ -38,9 +43,6 @@ public class LSPoller extends Thread {
 		}
 	}
 
-	
-	
-	
 	public void waitMs(long time) {
 		try {
 			Thread.sleep(time);
@@ -49,12 +51,12 @@ public class LSPoller extends Thread {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	public int getLightLevel(){
-		return (int) ( 100* this.Val[0]);
-	}
-	
 
-	
+	/**
+	 * @return the intensity of the light caught my the ultrasonic sensor
+	 */
+	public int getLightLevel() {
+		return (int) (100 * this.Val[0]);
+	}
+
 }

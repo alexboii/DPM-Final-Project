@@ -9,7 +9,7 @@ import lejos.robotics.SampleProvider;
  * This class polls data from the ultrasonic sensors independently of each
  * other.
  * 
- * @author Alex
+ * @author Alexander Bratyshkin
  *
  */
 public class USPoller extends Thread {
@@ -19,7 +19,7 @@ public class USPoller extends Thread {
 	private SampleProvider us;
 	private float[] usData;
 	private Object lock;
-	private static final int MEDIAN_FILTER_WINDOW = 5;
+	private static final int WINDOW = 5;
 	private static LinkedList<Float> medianFilter = new LinkedList<Float>();
 
 	/**
@@ -35,7 +35,7 @@ public class USPoller extends Thread {
 		this.usData = usData;
 		this.lock = new Object();
 
-		for (int i = 0; i < MEDIAN_FILTER_WINDOW; i++) {
+		for (int i = 0; i < WINDOW; i++) {
 			medianFilter.add(0f);
 		}
 
@@ -70,12 +70,15 @@ public class USPoller extends Thread {
 
 	}
 
+	/**
+	 * Get a filtered distance by applying a median filter to ultrasonic sensor
+	 * values
+	 * 
+	 * @return filtered distance within filter window
+	 */
 	public float getFilteredDistance() {
 
-		// this.us.fetchSample(usData, 0);
-		// float distance = usData[0] * 100;
 		float returnDistance = 0;
-
 
 		if (distance > 80) {
 			distance = 255;
@@ -95,6 +98,13 @@ public class USPoller extends Thread {
 
 	}
 
+	/**
+	 * Get median of a LinkedList
+	 * 
+	 * @param f
+	 *            median queue values
+	 * @return median
+	 */
 	private float getMedian(LinkedList<Float> f) {
 		Float[] array = f.toArray(new Float[f.size()]);
 		Arrays.sort(array);
