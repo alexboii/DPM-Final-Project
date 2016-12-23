@@ -27,9 +27,9 @@ EV3 Mindstorm robot built under the [Lejos] (http://www.lejos.org/) framework fo
 ##
 
 
-Claw &nbsp;&nbsp;  &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;  &nbsp; &nbsp; &nbsp; |  Tower&nbsp;&nbsp;  &nbsp; &nbsp; &nbsp;  &nbsp;&nbsp;  &nbsp; &nbsp; &nbsp; | Main body: &nbsp;&nbsp;  &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;  &nbsp; &nbsp; &nbsp; 
-:-------------------------:|:-------------------------:|:-------------------------:
-![](https://s29.postimg.org/e5lk5athj/claw.png)|  ![](https://i.imgur.com/byNPADz.png) | ![](https://i.imgur.com/3tWVitb.png)
+Claw                       |  Tower                    | Main body               |
+:-------------------------:|:-------------------------:|:-------------------------:|
+![](https://s29.postimg.org/e5lk5athj/claw.png)|  ![](https://i.imgur.com/byNPADz.png) | ![](https://i.imgur.com/3tWVitb.png)| 
 
 
 ## Video demonstration: 
