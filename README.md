@@ -25,7 +25,7 @@ EV3 Mindstorm robot built under the [Lejos] (http://www.lejos.org/) framework fo
 </div>
 
 ##
-<center>
+<div align="center">
 <table style="width:100%">
   <tr>
     <th>Claw</th>
@@ -38,7 +38,7 @@ EV3 Mindstorm robot built under the [Lejos] (http://www.lejos.org/) framework fo
     <td><img src="https://i.imgur.com/3tWVitb.png"/></td>
   </tr>
 </table>
-</center> 
+</div> 
 
 ## Video demonstration: 
 
